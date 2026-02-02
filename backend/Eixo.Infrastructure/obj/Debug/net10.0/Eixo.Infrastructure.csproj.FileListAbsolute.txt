@@ -1,0 +1,17 @@
+C:\Reps\Eixo\backend\Eixo.Infrastructure\bin\Debug\net10.0\Eixo.Infrastructure.deps.json
+C:\Reps\Eixo\backend\Eixo.Infrastructure\bin\Debug\net10.0\Eixo.Infrastructure.runtimeconfig.json
+C:\Reps\Eixo\backend\Eixo.Infrastructure\bin\Debug\net10.0\Eixo.Infrastructure.dll
+C:\Reps\Eixo\backend\Eixo.Infrastructure\bin\Debug\net10.0\Eixo.Infrastructure.pdb
+C:\Reps\Eixo\backend\Eixo.Infrastructure\bin\Debug\net10.0\Eixo.Core.dll
+C:\Reps\Eixo\backend\Eixo.Infrastructure\bin\Debug\net10.0\Eixo.Core.pdb
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.csproj.AssemblyReference.cache
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.AssemblyInfoInputs.cache
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.AssemblyInfo.cs
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Inf.57749087.Up2Date
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.dll
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\refint\Eixo.Infrastructure.dll
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.pdb
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.genruntimeconfig.cache
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\ref\Eixo.Infrastructure.dll

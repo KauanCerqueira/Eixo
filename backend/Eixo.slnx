@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Eixo.Api/Eixo.Api.csproj" />
+  <Project Path="Eixo.Core/Eixo.Core.csproj" />
+  <Project Path="Eixo.Infrastructure/Eixo.Infrastructure.csproj" />
+</Solution>

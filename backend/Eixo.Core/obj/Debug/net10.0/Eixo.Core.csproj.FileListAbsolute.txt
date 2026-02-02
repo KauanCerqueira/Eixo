@@ -1,0 +1,11 @@
+C:\Reps\Eixo\backend\Eixo.Core\bin\Debug\net10.0\Eixo.Core.deps.json
+C:\Reps\Eixo\backend\Eixo.Core\bin\Debug\net10.0\Eixo.Core.dll
+C:\Reps\Eixo\backend\Eixo.Core\bin\Debug\net10.0\Eixo.Core.pdb
+C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\Eixo.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\Eixo.Core.AssemblyInfoInputs.cache
+C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\Eixo.Core.AssemblyInfo.cs
+C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\Eixo.Core.csproj.CoreCompileInputs.cache
+C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\Eixo.Core.dll
+C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\refint\Eixo.Core.dll
+C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\Eixo.Core.pdb
+C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\ref\Eixo.Core.dll

@@ -1,0 +1,31 @@
+  Determinando os projetos a serem restaurados...
+C:\Reps\Eixo\backend\Eixo.Infrastructure\Eixo.Infrastructure.csproj : warning NU1903: O pacote 'Microsoft.Extensions.Caching.Memory' 8.0.0 tem uma alta vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-qj66-m88j-hmgj [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio.
+  Todos os projetos est├úo atualizados para restaura├º├úo.
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio.
+  Eixo.Core -> C:\Reps\Eixo\backend\Eixo.Core\bin\Debug\net10.0\Eixo.Core.dll
+  Eixo.Infrastructure -> C:\Reps\Eixo\backend\Eixo.Infrastructure\bin\Debug\net10.0\Eixo.Infrastructure.dll
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(19,61): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(23,14): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(24,16): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(27,52): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(30,35): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(32,51): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(34,28): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+
+FALHA da compila├º├úo.
+
+C:\Reps\Eixo\backend\Eixo.Infrastructure\Eixo.Infrastructure.csproj : warning NU1903: O pacote 'Microsoft.Extensions.Caching.Memory' 8.0.0 tem uma alta vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-qj66-m88j-hmgj [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio.
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio.
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(19,61): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(23,14): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(24,16): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(27,52): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(30,35): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(32,51): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(34,28): error CS0234: O nome de tipo ou namespace "Models" n├úo existe no namespace "Microsoft.OpenApi" (voc├¬ est├í sem uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+    3 Aviso(s)
+    7 Erro(s)
+
+Tempo Decorrido 00:00:02.92
