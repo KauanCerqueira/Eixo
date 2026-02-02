@@ -9,3 +9,4 @@ C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\Eixo.Core.dll
 C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\refint\Eixo.Core.dll
 C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\Eixo.Core.pdb
 C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\ref\Eixo.Core.dll
+C:\Reps\Eixo\backend\Eixo.Core\obj\Debug\net10.0\Eixo.Core.sourcelink.json

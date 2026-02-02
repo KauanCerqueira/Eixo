@@ -1,0 +1,21 @@
+  Determinando os projetos a serem restaurados...
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio. [C:\Reps\Eixo\backend\Eixo.slnx]
+C:\Reps\Eixo\backend\Eixo.Infrastructure\Eixo.Infrastructure.csproj : warning NU1903: O pacote 'Microsoft.Extensions.Caching.Memory' 8.0.0 tem uma alta vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-qj66-m88j-hmgj [C:\Reps\Eixo\backend\Eixo.slnx]
+  Todos os projetos est├úo atualizados para restaura├º├úo.
+C:\Reps\Eixo\backend\Eixo.Infrastructure\Eixo.Infrastructure.csproj : warning NU1903: O pacote 'Microsoft.Extensions.Caching.Memory' 8.0.0 tem uma alta vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-qj66-m88j-hmgj
+  Eixo.Core -> C:\Reps\Eixo\backend\Eixo.Core\bin\Debug\net10.0\Eixo.Core.dll
+  Eixo.Infrastructure -> C:\Reps\Eixo\backend\Eixo.Infrastructure\bin\Debug\net10.0\Eixo.Infrastructure.dll
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio.
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(16,5): error CS7069: Refer├¬ncia ao tipo "OpenApiInfo" declara que ele ├® definido em "Microsoft.OpenApi", mas n├úo pode ser encontrado [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+
+FALHA da compila├º├úo.
+
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio. [C:\Reps\Eixo\backend\Eixo.slnx]
+C:\Reps\Eixo\backend\Eixo.Infrastructure\Eixo.Infrastructure.csproj : warning NU1903: O pacote 'Microsoft.Extensions.Caching.Memory' 8.0.0 tem uma alta vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-qj66-m88j-hmgj [C:\Reps\Eixo\backend\Eixo.slnx]
+C:\Reps\Eixo\backend\Eixo.Infrastructure\Eixo.Infrastructure.csproj : warning NU1903: O pacote 'Microsoft.Extensions.Caching.Memory' 8.0.0 tem uma alta vulnerabilidade de gravidade conhecida, https://github.com/advisories/GHSA-qj66-m88j-hmgj
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio.
+C:\Reps\Eixo\backend\Eixo.Api\Program.cs(16,5): error CS7069: Refer├¬ncia ao tipo "OpenApiInfo" declara que ele ├® definido em "Microsoft.OpenApi", mas n├úo pode ser encontrado [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+    4 Aviso(s)
+    1 Erro(s)
+
+Tempo Decorrido 00:00:01.66

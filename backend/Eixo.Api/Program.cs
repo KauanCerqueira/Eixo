@@ -13,7 +13,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "Eixo API", Version = "v1" });
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo 
+    { 
+        Title = "Eixo API", 
+        Version = "v1",
+        Description = "API para gerenciamento familiar gamificado"
+    });
 });
 
 // Add JWT Authentication

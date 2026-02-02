@@ -15,3 +15,4 @@ C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\refint\Eixo.Infrastru
 C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.pdb
 C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.genruntimeconfig.cache
 C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\ref\Eixo.Infrastructure.dll
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.sourcelink.json
