@@ -98,26 +98,32 @@ public class EixoDbContext : DbContext
             .WithMany(we => we.Sets)
             .HasForeignKey(es => es.ExerciseId);
         
+        // Static date for seed data to avoid PendingModelChangesWarning
+        var seedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        // Hash for "1234" (BCrypt cost 11)
+        var defaultPinHash = "$2a$11$JIL1A7EK2PhOUNehEOVPl.YqTdQY4NOXrsTPAaFOdnFMZNdKuPFBa";
+
         // Seed initial users
         modelBuilder.Entity<User>().HasData(
-            new User { Id = 1, Name = "Ana", Initials = "AN", Color = "#3B82F6", Points = 145, Xp = 500, Level = 1, Streak = 7 },
-            new User { Id = 2, Name = "João", Initials = "JO", Color = "#10B981", Points = 98, Xp = 300, Level = 1, Streak = 2 },
-            new User { Id = 3, Name = "Maria", Initials = "MA", Color = "#F59E0B", Points = 132, Xp = 450, Level = 1, Streak = 4 }
+            new User { Id = 1, Name = "Ana", Initials = "AN", Color = "#3B82F6", Pin = defaultPinHash, Points = 145, Xp = 500, Level = 1, Streak = 7, CreatedAt = seedDate },
+            new User { Id = 2, Name = "João", Initials = "JO", Color = "#10B981", Pin = defaultPinHash, Points = 98, Xp = 300, Level = 1, Streak = 2, CreatedAt = seedDate },
+            new User { Id = 3, Name = "Maria", Initials = "MA", Color = "#F59E0B", Pin = defaultPinHash, Points = 132, Xp = 450, Level = 1, Streak = 4, CreatedAt = seedDate }
         );
         
         // Seed rewards
         modelBuilder.Entity<Reward>().HasData(
-            new Reward { Id = 1, Title = "Folga da Louça", Cost = 100, Icon = "🍽️", Description = "Vale uma vez ficar sem lavar louça." },
-            new Reward { Id = 2, Title = "Escolher Jantar", Cost = 250, Icon = "🍕", Description = "Direito de escolher o cardápio do fds." },
-            new Reward { Id = 3, Title = "Vale Cinema", Cost = 500, Icon = "🎬", Description = "Entrada paga pelo fundo da casa." },
-            new Reward { Id = 4, Title = "Manhã de Domingo", Cost = 800, Icon = "☕", Description = "Café na cama e sem tarefas até 12h." }
+            new Reward { Id = 1, Title = "Folga da Louça", Cost = 100, Icon = "🍽️", Description = "Vale uma vez ficar sem lavar louça.", CreatedAt = seedDate },
+            new Reward { Id = 2, Title = "Escolher Jantar", Cost = 250, Icon = "🍕", Description = "Direito de escolher o cardápio do fds.", CreatedAt = seedDate },
+            new Reward { Id = 3, Title = "Vale Cinema", Cost = 500, Icon = "🎬", Description = "Entrada paga pelo fundo da casa.", CreatedAt = seedDate },
+            new Reward { Id = 4, Title = "Manhã de Domingo", Cost = 800, Icon = "☕", Description = "Café na cama e sem tarefas até 12h.", CreatedAt = seedDate }
         );
         
         // Seed subscriptions
         modelBuilder.Entity<Subscription>().HasData(
-            new Subscription { Id = 1, Title = "Netflix", Amount = 55.90m, DueDateDay = 15, Category = "streaming" },
-            new Subscription { Id = 2, Title = "Internet Fibra", Amount = 129.90m, DueDateDay = 8, Category = "utilidade" },
-            new Subscription { Id = 3, Title = "Spotify Familia", Amount = 34.90m, DueDateDay = 1, Category = "streaming" }
+            new Subscription { Id = 1, Title = "Netflix", Amount = 55.90m, DueDateDay = 15, Category = "streaming", CreatedAt = seedDate },
+            new Subscription { Id = 2, Title = "Internet Fibra", Amount = 129.90m, DueDateDay = 8, Category = "utilidade", CreatedAt = seedDate },
+            new Subscription { Id = 3, Title = "Spotify Familia", Amount = 34.90m, DueDateDay = 1, Category = "streaming", CreatedAt = seedDate }
         );
     }
 }

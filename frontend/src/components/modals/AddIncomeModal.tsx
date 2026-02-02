@@ -10,7 +10,10 @@ interface AddIncomeModalProps {
 }
 
 export const AddIncomeModal = ({ visible, onClose }: AddIncomeModalProps) => {
-    const { addIncome, currentUser } = useApp();
+    const { currentUser, addIncome } = useApp();
+
+    if (!currentUser) return null;
+
     const [title, setTitle] = useState('');
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState<string>('salario');
@@ -23,7 +26,7 @@ export const AddIncomeModal = ({ visible, onClose }: AddIncomeModalProps) => {
             amount: parseFloat(amount),
             category: category as any,
             date: new Date().toLocaleDateString('pt-BR'),
-            receivedBy: currentUser
+            receivedByUserId: currentUser.id
         });
 
         setTitle(''); setAmount(''); setCategory('salario');

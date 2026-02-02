@@ -1,6 +1,7 @@
+import { ENV } from '../config/env';
+
 // API Configuration and Base Service
-const API_BASE_URL = 'http://10.0.2.2:5000/api'; // Android emulator
-// const API_BASE_URL = 'http://localhost:5000/api'; // iOS/Web
+const API_BASE_URL = ENV.API_BASE;
 
 class ApiService {
     private baseUrl: string;

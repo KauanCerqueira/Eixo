@@ -1,0 +1,97 @@
+src/components/dashboard/FamilyBoard.tsx(16,23): error TS18047: 'currentUser' is possibly 'null'.
+src/components/dashboard/FamilyBoard.tsx(55,45): error TS2322: Type 'User | null' is not assignable to type 'AvatarUser'.
+  Type 'null' is not assignable to type 'AvatarUser'.
+src/components/dashboard/FamilyBoard.tsx(56,103): error TS18047: 'author' is possibly 'null'.
+src/components/dashboard/FamilyBoard.tsx(59,54): error TS18047: 'currentUser' is possibly 'null'.
+src/components/modals/AddCycleEntryModal.tsx(31,21): error TS2345: Argument of type '{ date: string; flowIntensity: "light" | "medium" | "heavy"; symptoms: string[]; mood: "happy" | "sad" | "anxious" | "irritable" | "neutral" | undefined; notes: string; }' is not assignable to parameter of type 'CreateCycleDayDto'.
+  Property 'userId' is missing in type '{ date: string; flowIntensity: "light" | "medium" | "heavy"; symptoms: string[]; mood: "happy" | "sad" | "anxious" | "irritable" | "neutral" | undefined; notes: string; }' but required in type 'CreateCycleDayDto'.
+src/components/modals/AddDebtModal.tsx(25,13): error TS2353: Object literal may only specify known properties, and 'paidInstallments' does not exist in type 'CreateDebtDto'.
+src/components/modals/AddEventModal.tsx(26,13): error TS2353: Object literal may only specify known properties, and 'type' does not exist in type 'CreateEventDto'.
+src/components/modals/AddExpenseModal.tsx(19,58): error TS2345: Argument of type 'number[]' is not assignable to parameter of type 'string[] | (() => string[])'.
+  Type 'number[]' is not assignable to type 'string[]'.
+    Type 'number' is not assignable to type 'string'.
+src/components/modals/AddExpenseModal.tsx(38,13): error TS2353: Object literal may only specify known properties, and 'paidBy' does not exist in type 'CreateExpenseDto'.
+src/components/modals/AddExpenseModal.tsx(39,61): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/components/modals/AddExpenseModal.tsx(45,22): error TS2345: Argument of type 'number[]' is not assignable to parameter of type 'SetStateAction<string[]>'.
+  Type 'number[]' is not assignable to type 'string[]'.
+    Type 'number' is not assignable to type 'string'.
+src/components/modals/AddExpenseModal.tsx(80,108): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/components/modals/AddExpenseModal.tsx(80,166): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/components/modals/AddGoalModal.tsx(27,13): error TS2353: Object literal may only specify known properties, and 'currentAmount' does not exist in type 'CreateGoalDto'.
+src/components/modals/AddHabitModal.tsx(31,68): error TS2353: Object literal may only specify known properties, and 'current' does not exist in type 'CreateHabitDto'.
+src/components/modals/AddHobbyModal.tsx(32,13): error TS2353: Object literal may only specify known properties, and 'progress' does not exist in type 'CreateHobbyDto'.
+src/components/modals/AddIncomeModal.tsx(26,13): error TS2353: Object literal may only specify known properties, and 'receivedBy' does not exist in type 'CreateIncomeDto'.
+src/components/modals/AddMealModal.tsx(32,13): error TS2353: Object literal may only specify known properties, and 'name' does not exist in type 'CreateMealDto'.
+src/components/modals/AddPersonalTransactionModal.tsx(34,32): error TS2345: Argument of type '{ title: string; amount: number; type: "income" | "expense"; category: string; description: string; date: string; }' is not assignable to parameter of type 'CreatePersonalTransactionDto'.
+  Property 'userId' is missing in type '{ title: string; amount: number; type: "income" | "expense"; category: string; description: string; date: string; }' but required in type 'CreatePersonalTransactionDto'.
+src/components/modals/AddShoppingModal.tsx(18,83): error TS2353: Object literal may only specify known properties, and 'isBought' does not exist in type 'CreateShoppingItemDto'.
+src/components/modals/AddStudySessionModal.tsx(32,13): error TS2353: Object literal may only specify known properties, and 'topic' does not exist in type 'CreateStudySessionDto'.
+src/components/modals/AddTaskModal.tsx(25,66): error TS2345: Argument of type 'number[]' is not assignable to parameter of type 'string[] | (() => string[])'.
+  Type 'number[]' is not assignable to type 'string[]'.
+    Type 'number' is not assignable to type 'string'.
+src/components/modals/AddTaskModal.tsx(59,67): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/components/modals/AddTaskModal.tsx(79,13): error TS2353: Object literal may only specify known properties, and 'rotation' does not exist in type 'CreateTaskDto'.
+src/components/modals/AddTaskModal.tsx(144,120): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/components/modals/AddTaskModal.tsx(144,178): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/components/modals/AddWorkoutModal.tsx(30,13): error TS2353: Object literal may only specify known properties, and 'type' does not exist in type 'CreateWorkoutDto'.
+src/components/modals/TaskDetailModal.tsx(28,25): error TS2339: Property 'getProjectedInstances' does not exist on type 'AppContextType'.
+src/components/modals/TaskDetailModal.tsx(41,27): error TS7006: Parameter 'inst' implicitly has an 'any' type.
+src/components/modals/TaskDetailModal.tsx(70,45): error TS7006: Parameter 'inst' implicitly has an 'any' type.
+src/components/modals/TaskDetailModal.tsx(195,43): error TS2339: Property 'rotation' does not exist on type 'RecurringTask'.
+src/components/modals/TaskDetailModal.tsx(195,57): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/components/modals/TaskDetailModal.tsx(195,60): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/screens/AgendaScreen.tsx(123,33): error TS2322: Type '"event" | "task"' is not assignable to type '"shopping" | "event" | "expense" | "achievement" | undefined'.
+  Type '"task"' is not assignable to type '"shopping" | "event" | "expense" | "achievement" | undefined'.
+src/screens/ChatScreen.tsx(48,63): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ task: Element; expense: Element; event: Element; achievement: Element; }'.
+  No index signature with a parameter of type 'string' was found on type '{ task: Element; expense: Element; event: Element; achievement: Element; }'.
+src/screens/ChatScreen.tsx(54,66): error TS2339: Property 'time' does not exist on type 'Notification'.
+src/screens/CycleScreen.tsx(90,58): error TS2339: Property 'map' does not exist on type 'string'.
+src/screens/CycleScreen.tsx(90,62): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/screens/DietScreen.tsx(52,99): error TS2322: Type '{ progress: number; style: { flex: number; marginHorizontal: number; }; color: string; }' is not assignable to type 'IntrinsicAttributes & { progress: number; color?: string | undefined; }'.
+  Property 'style' does not exist on type 'IntrinsicAttributes & { progress: number; color?: string | undefined; }'.
+src/screens/FamilyFinanceScreen.tsx(16,13): error TS2339: Property 'featuredDebts' does not exist on type 'AppContextType'.
+src/screens/FamilyFinanceScreen.tsx(26,57): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/screens/FamilyFinanceScreen.tsx(26,62): error TS7006: Parameter 'd' implicitly has an 'any' type.
+src/screens/FamilyFinanceScreen.tsx(65,36): error TS7006: Parameter 'debt' implicitly has an 'any' type.
+src/screens/HobbiesScreen.tsx(65,34): error TS18048: 'project.notes' is possibly 'undefined'.
+src/screens/HobbiesScreen.tsx(66,37): error TS18048: 'project.notes' is possibly 'undefined'.
+src/screens/HobbiesScreen.tsx(69,75): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: TextProps): Text', gave the following error.
+    Type '{ id: number; text: string; createdAt: string; }' is not assignable to type 'ReactNode'.
+  Overload 2 of 2, '(props: TextProps, context: any): Text', gave the following error.
+    Type '{ id: number; text: string; createdAt: string; }' is not assignable to type 'ReactNode'.
+src/screens/ProfileScreen.tsx(12,7): error TS2322: Type 'string' is not assignable to type 'number'.
+src/screens/ProfileScreen.tsx(13,7): error TS2322: Type 'string' is not assignable to type 'number'.
+src/screens/ProfileScreen.tsx(14,7): error TS2322: Type 'string' is not assignable to type 'number'.
+src/screens/ProfileScreen.tsx(15,7): error TS2322: Type 'string' is not assignable to type 'number'.
+src/screens/ProfileScreen.tsx(21,47): error TS2339: Property 'user' does not exist on type 'LeaderboardEntry'.
+src/screens/ProfileScreen.tsx(21,59): error TS18047: 'currentUser' is possibly 'null'.
+src/screens/ProfileScreen.tsx(31,47): error TS18047: 'currentUser' is possibly 'null'.
+src/screens/ProfileScreen.tsx(40,29): error TS2322: Type 'User | null' is not assignable to type 'AvatarUser'.
+  Type 'null' is not assignable to type 'AvatarUser'.
+src/screens/ProfileScreen.tsx(41,48): error TS18047: 'currentUser' is possibly 'null'.
+src/screens/ProfileScreen.tsx(82,86): error TS2339: Property 'focusAreas' does not exist on type 'UserSettings'.
+src/screens/ProfileScreen.tsx(85,104): error TS2339: Property 'focusAreas' does not exist on type 'UserSettings'.
+src/screens/ProfileScreen.tsx(92,86): error TS2339: Property 'focusAreas' does not exist on type 'UserSettings'.
+src/screens/ProfileScreen.tsx(95,104): error TS2339: Property 'focusAreas' does not exist on type 'UserSettings'.
+src/screens/ProfileScreen.tsx(102,86): error TS2339: Property 'focusAreas' does not exist on type 'UserSettings'.
+src/screens/ProfileScreen.tsx(105,104): error TS2339: Property 'focusAreas' does not exist on type 'UserSettings'.
+src/screens/ProfileScreen.tsx(112,86): error TS2339: Property 'focusAreas' does not exist on type 'UserSettings'.
+src/screens/ProfileScreen.tsx(115,104): error TS2339: Property 'focusAreas' does not exist on type 'UserSettings'.
+src/screens/ProfileScreen.tsx(173,93): error TS2339: Property 'user' does not exist on type 'LeaderboardEntry'.
+src/screens/ProfileScreen.tsx(173,105): error TS18047: 'currentUser' is possibly 'null'.
+src/screens/ProfileScreen.tsx(191,71): error TS2339: Property 'user' does not exist on type 'LeaderboardEntry'.
+src/screens/ProfileScreen.tsx(197,87): error TS18047: 'currentUser' is possibly 'null'.
+src/screens/ShoppingScreen.tsx(20,13): error TS2353: Object literal may only specify known properties, and 'isBought' does not exist in type 'CreateShoppingItemDto'.
+src/screens/ShoppingScreen.tsx(50,17): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: FlatListProps<ShoppingItem>): FlatList<ShoppingItem>', gave the following error.
+    Type '(i: ShoppingItem) => number' is not assignable to type '(item: ShoppingItem, index: number) => string'.
+      Type 'number' is not assignable to type 'string'.
+  Overload 2 of 2, '(props: FlatListProps<ShoppingItem>, context: any): FlatList<ShoppingItem>', gave the following error.
+    Type '(i: ShoppingItem) => number' is not assignable to type '(item: ShoppingItem, index: number) => string'.
+      Type 'number' is not assignable to type 'string'.
+src/screens/ShoppingScreen.tsx(67,37): error TS2322: Type 'User | undefined' is not assignable to type 'AvatarUser'.
+  Type 'undefined' is not assignable to type 'AvatarUser'.
+src/screens/StudyScreen.tsx(56,74): error TS2339: Property 'topic' does not exist on type 'StudySession'.
+src/screens/WishlistScreen.tsx(60,25): error TS2322: Type 'string' is not assignable to type '"medium" | "low" | "high"'.
+src/screens/WorkoutScreen.tsx(74,73): error TS2339: Property 'type' does not exist on type 'WorkoutSession'.

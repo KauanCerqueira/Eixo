@@ -96,6 +96,7 @@ namespace Eixo.Infrastructure.Migrations
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Initials = table.Column<string>(type: "TEXT", nullable: false),
                     Color = table.Column<string>(type: "TEXT", nullable: false),
+                    Pin = table.Column<string>(type: "TEXT", nullable: false),
                     Points = table.Column<int>(type: "INTEGER", nullable: false),
                     Xp = table.Column<int>(type: "INTEGER", nullable: false),
                     Level = table.Column<int>(type: "INTEGER", nullable: false),
@@ -723,10 +724,10 @@ namespace Eixo.Infrastructure.Migrations
                 columns: new[] { "Id", "Cost", "CreatedAt", "Description", "Icon", "IsActive", "Title" },
                 values: new object[,]
                 {
-                    { 1, 100, new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5161), "Vale uma vez ficar sem lavar louça.", "🍽️", true, "Folga da Louça" },
-                    { 2, 250, new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5165), "Direito de escolher o cardápio do fds.", "🍕", true, "Escolher Jantar" },
-                    { 3, 500, new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5167), "Entrada paga pelo fundo da casa.", "🎬", true, "Vale Cinema" },
-                    { 4, 800, new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5168), "Café na cama e sem tarefas até 12h.", "☕", true, "Manhã de Domingo" }
+                    { 1, 100, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Vale uma vez ficar sem lavar louça.", "🍽️", true, "Folga da Louça" },
+                    { 2, 250, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Direito de escolher o cardápio do fds.", "🍕", true, "Escolher Jantar" },
+                    { 3, 500, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Entrada paga pelo fundo da casa.", "🎬", true, "Vale Cinema" },
+                    { 4, 800, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Café na cama e sem tarefas até 12h.", "☕", true, "Manhã de Domingo" }
                 });
 
             migrationBuilder.InsertData(
@@ -734,19 +735,19 @@ namespace Eixo.Infrastructure.Migrations
                 columns: new[] { "Id", "Amount", "Category", "CreatedAt", "DueDateDay", "IsActive", "Title" },
                 values: new object[,]
                 {
-                    { 1, 55.90m, "streaming", new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5224), 15, true, "Netflix" },
-                    { 2, 129.90m, "utilidade", new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5230), 8, true, "Internet Fibra" },
-                    { 3, 34.90m, "streaming", new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5231), 1, true, "Spotify Familia" }
+                    { 1, 55.90m, "streaming", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 15, true, "Netflix" },
+                    { 2, 129.90m, "utilidade", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 8, true, "Internet Fibra" },
+                    { 3, 34.90m, "streaming", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 1, true, "Spotify Familia" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "Color", "CreatedAt", "Initials", "Level", "Name", "Points", "Streak", "TasksCompleted", "Xp" },
+                columns: new[] { "Id", "Color", "CreatedAt", "Initials", "Level", "Name", "Pin", "Points", "Streak", "TasksCompleted", "Xp" },
                 values: new object[,]
                 {
-                    { 1, "#3B82F6", new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(4910), "AN", 1, "Ana", 145, 7, 0, 500 },
-                    { 2, "#10B981", new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(4927), "JO", 1, "João", 98, 2, 0, 300 },
-                    { 3, "#F59E0B", new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(4929), "MA", 1, "Maria", 132, 4, 0, 450 }
+                    { 1, "#3B82F6", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "AN", 1, "Ana", "1234", 145, 7, 0, 500 },
+                    { 2, "#10B981", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "JO", 1, "João", "1234", 98, 2, 0, 300 },
+                    { 3, "#F59E0B", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "MA", 1, "Maria", "1234", 132, 4, 0, 450 }
                 });
 
             migrationBuilder.CreateIndex(

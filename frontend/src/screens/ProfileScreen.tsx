@@ -9,16 +9,18 @@ import { RewardCard } from '../components/gamification/RewardCard';
 import { Reward } from '../types/types';
 
 const MOCK_REWARDS: Reward[] = [
-    { id: '1', title: 'Folga da Louça', cost: 100, icon: '🍽️', description: 'Vale uma vez ficar sem lavar louça.' },
-    { id: '2', title: 'Escolher Jantar', cost: 250, icon: '🍕', description: 'Direito de escolher o cardápio do fds.' },
-    { id: '3', title: 'Vale Cinema', cost: 500, icon: '🎬', description: 'Entrada paga pelo fundo da casa.' },
-    { id: '4', title: 'Manhã de Domingo', cost: 800, icon: '☕', description: 'Café na cama e sem tarefas até 12h.' },
+    { id: 1, title: 'Folga da Louça', cost: 100, icon: '🍽️', description: 'Vale uma vez ficar sem lavar louça.' },
+    { id: 2, title: 'Escolher Jantar', cost: 250, icon: '🍕', description: 'Direito de escolher o cardápio do fds.' },
+    { id: 3, title: 'Vale Cinema', cost: 500, icon: '🎬', description: 'Entrada paga pelo fundo da casa.' },
+    { id: 4, title: 'Manhã de Domingo', cost: 800, icon: '☕', description: 'Café na cama e sem tarefas até 12h.' },
 ];
 
 export const ProfileScreen = () => {
     const { contextMode, currentUser, users, leaderboard, tasks, redeemReward, userSettings } = useApp();
 
-    const userStats = leaderboard.find(l => l.user.id === currentUser.id);
+    if (!currentUser) return null;
+
+    const userStats = leaderboard.find(l => l.id === currentUser.id);
     const completedTasks = tasks.filter(t => t.isDone).length;
 
     // Use XP from currentUser. Since context updates 'leaderboard' for points but we might need 'users' XP...
@@ -79,40 +81,40 @@ export const ProfileScreen = () => {
                                 <View style={styles.lifeArea}>
                                     <View style={styles.areaHeader}>
                                         <Text style={styles.areaLabel}>Saúde & Corpo</Text>
-                                        <Text style={styles.areaValue}>{userSettings.focusAreas?.health}%</Text>
+                                        <Text style={styles.areaValue}>{userSettings.focusHealth || 0}%</Text>
                                     </View>
                                     <View style={styles.progressBarBg}>
-                                        <View style={[styles.progressBarFill, { width: `${userSettings.focusAreas?.health}%`, backgroundColor: '#EF4444' }]} />
+                                        <View style={[styles.progressBarFill, { width: `${userSettings.focusHealth || 0}%`, backgroundColor: '#EF4444' }]} />
                                     </View>
                                 </View>
 
                                 <View style={styles.lifeArea}>
                                     <View style={styles.areaHeader}>
                                         <Text style={styles.areaLabel}>Carreira & Finanças</Text>
-                                        <Text style={styles.areaValue}>{userSettings.focusAreas?.career}%</Text>
+                                        <Text style={styles.areaValue}>{userSettings.focusCareer || 0}%</Text>
                                     </View>
                                     <View style={styles.progressBarBg}>
-                                        <View style={[styles.progressBarFill, { width: `${userSettings.focusAreas?.career}%`, backgroundColor: '#3B82F6' }]} />
+                                        <View style={[styles.progressBarFill, { width: `${userSettings.focusCareer || 0}%`, backgroundColor: '#3B82F6' }]} />
                                     </View>
                                 </View>
 
                                 <View style={styles.lifeArea}>
                                     <View style={styles.areaHeader}>
                                         <Text style={styles.areaLabel}>Social & Família</Text>
-                                        <Text style={styles.areaValue}>{userSettings.focusAreas?.social}%</Text>
+                                        <Text style={styles.areaValue}>{userSettings.focusSocial || 0}%</Text>
                                     </View>
                                     <View style={styles.progressBarBg}>
-                                        <View style={[styles.progressBarFill, { width: `${userSettings.focusAreas?.social}%`, backgroundColor: '#F59E0B' }]} />
+                                        <View style={[styles.progressBarFill, { width: `${userSettings.focusSocial || 0}%`, backgroundColor: '#F59E0B' }]} />
                                     </View>
                                 </View>
 
                                 <View style={styles.lifeArea}>
                                     <View style={styles.areaHeader}>
                                         <Text style={styles.areaLabel}>Mente & Espírito</Text>
-                                        <Text style={styles.areaValue}>{userSettings.focusAreas?.spirit}%</Text>
+                                        <Text style={styles.areaValue}>{userSettings.focusSpirit || 0}%</Text>
                                     </View>
                                     <View style={styles.progressBarBg}>
-                                        <View style={[styles.progressBarFill, { width: `${userSettings.focusAreas?.spirit}%`, backgroundColor: '#8B5CF6' }]} />
+                                        <View style={[styles.progressBarFill, { width: `${userSettings.focusSpirit || 0}%`, backgroundColor: '#8B5CF6' }]} />
                                     </View>
                                 </View>
                             </Card>
@@ -170,7 +172,7 @@ export const ProfileScreen = () => {
                             {/* ... (Existing StatsRow logic kept conceptually, but rewriting for clarity if needed or just pasting back) */}
                             <Card style={styles.statCard}>
                                 <Trophy size={24} color="#F59E0B" />
-                                <Text style={styles.statNum}>#{leaderboard.findIndex(l => l.user.id === currentUser.id) + 1}</Text>
+                                <Text style={styles.statNum}>#{leaderboard.findIndex(l => l.id === currentUser.id) + 1}</Text>
                                 <Text style={styles.statLabel}>Ranking</Text>
                             </Card>
                             <Card style={styles.statCard}>
@@ -188,7 +190,7 @@ export const ProfileScreen = () => {
                         <Text style={styles.sectionTitle}>MEMBROS DA CASA</Text>
                         <Card>
                             {users.map((u) => {
-                                const stats = leaderboard.find(l => l.user.id === u.id);
+                                const stats = leaderboard.find(l => l.id === u.id);
                                 return (
                                     <View key={u.id} style={styles.memberRow}>
                                         <Avatar user={u} size={40} />

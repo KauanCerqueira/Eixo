@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Eixo.Core.Interfaces;
 using Eixo.Core.Entities;
 using Eixo.Infrastructure.Data;
 
@@ -15,29 +16,31 @@ public class AuthController : ControllerBase
 {
     private readonly EixoDbContext _context;
     private readonly IConfiguration _configuration;
+    private readonly IPasswordHasher _hasher;
 
-    public AuthController(EixoDbContext context, IConfiguration configuration)
+    public AuthController(EixoDbContext context, IConfiguration configuration, IPasswordHasher hasher)
     {
         _context = context;
         _configuration = configuration;
+        _hasher = hasher;
     }
 
     /// <summary>
     /// Login with PIN (simple family auth)
     /// </summary>
     [HttpPost("login")]
-    public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request) // Changed return type to IActionResult
     {
         // Find user by name and PIN
         var user = await _context.Users
+            .Include(u => u.Settings) // Added Include for Settings
             .FirstOrDefaultAsync(u => u.Name.ToLower() == request.Name.ToLower());
 
         if (user == null)
             return Unauthorized(new { message = "Usuário não encontrado" });
 
-        // For family app, we use a simple PIN check
-        // In production, you'd hash the PIN
-        if (user.Pin != request.Pin)
+        // Verify PIN hash using the injected hasher
+        if (!_hasher.VerifyPassword(request.Pin, user.Pin)) // Changed PIN verification
             return Unauthorized(new { message = "PIN incorreto" });
 
         var token = GenerateJwtToken(user);
@@ -53,7 +56,8 @@ public class AuthController : ControllerBase
                 Color = user.Color,
                 Points = user.Points,
                 Level = user.Level,
-                Xp = user.Xp
+                Xp = user.Xp,
+                Streak = user.Streak // Added Streak
             }
         });
     }
@@ -110,7 +114,8 @@ public class AuthController : ControllerBase
             Color = user.Color,
             Points = user.Points,
             Level = user.Level,
-            Xp = user.Xp
+            Xp = user.Xp,
+            Streak = user.Streak
         });
     }
 
@@ -130,8 +135,12 @@ public class AuthController : ControllerBase
 
     private string GenerateJwtToken(User user)
     {
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "EixoSecretKeyForJwtTokenGeneration2024!"));
+        // Priority: Environment Variable -> Configuration -> Default
+        var jwtKey = Environment.GetEnvironmentVariable("EIXO_JWT_KEY") 
+                     ?? _configuration["Jwt:Key"] 
+                     ?? "EixoSecretKeyForJwtTokenGeneration2024!";
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -174,4 +183,5 @@ public class UserDto
     public int Points { get; set; }
     public int Level { get; set; }
     public int Xp { get; set; }
+    public int Streak { get; set; }
 }

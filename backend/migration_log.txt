@@ -1,0 +1,58 @@
+Using project 'C:\Reps\Eixo\backend\Eixo.Infrastructure\Eixo.Infrastructure.csproj'.
+Using startup project 'C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj'.
+dotnet msbuild /getProperty:ProjectName /getProperty:AssemblyName /getProperty:DesignAssembly /getProperty:Language /getProperty:OutputPath /getProperty:PlatformTarget /getProperty:ProjectAssetsFile /getProperty:ProjectDir /getProperty:RootNamespace /getProperty:RuntimeFrameworkVersion /getProperty:TargetFileName /getProperty:TargetFrameworkMoniker /getProperty:Nullable /getProperty:TargetFramework /getProperty:TargetPlatformIdentifier /getProperty:Platform /t:ResolvePackageAssets /getItem:RuntimeCopyLocalItems C:\Reps\Eixo\backend\Eixo.Infrastructure\Eixo.Infrastructure.csproj
+dotnet msbuild /getProperty:ProjectName /getProperty:AssemblyName /getProperty:DesignAssembly /getProperty:Language /getProperty:OutputPath /getProperty:PlatformTarget /getProperty:ProjectAssetsFile /getProperty:ProjectDir /getProperty:RootNamespace /getProperty:RuntimeFrameworkVersion /getProperty:TargetFileName /getProperty:TargetFrameworkMoniker /getProperty:Nullable /getProperty:TargetFramework /getProperty:TargetPlatformIdentifier /getProperty:Platform /t:ResolvePackageAssets /getItem:RuntimeCopyLocalItems C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio.
+Build started...
+dotnet build C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj /verbosity:quiet /nologo /p:PublishAot=false
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio.
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio.
+
+Compila├º├úo com ├¬xito.
+
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio.
+C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj : warning NU1510: PackageReference Microsoft.AspNetCore.SignalR n├úo ser├í podado. Considere remover este pacote das depend├¬ncias, pois┬áele provavelmente ├® desnecess├írio.
+    2 Aviso(s)
+    0 Erro(s)
+
+Tempo Decorrido 00:00:01.98
+
+Build succeeded.
+dotnet exec --depsfile C:\Reps\Eixo\backend\Eixo.Api\bin\Debug\net10.0\Eixo.Api.deps.json --additionalprobingpath C:\Users\conta\.nuget\packages --additionalprobingpath "C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages" --runtimeconfig C:\Reps\Eixo\backend\Eixo.Api\bin\Debug\net10.0\Eixo.Api.runtimeconfig.json C:\Users\conta\.dotnet\tools\.store\dotnet-ef\10.0.2\dotnet-ef\10.0.2\tools\net8.0\any\tools\net8.0\any\ef.dll migrations add InitialCreate --assembly C:\Reps\Eixo\backend\Eixo.Api\bin\Debug\net10.0\Eixo.Infrastructure.dll --project C:\Reps\Eixo\backend\Eixo.Infrastructure\Eixo.Infrastructure.csproj --startup-assembly C:\Reps\Eixo\backend\Eixo.Api\bin\Debug\net10.0\Eixo.Api.dll --startup-project C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj --project-dir C:\Reps\Eixo\backend\Eixo.Infrastructure\ --root-namespace Eixo.Infrastructure --language C# --framework net10.0 --design-assembly C:\Users\conta\.nuget\packages\microsoft.entityframeworkcore.design\10.0.2\lib\net10.0\Microsoft.EntityFrameworkCore.Design.dll --nullable --working-dir C:\Reps\Eixo\backend --verbose
+Using assembly 'Eixo.Infrastructure'.
+Using startup assembly 'Eixo.Api'.
+Using application base 'C:\Reps\Eixo\backend\Eixo.Api\bin\Debug\net10.0'.
+Using working directory 'C:\Reps\Eixo\backend\Eixo.Api'.
+Using root namespace 'Eixo.Infrastructure'.
+Using project directory 'C:\Reps\Eixo\backend\Eixo.Infrastructure\'.
+Remaining arguments: .
+Finding DbContext classes...
+Using environment 'Development'.
+Finding IDesignTimeDbContextFactory implementations...
+Finding DbContext classes in the project...
+Found DbContext 'EixoDbContext'.
+Using DbContext factory 'EixoDbContextFactory'.
+Microsoft.EntityFrameworkCore.Design.OperationException: Unable to create a 'DbContext' of type 'EixoDbContext'. The exception 'Method 'get_LockReleaseBehavior' in type 'Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal.SqliteHistoryRepository' from assembly 'Microsoft.EntityFrameworkCore.Sqlite, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60' does not have an implementation.' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+ ---> System.TypeLoadException: Method 'get_LockReleaseBehavior' in type 'Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal.SqliteHistoryRepository' from assembly 'Microsoft.EntityFrameworkCore.Sqlite, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60' does not have an implementation.
+   at Microsoft.Extensions.DependencyInjection.SqliteServiceCollectionExtensions.AddEntityFrameworkSqlite(IServiceCollection serviceCollection)
+   at Microsoft.Extensions.DependencyInjection.SqliteServiceCollectionExtensions.AddEntityFrameworkSqlite(IServiceCollection serviceCollection)
+   at Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal.SqliteOptionsExtension.ApplyServices(IServiceCollection services)
+   at Microsoft.EntityFrameworkCore.Internal.ServiceProviderCache.ApplyServices(IDbContextOptions options, ServiceCollection services)
+   at Microsoft.EntityFrameworkCore.Internal.ServiceProviderCache.<GetOrAdd>g__BuildServiceProvider|4_1(IDbContextOptions _, ValueTuple`2 arguments)
+   at Microsoft.EntityFrameworkCore.Internal.ServiceProviderCache.<>c.<GetOrAdd>b__4_0(IDbContextOptions contextOptions, ValueTuple`2 tuples)
+   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd[TArg](TKey key, Func`3 valueFactory, TArg factoryArgument)
+   at Microsoft.EntityFrameworkCore.Internal.ServiceProviderCache.GetOrAdd(IDbContextOptions options, Boolean providerRequired)
+   at Microsoft.EntityFrameworkCore.DbContext..ctor(DbContextOptions options)
+   at Eixo.Infrastructure.Data.EixoDbContext..ctor(DbContextOptions`1 options) in C:\Reps\Eixo\backend\Eixo.Infrastructure\Data\EixoDbContext.cs:line 8
+   at Eixo.Infrastructure.Data.EixoDbContextFactory.CreateDbContext(String[] args) in C:\Reps\Eixo\backend\Eixo.Infrastructure\Data\EixoDbContextFactory.cs:line 16
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Design.Internal.DbContextOperations.CreateContext(String contextType, KeyValuePair`2 contextPair)
+   at Microsoft.EntityFrameworkCore.Design.Internal.DbContextOperations.CreateContext(String contextType)
+   at Microsoft.EntityFrameworkCore.Design.Internal.MigrationsOperations.AddMigration(String name, String outputDir, String contextType, String namespace, Boolean dryRun)
+   at Microsoft.EntityFrameworkCore.Design.OperationExecutor.AddMigrationImpl(String name, String outputDir, String contextType, String namespace, Boolean dryRun)
+   at Microsoft.EntityFrameworkCore.Design.OperationExecutor.AddMigration.<>c__DisplayClass0_0.<.ctor>b__0()
+   at Microsoft.EntityFrameworkCore.Design.OperationExecutor.OperationBase.<>c__DisplayClass3_0`1.<Execute>b__0()
+   at Microsoft.EntityFrameworkCore.Design.OperationExecutor.OperationBase.Execute(Action action)
+Unable to create a 'DbContext' of type 'EixoDbContext'. The exception 'Method 'get_LockReleaseBehavior' in type 'Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal.SqliteHistoryRepository' from assembly 'Microsoft.EntityFrameworkCore.Sqlite, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60' does not have an implementation.' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728

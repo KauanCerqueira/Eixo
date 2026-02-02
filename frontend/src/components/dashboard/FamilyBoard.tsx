@@ -9,6 +9,8 @@ export const FamilyBoard = () => {
     const [newNotice, setNewNotice] = useState('');
     const [isAlert, setIsAlert] = useState(false);
 
+    if (!currentUser) return null;
+
     const handleAdd = () => {
         if (!newNotice.trim()) return;
         addNotice({

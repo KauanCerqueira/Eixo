@@ -1,0 +1,9 @@
+Usando as configura├º├Áes de inicializa├º├úo de Eixo.Api\Properties\launchSettings.json...
+Compilando...
+C:\Reps\Eixo\backend\Eixo.Infrastructure\Data\EixoDbContext.cs(105,13): warning CS0219: A vari├ível "defaultPinHash" ├® atribu├¡da, mas seu valor nunca ├® usado [C:\Reps\Eixo\backend\Eixo.Infrastructure\Eixo.Infrastructure.csproj]
+C:\Reps\Eixo\backend\Eixo.Infrastructure\Data\EixoDbContext.cs(115,13): warning CS0219: A vari├ível "pinHash" ├® atribu├¡da, mas seu valor nunca ├® usado [C:\Reps\Eixo\backend\Eixo.Infrastructure\Eixo.Infrastructure.csproj]
+C:\Reps\Eixo\backend\Eixo.Infrastructure\Data\EixoDbContext.cs(121,13): warning CS0219: A vari├ível "pin1234Hash" ├® atribu├¡da, mas seu valor nunca ├® usado [C:\Reps\Eixo\backend\Eixo.Infrastructure\Eixo.Infrastructure.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Controllers\AuthController.cs(18,22): error CS0246: O nome do tipo ou do namespace "IPasswordHasher" n├úo pode ser encontrado (est├í faltando uma diretiva using ou uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+C:\Reps\Eixo\backend\Eixo.Api\Controllers\AuthController.cs(20,80): error CS0246: O nome do tipo ou do namespace "IPasswordHasher" n├úo pode ser encontrado (est├í faltando uma diretiva using ou uma refer├¬ncia de assembly?) [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
+
+Ocorreu uma falha no build. Corrija os erros de build e execute novamente.

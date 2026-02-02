@@ -10,12 +10,19 @@ interface AddShoppingModalProps {
 
 export const AddShoppingModal = ({ visible, onClose }: AddShoppingModalProps) => {
     const { currentUser, addShoppingItem } = useApp();
+
+    if (!currentUser) return null;
+
     const [name, setName] = useState('');
     const [quantity, setQuantity] = useState('');
 
     const handleSave = () => {
         if (!name.trim()) return;
-        addShoppingItem({ name: name.trim(), quantity: quantity.trim() || '1 un', isBought: false, addedBy: currentUser });
+        addShoppingItem({
+            name: name.trim(),
+            addedByUserId: currentUser.id,
+            quantity: quantity.trim() || '1 un'
+        });
         setName('');
         setQuantity('');
         onClose();

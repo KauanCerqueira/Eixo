@@ -29,7 +29,6 @@ export const AddMealModal = ({ visible, onClose }: AddMealModalProps) => {
         if (!name || !calories) return;
 
         addMealLog({
-            name, // Mapping to 'items' likely or main name
             items: [name],
             type: mealType as any,
             calories: parseInt(calories),

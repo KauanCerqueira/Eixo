@@ -1,0 +1,29 @@
+{
+    "cli": {
+        "version": ">= 10.0.0"
+    },
+    "build": {
+        "development": {
+            "developmentClient": true,
+            "distribution": "internal",
+            "env": {
+                "EXPO_PUBLIC_API_URL": "http://10.0.2.2:5000"
+            }
+        },
+        "preview": {
+            "distribution": "internal",
+            "env": {
+                "EXPO_PUBLIC_API_URL": "https://api-staging.eixo.app"
+            }
+        },
+        "production": {
+            "distribution": "store",
+            "env": {
+                "EXPO_PUBLIC_API_URL": "https://api.eixo.app"
+            }
+        }
+    },
+    "submit": {
+        "production": {}
+    }
+}

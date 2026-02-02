@@ -15,7 +15,7 @@ namespace Eixo.Infrastructure.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
 
             modelBuilder.Entity("Eixo.Core.Entities.AgendaEvent", b =>
                 {
@@ -656,7 +656,7 @@ namespace Eixo.Infrastructure.Migrations
                         {
                             Id = 1,
                             Cost = 100,
-                            CreatedAt = new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5161),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Vale uma vez ficar sem lavar louça.",
                             Icon = "🍽️",
                             IsActive = true,
@@ -666,7 +666,7 @@ namespace Eixo.Infrastructure.Migrations
                         {
                             Id = 2,
                             Cost = 250,
-                            CreatedAt = new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5165),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Direito de escolher o cardápio do fds.",
                             Icon = "🍕",
                             IsActive = true,
@@ -676,7 +676,7 @@ namespace Eixo.Infrastructure.Migrations
                         {
                             Id = 3,
                             Cost = 500,
-                            CreatedAt = new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5167),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Entrada paga pelo fundo da casa.",
                             Icon = "🎬",
                             IsActive = true,
@@ -686,7 +686,7 @@ namespace Eixo.Infrastructure.Migrations
                         {
                             Id = 4,
                             Cost = 800,
-                            CreatedAt = new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5168),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Café na cama e sem tarefas até 12h.",
                             Icon = "☕",
                             IsActive = true,
@@ -822,7 +822,7 @@ namespace Eixo.Infrastructure.Migrations
                             Id = 1,
                             Amount = 55.90m,
                             Category = "streaming",
-                            CreatedAt = new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5224),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DueDateDay = 15,
                             IsActive = true,
                             Title = "Netflix"
@@ -832,7 +832,7 @@ namespace Eixo.Infrastructure.Migrations
                             Id = 2,
                             Amount = 129.90m,
                             Category = "utilidade",
-                            CreatedAt = new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5230),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DueDateDay = 8,
                             IsActive = true,
                             Title = "Internet Fibra"
@@ -842,7 +842,7 @@ namespace Eixo.Infrastructure.Migrations
                             Id = 3,
                             Amount = 34.90m,
                             Category = "streaming",
-                            CreatedAt = new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(5231),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DueDateDay = 1,
                             IsActive = true,
                             Title = "Spotify Familia"
@@ -927,6 +927,10 @@ namespace Eixo.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Pin")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Points")
                         .HasColumnType("INTEGER");
 
@@ -948,10 +952,11 @@ namespace Eixo.Infrastructure.Migrations
                         {
                             Id = 1,
                             Color = "#3B82F6",
-                            CreatedAt = new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(4910),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Initials = "AN",
                             Level = 1,
                             Name = "Ana",
+                            Pin = "$2a$11$JIL1A7EK2PhOUNehEOVPl.YqTdQY4NOXrsTPAaFOdnFMZNdKuPFBa",
                             Points = 145,
                             Streak = 7,
                             TasksCompleted = 0,
@@ -961,10 +966,11 @@ namespace Eixo.Infrastructure.Migrations
                         {
                             Id = 2,
                             Color = "#10B981",
-                            CreatedAt = new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(4927),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Initials = "JO",
                             Level = 1,
                             Name = "João",
+                            Pin = "$2a$11$JIL1A7EK2PhOUNehEOVPl.YqTdQY4NOXrsTPAaFOdnFMZNdKuPFBa",
                             Points = 98,
                             Streak = 2,
                             TasksCompleted = 0,
@@ -974,10 +980,11 @@ namespace Eixo.Infrastructure.Migrations
                         {
                             Id = 3,
                             Color = "#F59E0B",
-                            CreatedAt = new DateTime(2026, 2, 2, 19, 26, 7, 531, DateTimeKind.Utc).AddTicks(4929),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Initials = "MA",
                             Level = 1,
                             Name = "Maria",
+                            Pin = "$2a$11$JIL1A7EK2PhOUNehEOVPl.YqTdQY4NOXrsTPAaFOdnFMZNdKuPFBa",
                             Points = 132,
                             Streak = 4,
                             TasksCompleted = 0,

@@ -1,7 +1,7 @@
 import * as signalR from '@microsoft/signalr';
+import { ENV } from '../config/env';
 
-const HUB_URL = 'http://10.0.2.2:5000/hubs/notifications'; // Android emulator
-// const HUB_URL = 'http://localhost:5000/hubs/notifications'; // iOS/Web
+const HUB_URL = ENV.HUB_URL;
 
 export type NotificationType =
     | 'TaskCompleted'

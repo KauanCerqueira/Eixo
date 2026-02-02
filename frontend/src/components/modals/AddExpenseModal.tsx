@@ -13,12 +13,14 @@ interface AddExpenseModalProps {
 export const AddExpenseModal = ({ visible, onClose }: AddExpenseModalProps) => {
     const { users, currentUser, addExpense } = useApp();
 
+    if (!currentUser) return null;
+
     const [title, setTitle] = useState('');
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('alimentacao');
-    const [splitWith, setSplitWith] = useState<string[]>(users.map(u => u.id));
+    const [splitWith, setSplitWith] = useState<number[]>(users.map(u => u.id));
 
-    const toggleUser = (userId: string) => {
+    const toggleUser = (userId: number) => {
         if (splitWith.includes(userId)) {
             if (splitWith.length > 1) {
                 setSplitWith(splitWith.filter(id => id !== userId));
@@ -34,9 +36,9 @@ export const AddExpenseModal = ({ visible, onClose }: AddExpenseModalProps) => {
         addExpense({
             title: title.trim(),
             amount: parseFloat(amount) || 0,
+            paidByUserId: currentUser.id,
             category: category as any,
-            paidBy: currentUser,
-            splitWith: users.filter(u => splitWith.includes(u.id)),
+            splitWithUserIds: splitWith,
             date: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
         });
 

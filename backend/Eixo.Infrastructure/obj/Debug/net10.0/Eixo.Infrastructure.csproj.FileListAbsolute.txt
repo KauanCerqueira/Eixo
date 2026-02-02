@@ -9,10 +9,10 @@ C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.G
 C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.AssemblyInfoInputs.cache
 C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.AssemblyInfo.cs
 C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.sourcelink.json
 C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Inf.57749087.Up2Date
 C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.dll
 C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\refint\Eixo.Infrastructure.dll
 C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.pdb
 C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.genruntimeconfig.cache
 C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\ref\Eixo.Infrastructure.dll
-C:\Reps\Eixo\backend\Eixo.Infrastructure\obj\Debug\net10.0\Eixo.Infrastructure.sourcelink.json
