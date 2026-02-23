@@ -96,15 +96,44 @@ public class TasksController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTask(int id, UpdateTaskDto dto)
     {
-        var task = await _context.Tasks.FindAsync(id);
+        var task = await _context.Tasks
+            .Include(t => t.Assignments)
+            .FirstOrDefaultAsync(t => t.Id == id);
         if (task == null)
             return NotFound();
 
         task.Title = dto.Title ?? task.Title;
         task.Category = dto.Category ?? task.Category;
         task.Frequency = dto.Frequency ?? task.Frequency;
+        task.Type = dto.Type ?? task.Type;
+        task.DayOfWeek = dto.DayOfWeek ?? task.DayOfWeek;
+        task.DayOfMonth = dto.DayOfMonth ?? task.DayOfMonth;
+        task.ScheduledDate = dto.ScheduledDate ?? task.ScheduledDate;
+        task.DistributionStrategy = dto.DistributionStrategy ?? task.DistributionStrategy;
         task.PointsOnTime = dto.PointsOnTime ?? task.PointsOnTime;
         task.PointsLatePerDay = dto.PointsLatePerDay ?? task.PointsLatePerDay;
+
+        if (dto.AssignedUserIds is not null)
+        {
+            _context.TaskAssignments.RemoveRange(task.Assignments);
+            for (int i = 0; i < dto.AssignedUserIds.Count; i++)
+            {
+                _context.TaskAssignments.Add(new TaskAssignment
+                {
+                    TaskId = task.Id,
+                    UserId = dto.AssignedUserIds[i],
+                    Order = i
+                });
+            }
+
+            // Reset index to first assignment after re-ordering.
+            task.CurrentAssigneeIndex = 0;
+        }
+
+        if (dto.CurrentAssigneeIndex.HasValue && dto.CurrentAssigneeIndex.Value >= 0)
+        {
+            task.CurrentAssigneeIndex = dto.CurrentAssigneeIndex.Value;
+        }
 
         await _context.SaveChangesAsync();
         return NoContent();
@@ -205,8 +234,15 @@ public record UpdateTaskDto(
     string? Title = null,
     string? Category = null,
     string? Frequency = null,
+    string? Type = null,
+    DateTime? ScheduledDate = null,
+    int? DayOfWeek = null,
+    int? DayOfMonth = null,
+    string? DistributionStrategy = null,
     int? PointsOnTime = null,
-    int? PointsLatePerDay = null
+    int? PointsLatePerDay = null,
+    List<int>? AssignedUserIds = null,
+    int? CurrentAssigneeIndex = null
 );
 
 public record CompleteTaskDto(

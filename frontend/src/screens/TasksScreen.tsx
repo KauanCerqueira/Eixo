@@ -9,10 +9,10 @@ import { TaskDetailModal } from '../components/modals/TaskDetailModal';
 import { AddTaskModal } from '../components/modals/AddTaskModal';
 import { FAB } from '../components/ui/FAB';
 import { THEME } from '../theme';
-import { Calendar, Repeat } from 'lucide-react-native';
+import { Calendar, Repeat, CheckCircle2 } from 'lucide-react-native';
 
 export const TasksScreen = () => {
-    const { tasks, users, isLoading } = useApp();
+    const { tasks, users, isLoading, completeTask, currentUser } = useApp();
     const [selectedTask, setSelectedTask] = useState<any>(null);
     const [isDetailVisible, setDetailVisible] = useState(false);
     const [isAddVisible, setAddVisible] = useState(false);
@@ -114,6 +114,17 @@ export const TasksScreen = () => {
                                                         <Text style={styles.assigneeName}>{assignedUser.name}</Text>
                                                     </View>
                                                 </View>
+
+                                                <TouchableOpacity
+                                                    style={styles.doneBtn}
+                                                    onPress={(e) => {
+                                                        e.stopPropagation();
+                                                        completeTask(task.id, assignedUser.id || currentUser?.id);
+                                                    }}
+                                                >
+                                                    <CheckCircle2 size={16} color="#166534" />
+                                                    <Text style={styles.doneBtnText}>Concluir</Text>
+                                                </TouchableOpacity>
                                             </View>
                                         </Card>
                                     </TouchableOpacity>
@@ -310,6 +321,23 @@ const styles = StyleSheet.create({
         fontSize: 14, 
         fontWeight: '800', 
         color: THEME.colors.text 
+    },
+    doneBtn: {
+        alignSelf: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: '#dcfce7',
+        borderColor: '#86efac',
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 6
+    },
+    doneBtnText: {
+        color: '#166534',
+        fontSize: 12,
+        fontWeight: '800'
     },
     freqText: { fontSize: 12, color: THEME.colors.textSecondary, fontStyle: 'italic' },
 });

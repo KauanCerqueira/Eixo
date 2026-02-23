@@ -82,6 +82,8 @@ public class GoalContribution
     public int Id { get; set; }
     public int GoalId { get; set; }
     public Goal Goal { get; set; } = null!;
+    public int? UserId { get; set; }
+    public User? User { get; set; }
     public decimal Amount { get; set; }
     public string? Note { get; set; }
     public DateTime Date { get; set; } = DateTime.UtcNow;

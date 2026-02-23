@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     mealCalories: { fontSize: 14, fontWeight: 'bold', color: '#0f172a' },
 
     emptyCard: { padding: 32, alignItems: 'center', justifyContent: 'center' },
-    emptyText: { color: '#94a3b8', fontStyle: 'italic' },
+    emptyText: { color: '#64748b', fontStyle: 'italic' },
 });
 
 export default DietScreen;

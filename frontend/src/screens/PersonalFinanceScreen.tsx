@@ -126,14 +126,14 @@ const styles = StyleSheet.create({
     iconIncome: { backgroundColor: '#10B981' },
     iconExpense: { backgroundColor: '#EF4444' },
     transactionTitle: { fontSize: 15, fontWeight: '700', color: '#0f172a' },
-    transactionDate: { fontSize: 12, color: '#94a3b8' },
+    transactionDate: { fontSize: 12, color: '#64748b' },
     transactionCategory: { fontSize: 12, color: '#64748b', fontWeight: '500', textTransform: 'capitalize' },
-    transactionDesc: { fontSize: 11, color: '#94a3b8', fontStyle: 'italic', marginTop: 2 },
+    transactionDesc: { fontSize: 11, color: '#64748b', fontStyle: 'italic', marginTop: 2 },
     transactionRight: { alignItems: 'flex-end', marginLeft: 12 },
     transactionAmount: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
 
     emptyCard: { padding: 32, alignItems: 'center', justifyContent: 'center' },
-    emptyText: { color: '#94a3b8', fontStyle: 'italic' },
+    emptyText: { color: '#64748b', fontStyle: 'italic' },
 });
 
 export default PersonalFinanceScreen;

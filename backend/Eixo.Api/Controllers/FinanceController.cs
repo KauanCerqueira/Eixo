@@ -338,6 +338,7 @@ public class GoalsController : ControllerBase
     {
         return await _context.Goals
             .Include(g => g.Contributions)
+                .ThenInclude(c => c.User)
             .ToListAsync();
     }
 
@@ -367,11 +368,22 @@ public class GoalsController : ControllerBase
         if (goal == null)
             return NotFound();
 
+        if (dto.Amount <= 0)
+            return BadRequest(new { message = "Valor de contribuição deve ser maior que zero" });
+
+        if (dto.UserId > 0)
+        {
+            var userExists = await _context.Users.AnyAsync(u => u.Id == dto.UserId);
+            if (!userExists)
+                return BadRequest(new { message = "Usuário da contribuição não encontrado" });
+        }
+
         goal.CurrentAmount += dto.Amount;
         
         _context.GoalContributions.Add(new GoalContribution
         {
             GoalId = id,
+            UserId = dto.UserId > 0 ? dto.UserId : null,
             Amount = dto.Amount,
             Note = dto.Note
         });
@@ -381,7 +393,11 @@ public class GoalsController : ControllerBase
         // Broadcast real-time notification
         await _notifications.NotifyGoalProgress(goal.Title, goal.CurrentAmount, goal.TargetAmount, dto.UserId);
 
-        return Ok(new { currentAmount = goal.CurrentAmount, progress = goal.CurrentAmount / goal.TargetAmount * 100 });
+        var progress = goal.TargetAmount > 0
+            ? (goal.CurrentAmount / goal.TargetAmount) * 100
+            : 0;
+
+        return Ok(new { currentAmount = goal.CurrentAmount, progress });
     }
 
     [HttpDelete("{id}")]

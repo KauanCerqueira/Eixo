@@ -3,11 +3,21 @@
 # =========================
 .DS_Store
 Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 *.swp
 *.swo
+*.tmp
 *.orig
+*.bak
+*.rej
 .idea/
 .vscode/
+*.code-workspace
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
 # =========================
 # Environment / Secrets
@@ -15,13 +25,26 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+!.env.*.example
+.envrc
 *.pem
 *.key
 *.p8
 *.p12
+*.pfx
 *.jks
 *.keystore
 *.mobileprovision
+*.cer
+*.crt
+*.der
+.npmrc
+!.npmrc.example
+backend/**/appsettings.*.local.json
+backend/**/secrets.json
+frontend/android/key.properties
+frontend/google-services.json
+frontend/GoogleService-Info.plist
 
 # =========================
 # Logs / Temp
@@ -30,6 +53,10 @@ Thumbs.db
 logs/
 tmp/
 temp/
+.cache/
+*.pid
+*.seed
+*.stackdump
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -41,8 +68,11 @@ pnpm-debug.log*
 node_modules/
 **/node_modules/
 .expo/
+.expo-shared/
 frontend/.expo/
+frontend/.expo-shared/
 frontend/dist/
+frontend/build/
 frontend/web-build/
 frontend/.metro-health-check*
 frontend/expo-env.d.ts
@@ -50,9 +80,12 @@ frontend/expo-env.d.ts
 
 # React Native generated native projects and build outputs
 frontend/android/.gradle/
+frontend/android/.kotlin/
+frontend/android/.cxx/
 frontend/android/build/
 frontend/android/app/build/
 frontend/android/local.properties
+frontend/android/captures/
 frontend/ios/
 
 # Keep gradle wrapper binaries/scripts tracked
@@ -68,12 +101,16 @@ backend/**/bin/
 backend/**/obj/
 backend/**/publish/
 backend/**/TestResults/
-backend/.vs/
+backend/**/.vs/
+backend/**/artifacts/
+backend/**/*.nupkg
+backend/**/*.snupkg
 
 # Local SQLite / dev data
 backend/**/*.db
-backend/**/*.db-shm
-backend/**/*.db-wal
+backend/**/*.db-*
+backend/**/*.sqlite
+backend/**/*.sqlite-*
 
 # Local diagnostics artifacts
 backend/*_log.txt
@@ -87,3 +124,7 @@ backend/build_log.txt
 # Misc
 # =========================
 coverage/
+.nyc_output/
+dist/
+build/
+out/

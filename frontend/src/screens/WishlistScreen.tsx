@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
 
     balanceCard: { backgroundColor: '#1e293b', padding: 20, marginBottom: 24 },
     balanceHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
-    balanceLabel: { color: '#94a3b8', fontSize: 11, fontWeight: 'bold' },
+    balanceLabel: { color: '#64748b', fontSize: 11, fontWeight: 'bold' },
     balanceValue: { color: '#fff', fontSize: 32, fontWeight: '900', marginBottom: 20 },
     balanceActions: { flexDirection: 'row', gap: 12 },
     actionBtn: { backgroundColor: '#3b82f6', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8, gap: 8 },
@@ -93,5 +93,5 @@ const styles = StyleSheet.create({
     sectionTitle: { fontSize: 13, fontWeight: '900', color: '#64748b' },
 
     emptyState: { alignItems: 'center', marginTop: 40 },
-    emptyText: { marginTop: 12, color: '#94a3b8', fontSize: 14 },
+    emptyText: { marginTop: 12, color: '#64748b', fontSize: 14 },
 });

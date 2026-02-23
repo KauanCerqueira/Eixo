@@ -112,11 +112,11 @@ const styles = StyleSheet.create({
     controlText: { fontWeight: 'bold', color: '#64748b', fontSize: 16 },
 
     notesSection: { borderTopWidth: 1, borderTopColor: '#f1f5f9', paddingTop: 16 },
-    notesTitle: { fontSize: 11, fontWeight: '900', color: '#94a3b8', marginBottom: 12, letterSpacing: 0.5 },
+    notesTitle: { fontSize: 11, fontWeight: '900', color: '#64748b', marginBottom: 12, letterSpacing: 0.5 },
     noteItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 8 },
     noteText: { fontSize: 14, color: '#334155', flex: 1, lineHeight: 20 },
-    emptyNotes: { fontSize: 12, color: '#94a3b8', fontStyle: 'italic' },
+    emptyNotes: { fontSize: 12, color: '#64748b', fontStyle: 'italic' },
 
     emptyCard: { padding: 32, alignItems: 'center', justifyContent: 'center' },
-    emptyText: { color: '#94a3b8', fontStyle: 'italic' },
+    emptyText: { color: '#64748b', fontStyle: 'italic' },
 });

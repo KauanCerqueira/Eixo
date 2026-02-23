@@ -103,5 +103,5 @@ const styles = StyleSheet.create({
     checkBtn: { width: 32, height: 32, borderRadius: 16, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
     checkBtnDone: { backgroundColor: '#10B981', borderColor: '#10B981' },
     emptyCard: { padding: 20, alignItems: 'center' },
-    emptyText: { color: '#94a3b8' },
+    emptyText: { color: '#64748b' },
 });

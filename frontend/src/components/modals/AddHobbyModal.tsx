@@ -57,7 +57,7 @@ export const AddHobbyModal = ({ visible, onClose }: AddHobbyModalProps) => {
                             value={title}
                             onChangeText={setTitle}
                             placeholder="Ex: Aprender Guitarra, Horta Vertical"
-                            placeholderTextColor="#94a3b8"
+                            placeholderTextColor="#64748b"
                         />
 
                         <Text style={styles.label}>Categoria</Text>
@@ -80,7 +80,7 @@ export const AddHobbyModal = ({ visible, onClose }: AddHobbyModalProps) => {
                             value={note}
                             onChangeText={setNote}
                             placeholder="Ex: Comprar sementes e terra..."
-                            placeholderTextColor="#94a3b8"
+                            placeholderTextColor="#64748b"
                             multiline
                             numberOfLines={3}
                         />

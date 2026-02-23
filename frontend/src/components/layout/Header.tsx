@@ -1,11 +1,9 @@
-import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Flame } from 'lucide-react-native';
 import { useApp } from '../../context/AppContext';
 import { Avatar } from '../ui/Avatar';
 import { ToggleSwitch } from '../ui/ToggleSwitch';
-import { SettingsModal } from '../modals/SettingsModal';
 
 export const Header = () => {
     const { contextMode, setContextMode, currentUser, leaderboard } = useApp();
@@ -14,32 +12,30 @@ export const Header = () => {
     // Find user stats in new leaderboard structure (id is directly on object)
     const userStats = currentUser ? leaderboard.find(l => l.id === currentUser.id) : null;
 
-    const [isSettingsVisible, setIsSettingsVisible] = useState(false);
-
     // Default user for Avatar when currentUser is null
     const displayUser = currentUser || { id: 0, name: 'User', initials: 'US', color: '#ccc' };
 
     return (
-        <>
-            <View style={styles.container}>
-                <View style={styles.topRow}>
-                    <View style={styles.logoRow}>
-                        <Text style={styles.logo}>EIXO</Text>
-                        <View style={styles.streakBadge}>
-                            <Flame size={14} color="#F59E0B" />
-                            <Text style={styles.streakText}>{userStats?.streak || currentUser?.streak || 0}</Text>
-                        </View>
+        <View style={styles.container}>
+            <View style={styles.topRow}>
+                <View style={styles.logoRow}>
+                    <Text style={styles.logo}>EIXO</Text>
+                    <View style={styles.streakBadge}>
+                        <Flame size={14} color="#F59E0B" />
+                        <Text style={styles.streakText}>{userStats?.streak || currentUser?.streak || 0}</Text>
                     </View>
-                    <TouchableOpacity style={styles.profileBtn} onPress={() => setIsSettingsVisible(true)}>
-                        <Avatar user={displayUser} size={36} />
-                    </TouchableOpacity>
                 </View>
-
-                <ToggleSwitch value={contextMode} onChange={setContextMode} />
+                <TouchableOpacity
+                    style={styles.profileBtn}
+                    onPress={() => navigation.navigate('Profile')}
+                    activeOpacity={0.8}
+                >
+                    <Avatar user={displayUser} size={36} />
+                </TouchableOpacity>
             </View>
 
-            <SettingsModal visible={isSettingsVisible} onClose={() => setIsSettingsVisible(false)} />
-        </>
+            <ToggleSwitch value={contextMode} onChange={setContextMode} />
+        </View>
     );
 };
 

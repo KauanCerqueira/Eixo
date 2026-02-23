@@ -94,6 +94,6 @@ const styles = StyleSheet.create({
         color: '#15803d'
     },
     btnTextDisabled: {
-        color: '#94a3b8'
+        color: '#64748b'
     }
 });

@@ -9,7 +9,7 @@ namespace Eixo.Api.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private const string MasterUserName = "Kauan Cerqueira";
+    private const string LegacyMasterUserName = "Kauan Cerqueira";
     private readonly EixoDbContext _context;
 
     public UsersController(EixoDbContext context)
@@ -31,6 +31,8 @@ public class UsersController : ControllerBase
                 Name = u.Name,
                 Initials = u.Initials,
                 Color = u.Color,
+                FamilyRole = u.FamilyRole,
+                FamilyRelation = u.FamilyRelation,
                 Points = u.Points,
                 Xp = u.Xp,
                 Level = u.Level,
@@ -58,6 +60,8 @@ public class UsersController : ControllerBase
                 Name = u.Name,
                 Initials = u.Initials,
                 Color = u.Color,
+                FamilyRole = u.FamilyRole,
+                FamilyRelation = u.FamilyRelation,
                 Points = u.Points,
                 Xp = u.Xp,
                 Level = u.Level,
@@ -113,6 +117,8 @@ public class UsersController : ControllerBase
                 u.Name,
                 u.Initials,
                 u.Color,
+                u.FamilyRole,
+                u.FamilyRelation,
                 u.Points,
                 u.Xp,
                 u.Level,
@@ -208,14 +214,14 @@ public class UsersController : ControllerBase
         if (requester == null)
             return Unauthorized(new { message = "Solicitante inválido" });
 
-        if (!string.Equals(requester.Name, MasterUserName, StringComparison.OrdinalIgnoreCase))
+        if (!IsMasterOrAdmin(requester))
             return Forbid();
 
         var user = await _context.Users.FindAsync(id);
         if (user == null)
             return NotFound(new { message = "Usuário não encontrado" });
 
-        if (string.Equals(user.Name, MasterUserName, StringComparison.OrdinalIgnoreCase))
+        if (IsMaster(user))
             return BadRequest(new { message = "O usuário master não pode ser removido" });
 
         var totalUsers = await _context.Users.CountAsync();
@@ -269,6 +275,87 @@ public class UsersController : ControllerBase
             throw;
         }
     }
+
+    /// <summary>
+    /// Update family profile metadata (role/relation). Master/Admin only.
+    /// </summary>
+    [HttpPut("{id}/family-profile")]
+    public async Task<IActionResult> UpdateFamilyProfile(
+        int id,
+        [FromQuery] int requesterId,
+        [FromBody] UpdateFamilyProfileDto dto)
+    {
+        if (requesterId <= 0)
+            return BadRequest(new { message = "requesterId é obrigatório" });
+
+        var requester = await _context.Users.FindAsync(requesterId);
+        if (requester == null)
+            return Unauthorized(new { message = "Solicitante inválido" });
+
+        if (!IsMasterOrAdmin(requester))
+            return Forbid();
+
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            return NotFound(new { message = "Usuário não encontrado" });
+
+        var normalizedRole = NormalizeRole(dto.FamilyRole);
+        if (normalizedRole == null)
+            return BadRequest(new { message = "FamilyRole inválido. Use: master, admin ou member" });
+
+        // Prevent demoting the last master.
+        if (IsMaster(user) && normalizedRole != "master")
+        {
+            var masterCount = await _context.Users.CountAsync(u => (u.FamilyRole ?? "member").ToLower() == "master");
+            if (masterCount <= 1)
+                return BadRequest(new { message = "Não é possível remover o único usuário master" });
+        }
+
+        user.FamilyRole = normalizedRole;
+        user.FamilyRelation = string.IsNullOrWhiteSpace(dto.FamilyRelation)
+            ? null
+            : dto.FamilyRelation.Trim();
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            user.Id,
+            user.Name,
+            user.FamilyRole,
+            user.FamilyRelation
+        });
+    }
+
+    private static string? NormalizeRole(string? value)
+    {
+        var role = (value ?? string.Empty).Trim().ToLowerInvariant();
+        return role switch
+        {
+            "master" => "master",
+            "admin" => "admin",
+            "member" => "member",
+            _ => null
+        };
+    }
+
+    private static bool IsMasterOrAdmin(User user)
+    {
+        var role = (user.FamilyRole ?? string.Empty).Trim().ToLowerInvariant();
+        if (role is "master" or "admin") return true;
+
+        // Compatibility for legacy datasets.
+        return string.Equals(user.Name, LegacyMasterUserName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsMaster(User user)
+    {
+        var role = (user.FamilyRole ?? string.Empty).Trim().ToLowerInvariant();
+        if (role == "master") return true;
+
+        // Compatibility for legacy datasets.
+        return string.Equals(user.Name, LegacyMasterUserName, StringComparison.OrdinalIgnoreCase);
+    }
 }
 
 public record UpdateUserSettingsDto(
@@ -291,6 +378,8 @@ public class UserResponse
     public string Name { get; set; } = string.Empty;
     public string Initials { get; set; } = string.Empty;
     public string Color { get; set; } = string.Empty;
+    public string FamilyRole { get; set; } = "member";
+    public string? FamilyRelation { get; set; }
     public int Points { get; set; }
     public int Xp { get; set; }
     public int Level { get; set; }
@@ -299,3 +388,8 @@ public class UserResponse
     public DateTime CreatedAt { get; set; }
     public UserSettings? Settings { get; set; }
 }
+
+public record UpdateFamilyProfileDto(
+    string FamilyRole = "member",
+    string? FamilyRelation = null
+);

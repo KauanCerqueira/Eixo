@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { X, Calendar as CalendarIcon, Edit2, Trash2 } from 'lucide-react-native';
+import { X, Calendar as CalendarIcon, Edit2, Trash2, CheckCircle2 } from 'lucide-react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useApp } from '../../context/AppContext';
 import { RecurringTask, DAYS_OF_WEEK } from '../../types/types';
@@ -25,7 +25,7 @@ interface TaskDetailModalProps {
 }
 
 export const TaskDetailModal = ({ visible, onClose, task }: TaskDetailModalProps) => {
-    const { deleteTask, getProjectedInstances } = useApp();
+    const { deleteTask, getProjectedInstances, completeTask, currentUser } = useApp();
     const [selectedDate, setSelectedDate] = useState('');
 
     if (!task) return null;
@@ -39,12 +39,8 @@ export const TaskDetailModal = ({ visible, onClose, task }: TaskDetailModalProps
     const markedDates = useMemo(() => {
         const marks: any = {};
         instances.forEach((inst) => {
-            // inst.date is DD/MM format in current implementation of context
-            // We need YYYY-MM-DD. Assuming current year for simplicity as per context logic
-            const [day, month] = inst.date.split('/');
-            const year = new Date().getFullYear();
-            const isoDate = `${year}-${month}-${day}`;
-
+            const isoDate = inst.date.slice(0, 10);
+            if (!isoDate) return;
             marks[isoDate] = {
                 marked: true,
                 dotColor: inst.assignedTo.color || '#3B82F6',
@@ -67,12 +63,18 @@ export const TaskDetailModal = ({ visible, onClose, task }: TaskDetailModalProps
         return marks;
     }, [instances, selectedDate]);
 
-    const selectedInstance = instances.find((inst) => {
-        const [day, month] = inst.date.split('/');
-        const year = new Date().getFullYear();
-        const isoDate = `${year}-${month}-${day}`;
-        return isoDate === selectedDate;
-    });
+    const selectedInstance = instances.find((inst) => inst.date.slice(0, 10) === selectedDate);
+
+    const handleComplete = async () => {
+        if (selectedInstance?.assignedTo?.id) {
+            await completeTask(task.id, selectedInstance.assignedTo.id);
+        } else if (currentUser?.id) {
+            await completeTask(task.id, currentUser.id);
+        } else {
+            return;
+        }
+        onClose();
+    };
 
     const handleDelete = () => {
         Alert.alert(
@@ -207,6 +209,11 @@ export const TaskDetailModal = ({ visible, onClose, task }: TaskDetailModalProps
                             <Text style={styles.deleteText}>Excluir Tarefa</Text>
                         </TouchableOpacity>
 
+                        <TouchableOpacity style={styles.completeBtn} onPress={handleComplete}>
+                            <CheckCircle2 size={20} color="#16A34A" />
+                            <Text style={styles.completeText}>Marcar como concluída</Text>
+                        </TouchableOpacity>
+
                     </ScrollView>
                 </View>
             </View>
@@ -238,7 +245,7 @@ const styles = StyleSheet.create({
     changeBtnText: { color: '#64748b', fontWeight: '600' },
 
     emptyState: { padding: 20, alignItems: 'center', backgroundColor: '#f8fafc', borderRadius: 12 },
-    emptyText: { color: '#94a3b8', marginBottom: 12 },
+    emptyText: { color: '#64748b', marginBottom: 12 },
     addDateBtn: { backgroundColor: '#3B82F6', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8 },
     addDateText: { color: '#fff', fontWeight: 'bold' },
 
@@ -250,4 +257,17 @@ const styles = StyleSheet.create({
 
     deleteBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 16, marginBottom: 40 },
     deleteText: { color: '#EF4444', fontWeight: 'bold', fontSize: 16 },
+    completeBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        padding: 16,
+        marginBottom: 24,
+        backgroundColor: '#dcfce7',
+        borderWidth: 1,
+        borderColor: '#86efac',
+        borderRadius: 12
+    },
+    completeText: { color: '#15803d', fontWeight: 'bold', fontSize: 16 },
 });

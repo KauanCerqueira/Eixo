@@ -21,6 +21,7 @@ if (!__DEV__ && isLocalAddress(resolvedApiUrl)) {
 }
 
 const API_URL = resolvedApiUrl.replace(/\/+$/, '');
+const USE_SIGNALR = (process.env.EXPO_PUBLIC_USE_SIGNALR || 'false').trim().toLowerCase() === 'true';
 
 export const ENV = {
     // API URL: Priority -> Environment Var -> Dev Default
@@ -32,7 +33,8 @@ export const ENV = {
     },
     get HUB_URL() {
         return `${this.API_URL}/hubs/notifications`;
-    }
+    },
+    USE_SIGNALR
 };
 
 console.log('Environment Config:', ENV);

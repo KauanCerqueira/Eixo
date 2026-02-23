@@ -88,6 +88,18 @@ class ApiService {
         });
     }
 
+    async updateFamilyProfile(
+        userId: number,
+        requesterId: number,
+        familyRole: 'master' | 'admin' | 'member',
+        familyRelation?: string
+    ) {
+        return this.request<void>(`/users/${userId}/family-profile?requesterId=${requesterId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ familyRole, familyRelation }),
+        });
+    }
+
     // ==================== TASKS ====================
 
     async getTasks() {
@@ -249,6 +261,13 @@ class ApiService {
     async createEvent(event: CreateEventDto) {
         return this.request<AgendaEvent>('/events', {
             method: 'POST',
+            body: JSON.stringify(event),
+        });
+    }
+
+    async updateEvent(id: number, event: UpdateEventDto) {
+        return this.request<void>(`/events/${id}`, {
+            method: 'PUT',
             body: JSON.stringify(event),
         });
     }
@@ -449,6 +468,8 @@ export interface User {
     name: string;
     initials: string;
     color: string;
+    familyRole?: 'master' | 'admin' | 'member';
+    familyRelation?: string;
     points: number;
     xp: number;
     level: number;
@@ -556,6 +577,17 @@ export interface Goal {
     deadline?: string;
     type: string;
     unit: string;
+    contributions?: GoalContribution[];
+}
+
+export interface GoalContribution {
+    id: number;
+    goalId: number;
+    userId?: number;
+    user?: User;
+    amount: number;
+    note?: string;
+    date: string;
 }
 
 export interface ShoppingItem {
@@ -574,6 +606,10 @@ export interface AgendaEvent {
     time?: string;
     isFamily: boolean;
     type: string;
+    description?: string;
+    location?: string;
+    createdByUserId?: number;
+    createdBy?: User;
 }
 
 export interface Notification {
@@ -762,6 +798,19 @@ export interface CreateEventDto {
     time?: string;
     isFamily?: boolean;
     type?: string;
+    description?: string;
+    location?: string;
+    createdByUserId?: number;
+}
+
+export interface UpdateEventDto {
+    title?: string;
+    date?: string;
+    time?: string;
+    isFamily?: boolean;
+    type?: string;
+    description?: string;
+    location?: string;
 }
 
 export interface CreateNoticeDto {

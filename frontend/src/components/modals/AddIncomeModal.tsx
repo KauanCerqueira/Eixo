@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Modal, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { X, DollarSign } from 'lucide-react-native';
 import { useApp } from '../../context/AppContext';
 import { INCOME_CATEGORIES } from '../../types/types';
@@ -18,19 +18,31 @@ export const AddIncomeModal = ({ visible, onClose }: AddIncomeModalProps) => {
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState<string>('salario');
 
-    const handleCreate = () => {
+    const handleCreate = async () => {
         if (!title || !amount) return;
 
-        addIncome({
-            title: title.trim(),
-            amount: parseFloat(amount),
-            category: category as any,
-            date: new Date().toLocaleDateString('pt-BR'),
-            receivedByUserId: currentUser.id
-        });
+        const numericAmount = parseFloat(amount.replace(',', '.'));
+        if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+            Alert.alert('Valor inválido', 'Informe um valor maior que zero.');
+            return;
+        }
 
-        setTitle(''); setAmount(''); setCategory('salario');
-        onClose();
+        try {
+            await addIncome({
+                title: title.trim(),
+                amount: numericAmount,
+                category: category as any,
+                date: new Date().toISOString(),
+                receivedByUserId: currentUser.id
+            });
+
+            setTitle('');
+            setAmount('');
+            setCategory('salario');
+            onClose();
+        } catch (error: any) {
+            Alert.alert('Erro', error?.message || 'Não foi possível adicionar receita.');
+        }
     };
 
     return (
@@ -44,10 +56,10 @@ export const AddIncomeModal = ({ visible, onClose }: AddIncomeModalProps) => {
 
                     <ScrollView style={styles.content}>
                         <Text style={styles.label}>Descrição</Text>
-                        <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Ex: Salário Mensal" placeholderTextColor="#94a3b8" />
+                        <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Ex: Salário Mensal" placeholderTextColor="#64748b" />
 
                         <Text style={styles.label}>Valor</Text>
-                        <TextInput style={styles.input} value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="R$ 3.500,00" placeholderTextColor="#94a3b8" />
+                        <TextInput style={styles.input} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="R$ 3.500,00" placeholderTextColor="#64748b" />
 
                         <Text style={styles.label}>Categoria</Text>
                         <View style={styles.optionsRow}>

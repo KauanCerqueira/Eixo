@@ -39,16 +39,16 @@ export const AddSubscriptionModal = ({ visible, onClose }: AddSubscriptionModalP
 
                     <ScrollView style={styles.content}>
                         <Text style={styles.label}>Nome do Serviço</Text>
-                        <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Ex: Netflix" placeholderTextColor="#94a3b8" />
+                        <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Ex: Netflix" placeholderTextColor="#64748b" />
 
                         <View style={styles.row}>
                             <View style={styles.halfInput}>
                                 <Text style={styles.label}>Valor Mensal</Text>
-                                <TextInput style={styles.input} value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="R$ 55.90" placeholderTextColor="#94a3b8" />
+                                <TextInput style={styles.input} value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="R$ 55.90" placeholderTextColor="#64748b" />
                             </View>
                             <View style={styles.halfInput}>
                                 <Text style={styles.label}>Dia Vencimento</Text>
-                                <TextInput style={styles.input} value={day} onChangeText={setDay} keyboardType="numeric" placeholder="10" placeholderTextColor="#94a3b8" />
+                                <TextInput style={styles.input} value={day} onChangeText={setDay} keyboardType="numeric" placeholder="10" placeholderTextColor="#64748b" />
                             </View>
                         </View>
 
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     input: { borderWidth: 2, borderColor: '#e2e8f0', borderRadius: 12, padding: 14, fontSize: 16, backgroundColor: '#f8fafc', color: '#0f172a' },
     row: { flexDirection: 'row', gap: 12 },
     halfInput: { flex: 1 },
-    hint: { fontSize: 12, color: '#94a3b8', marginTop: 16, fontStyle: 'italic', textAlign: 'center' },
+    hint: { fontSize: 12, color: '#64748b', marginTop: 16, fontStyle: 'italic', textAlign: 'center' },
     createBtn: { margin: 20, backgroundColor: '#3B82F6', padding: 16, borderRadius: 12, alignItems: 'center' },
     createBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });

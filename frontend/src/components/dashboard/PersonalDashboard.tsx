@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     // Balance
     balanceCard: { padding: 20, backgroundColor: '#0f172a' },
     balanceHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-    balanceLabel: { color: '#94a3b8', fontSize: 11, fontWeight: 'bold', letterSpacing: 1 },
+    balanceLabel: { color: '#64748b', fontSize: 11, fontWeight: 'bold', letterSpacing: 1 },
     balanceValue: { color: '#fff', fontSize: 32, fontWeight: '900' },
     financeRow: { flexDirection: 'row', marginTop: 20 },
     financeLabel: { color: '#64748b', fontSize: 12 },
@@ -208,9 +208,9 @@ const styles = StyleSheet.create({
     habitPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 12, borderRadius: 12, paddingHorizontal: 16, gap: 10, borderWidth: 1, borderColor: '#e2e8f0' },
     habitText: { fontSize: 14, color: '#334155', fontWeight: '500' },
     habitDot: { width: 8, height: 8, borderRadius: 4 },
-    habitCount: { fontSize: 12, color: '#94a3b8' },
+    habitCount: { fontSize: 12, color: '#64748b' },
 
-    emptyText: { color: '#94a3b8', fontStyle: 'italic', fontSize: 13 },
+    emptyText: { color: '#64748b', fontStyle: 'italic', fontSize: 13 },
 
     // Activity
     activityCard: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 16 },

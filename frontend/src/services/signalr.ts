@@ -52,7 +52,7 @@ class SignalRService {
             this.connection = new signalR.HubConnectionBuilder()
                 .withUrl(HUB_URL)
                 .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) // Retry intervals
-                .configureLogging(signalR.LogLevel.Information)
+                .configureLogging(__DEV__ ? signalR.LogLevel.Information : signalR.LogLevel.Error)
                 .build();
 
             // Register event handlers once
@@ -146,7 +146,9 @@ class SignalRService {
                     data
                 };
 
-                console.log(`SignalR: ${eventName}`, notification);
+                if (__DEV__) {
+                    console.log(`SignalR: ${eventName}`, notification);
+                }
 
                 // Notify all listeners
                 this.listeners.forEach(listener => listener(notification));

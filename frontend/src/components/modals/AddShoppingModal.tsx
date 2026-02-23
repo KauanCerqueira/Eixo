@@ -39,10 +39,10 @@ export const AddShoppingModal = ({ visible, onClose }: AddShoppingModalProps) =>
 
                     <View style={styles.content}>
                         <Text style={styles.label}>Item</Text>
-                        <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Ex: Leite" placeholderTextColor="#94a3b8" />
+                        <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Ex: Leite" placeholderTextColor="#64748b" />
 
                         <Text style={styles.label}>Quantidade</Text>
-                        <TextInput style={styles.input} value={quantity} onChangeText={setQuantity} placeholder="Ex: 2L" placeholderTextColor="#94a3b8" />
+                        <TextInput style={styles.input} value={quantity} onChangeText={setQuantity} placeholder="Ex: 2L" placeholderTextColor="#64748b" />
                     </View>
 
                     <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>

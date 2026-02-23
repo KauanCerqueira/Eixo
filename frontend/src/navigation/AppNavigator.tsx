@@ -70,6 +70,8 @@ const NavigatorContent = () => {
                 tabBarStyle: styles.tabBar,
                 tabBarLabelStyle: styles.tabLabel,
                 tabBarShowLabel: true,
+                lazy: true,
+                freezeOnBlur: true,
             }}
         >
             <Tab.Screen

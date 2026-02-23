@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { X, Target, Banknote, User } from 'lucide-react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Modal,
+    TextInput,
+    TouchableOpacity,
+    ScrollView,
+    Alert,
+    KeyboardAvoidingView,
+    Platform
+} from 'react-native';
+import { X, Target, Banknote } from 'lucide-react-native';
 import { useApp } from '../../context/AppContext';
+import { toIsoDate } from '../../utils/date';
 
 interface AddGoalModalProps {
     visible: boolean;
@@ -17,18 +29,38 @@ export const AddGoalModal = ({ visible, onClose }: AddGoalModalProps) => {
     const [type, setType] = useState<'finance' | 'general'>('finance');
     const [unit, setUnit] = useState('');
 
-    const handleCreate = () => {
+    const handleCreate = async () => {
         if (!title || !targetAmount) return;
 
-        addGoal({
-            title: title.trim(),
-            description: description.trim(),
-            targetAmount: parseFloat(targetAmount),
-            currentAmount: 0,
-            deadline: deadline || undefined,
-            type,
-            unit: type === 'finance' ? 'R$' : unit || 'un'
-        });
+        const parsedTarget = parseFloat(targetAmount.replace(',', '.'));
+        if (!Number.isFinite(parsedTarget) || parsedTarget <= 0) {
+            Alert.alert('Meta inválida', 'O alvo deve ser maior que zero.');
+            return;
+        }
+
+        let normalizedDeadline: string | undefined;
+        if (type === 'finance' && deadline.trim()) {
+            normalizedDeadline = toIsoDate(deadline.trim()) || undefined;
+            if (!normalizedDeadline) {
+                Alert.alert('Data inválida', 'Use o formato dd/mm/aaaa ou aaaa-mm-dd.');
+                return;
+            }
+        }
+
+        try {
+            await addGoal({
+                title: title.trim(),
+                description: description.trim(),
+                targetAmount: parsedTarget,
+                currentAmount: 0,
+                deadline: normalizedDeadline,
+                type,
+                unit: type === 'finance' ? 'R$' : unit || 'un'
+            });
+        } catch (error: any) {
+            Alert.alert('Erro', error?.message || 'Não foi possível criar a meta.');
+            return;
+        }
 
         // Reset
         setTitle(''); setTargetAmount(''); setDescription(''); setDeadline(''); setType('finance'); setUnit('');
@@ -36,15 +68,23 @@ export const AddGoalModal = ({ visible, onClose }: AddGoalModalProps) => {
     };
 
     return (
-        <Modal visible={visible} animationType="slide" transparent>
-            <View style={styles.overlay}>
+        <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+            <KeyboardAvoidingView
+                style={styles.overlay}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 24 : 0}
+            >
                 <View style={styles.modal}>
                     <View style={styles.header}>
                         <Text style={styles.title}>Definir Meta Familiar 🎯</Text>
                         <TouchableOpacity onPress={onClose}><X size={24} color="#000" /></TouchableOpacity>
                     </View>
 
-                    <ScrollView style={styles.content}>
+                    <ScrollView
+                        style={styles.content}
+                        contentContainerStyle={styles.contentContainer}
+                        keyboardShouldPersistTaps="handled"
+                    >
 
                         {/* Type Selector */}
                         <View style={styles.typeSelector}>
@@ -66,25 +106,32 @@ export const AddGoalModal = ({ visible, onClose }: AddGoalModalProps) => {
                         </View>
 
                         <Text style={styles.label}>Título da Meta</Text>
-                        <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder={type === 'finance' ? "Ex: Viagem Disney" : "Ex: Sem Palavrão"} placeholderTextColor="#94a3b8" />
+                        <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder={type === 'finance' ? "Ex: Viagem Disney" : "Ex: Sem Palavrão"} placeholderTextColor="#64748b" />
 
                         <View style={styles.row}>
                             <View style={styles.halfInput}>
                                 <Text style={styles.label}>Alvo</Text>
-                                <TextInput style={styles.input} value={targetAmount} onChangeText={setTargetAmount} keyboardType="numeric" placeholder={type === 'finance' ? "R$ 10.000" : "30"} placeholderTextColor="#94a3b8" />
+                                <TextInput style={styles.input} value={targetAmount} onChangeText={setTargetAmount} keyboardType="numeric" placeholder={type === 'finance' ? "R$ 10.000" : "30"} placeholderTextColor="#64748b" />
                             </View>
 
                             {type === 'general' && (
                                 <View style={styles.halfInput}>
                                     <Text style={styles.label}>Unidade</Text>
-                                    <TextInput style={styles.input} value={unit} onChangeText={setUnit} placeholder="dias, vezes, km" placeholderTextColor="#94a3b8" />
+                                    <TextInput style={styles.input} value={unit} onChangeText={setUnit} placeholder="dias, vezes, km" placeholderTextColor="#64748b" />
                                 </View>
                             )}
 
                             {type === 'finance' && (
                                 <View style={styles.halfInput}>
                                     <Text style={styles.label}>Data Limite</Text>
-                                    <TextInput style={styles.input} value={deadline} onChangeText={setDeadline} placeholder="31/12" placeholderTextColor="#94a3b8" />
+                                    <TextInput
+                                        style={styles.input}
+                                        value={deadline}
+                                        onChangeText={setDeadline}
+                                        placeholder="dd/mm/aaaa ou 2026-12-31"
+                                        placeholderTextColor="#64748b"
+                                        autoCapitalize="none"
+                                    />
                                 </View>
                             )}
                         </View>
@@ -95,7 +142,7 @@ export const AddGoalModal = ({ visible, onClose }: AddGoalModalProps) => {
                             value={description}
                             onChangeText={setDescription}
                             placeholder="Detalhe seu plano, motivações e o que precisa ser feito..."
-                            placeholderTextColor="#94a3b8"
+                            placeholderTextColor="#64748b"
                             multiline
                             numberOfLines={4}
                             textAlignVertical="top"
@@ -106,7 +153,7 @@ export const AddGoalModal = ({ visible, onClose }: AddGoalModalProps) => {
                         <Text style={styles.createBtnText}>Criar Meta</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </KeyboardAvoidingView>
         </Modal>
     );
 };
@@ -116,7 +163,8 @@ const styles = StyleSheet.create({
     modal: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: 40 },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: '#e2e8f0' },
     title: { fontSize: 18, fontWeight: '900', color: '#8B5CF6' },
-    content: { padding: 20 },
+    content: { paddingHorizontal: 20 },
+    contentContainer: { paddingTop: 20, paddingBottom: 8 },
     label: { fontSize: 13, fontWeight: 'bold', color: '#64748b', marginBottom: 8, marginTop: 12 },
     input: { borderWidth: 2, borderColor: '#e2e8f0', borderRadius: 12, padding: 14, fontSize: 16, backgroundColor: '#f8fafc', color: '#0f172a' },
     textArea: { height: 100 },

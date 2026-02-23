@@ -127,6 +127,18 @@ public class EixoDbContext : DbContext
             .HasOne(gc => gc.Goal)
             .WithMany(g => g.Contributions)
             .HasForeignKey(gc => gc.GoalId);
+
+        modelBuilder.Entity<GoalContribution>()
+            .HasOne(gc => gc.User)
+            .WithMany()
+            .HasForeignKey(gc => gc.UserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<AgendaEvent>()
+            .HasOne(e => e.CreatedBy)
+            .WithMany()
+            .HasForeignKey(e => e.CreatedByUserId)
+            .OnDelete(DeleteBehavior.SetNull);
         
         // Hobby Notes
         modelBuilder.Entity<HobbyNote>()

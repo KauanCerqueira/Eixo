@@ -13,7 +13,7 @@ import { AddIncomeModal } from '../components/modals/AddIncomeModal';
 // Removed AddGoalModal and goals section from here
 
 export const FamilyFinanceScreen = () => {
-    const { featuredDebts, subscriptions, payDebtInstallment, incomes } = useApp();
+    const { featuredDebts, subscriptions, payDebtInstallment, incomes, expenses } = useApp();
 
     const [showMenu, setShowMenu] = useState(false);
     const [showDebtModal, setShowDebtModal] = useState(false);
@@ -28,6 +28,7 @@ export const FamilyFinanceScreen = () => {
     const monthlyFixedCost = totalDebtInstallments + totalSubscriptions;
 
     const totalIncome = incomes.reduce((acc, i) => acc + i.amount, 0);
+    const totalExpense = expenses.reduce((acc, e) => acc + e.amount, 0);
 
     return (
         <View style={styles.container}>
@@ -54,6 +55,23 @@ export const FamilyFinanceScreen = () => {
                         </View>
                         <Text style={styles.miniLabel}>CUSTO FIXO</Text>
                         <Text style={[styles.miniValue, { color: '#EF4444' }]}>- R$ {monthlyFixedCost.toFixed(0)}</Text>
+                    </Card>
+                </View>
+
+                <View style={styles.topRow}>
+                    <Card style={[styles.miniCard, styles.neutralCard]}>
+                        <View style={[styles.iconCircleInfo, { backgroundColor: '#ecfeff' }]}>
+                            <DollarSign size={16} color="#0891b2" />
+                        </View>
+                        <Text style={styles.miniLabel}>DESPESAS MÊS</Text>
+                        <Text style={[styles.miniValue, { color: '#dc2626' }]}>R$ {totalExpense.toFixed(0)}</Text>
+                    </Card>
+                    <Card style={[styles.miniCard, styles.neutralCard]}>
+                        <View style={[styles.iconCircleInfo, { backgroundColor: '#fef9c3' }]}>
+                            <Calendar size={16} color="#ca8a04" />
+                        </View>
+                        <Text style={styles.miniLabel}>LANÇAMENTOS</Text>
+                        <Text style={[styles.miniValue, { color: '#334155' }]}>{incomes.length + expenses.length}</Text>
                     </Card>
                 </View>
 
@@ -117,6 +135,44 @@ export const FamilyFinanceScreen = () => {
                                 <Text style={styles.subDate}>Vence dia {sub.dueDateDay}</Text>
                             </View>
                             <Text style={styles.subAmount}>R$ {sub.amount.toFixed(2)}</Text>
+                        </View>
+                    ))}
+                </Card>
+
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>ENTRADAS RECENTES</Text>
+                </View>
+                <Card>
+                    {incomes.length === 0 ? (
+                        <Text style={styles.emptyLine}>Sem entradas registradas.</Text>
+                    ) : incomes.slice(0, 8).map((income) => (
+                        <View key={`income-${income.id}`} style={styles.flowRow}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.flowTitle}>{income.title}</Text>
+                                <Text style={styles.flowSub}>
+                                    Por: {income.receivedBy?.name || 'N/A'} | {new Date(income.date).toLocaleDateString('pt-BR')}
+                                </Text>
+                            </View>
+                            <Text style={[styles.flowAmount, { color: '#16a34a' }]}>+ R$ {income.amount.toFixed(2)}</Text>
+                        </View>
+                    ))}
+                </Card>
+
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>DESPESAS RECENTES</Text>
+                </View>
+                <Card>
+                    {expenses.length === 0 ? (
+                        <Text style={styles.emptyLine}>Sem despesas registradas.</Text>
+                    ) : expenses.slice(0, 8).map((expense) => (
+                        <View key={`expense-${expense.id}`} style={styles.flowRow}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.flowTitle}>{expense.title}</Text>
+                                <Text style={styles.flowSub}>
+                                    Por: {expense.paidBy?.name || 'N/A'} | {new Date(expense.date).toLocaleDateString('pt-BR')}
+                                </Text>
+                            </View>
+                            <Text style={[styles.flowAmount, { color: '#dc2626' }]}>- R$ {expense.amount.toFixed(2)}</Text>
                         </View>
                     ))}
                 </Card>
@@ -192,6 +248,7 @@ const styles = StyleSheet.create({
     miniCard: { flex: 1, padding: 16, alignItems: 'flex-start' },
     incomeCard: { backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#A7F3D0' },
     costCard: { backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FECACA' },
+    neutralCard: { backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0' },
     miniLabel: { fontSize: 10, fontWeight: 'bold', color: '#64748b', marginTop: 8 },
     miniValue: { fontSize: 18, fontWeight: '900', color: '#10B981', marginTop: 2 },
     iconCircleInfo: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
@@ -222,6 +279,11 @@ const styles = StyleSheet.create({
     subTitle: { fontSize: 14, fontWeight: '600' },
     subDate: { fontSize: 11, color: '#64748b' },
     subAmount: { fontSize: 14, fontWeight: 'bold' },
+    flowRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f1f5f9', gap: 10 },
+    flowTitle: { fontSize: 14, fontWeight: '700', color: '#0f172a' },
+    flowSub: { fontSize: 11, color: '#64748b', marginTop: 2 },
+    flowAmount: { fontSize: 13, fontWeight: '900' },
+    emptyLine: { color: '#64748b', fontSize: 13, paddingVertical: 6 },
 
     // Menu Modal Styles
     menuOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end', alignItems: 'center' },
@@ -232,5 +294,5 @@ const styles = StyleSheet.create({
     menuIcon: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
     menuText: { fontSize: 14, fontWeight: 'bold', color: '#334155' },
     cancelBtn: { marginTop: 24, alignSelf: 'center', padding: 10 },
-    cancelText: { color: '#94a3b8', fontWeight: 'bold' },
+    cancelText: { color: '#64748b', fontWeight: 'bold' },
 });

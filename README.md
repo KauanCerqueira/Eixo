@@ -86,6 +86,31 @@ O nome "Eixo" representa o centro em torno do qual a família gira - um ponto de
 
 ---
 
+## 🖼️ Prints das Funcionalidades
+
+### 👨‍👩‍👧‍👦 Modo NÓS (Família)
+
+| Tela | Preview |
+|------|---------|
+| Início: resumo da casa, lista de compras e atalhos da família | <img src="prints/1.jpeg" alt="Tela inicial modo NÓS" width="220" /> |
+| Mural da família com avisos e tarefas urgentes | <img src="prints/2.jpeg" alt="Mural da família" width="220" /> |
+| Tarefas domésticas com rotinas, responsáveis e pontos | <img src="prints/3.jpeg" alt="Tarefas domésticas" width="220" /> |
+| Lista de compras compartilhada com controle de itens | <img src="prints/4.jpeg" alt="Lista de compras compartilhada" width="220" /> |
+| Perfil com nível, XP, streak e ranking | <img src="prints/5.jpeg" alt="Perfil com gamificação no modo NÓS" width="220" /> |
+
+### 👤 Modo EU (Pessoal)
+
+| Tela | Preview |
+|------|---------|
+| Minhas finanças: saldo, entradas, saídas e histórico | <img src="prints/6.jpeg" alt="Finanças pessoais modo EU" width="220" /> |
+| Meus treinos: meta semanal, tempo total e calorias | <img src="prints/7.jpeg" alt="Treinos pessoais modo EU" width="220" /> |
+| Minha dieta: calorias, hidratação e refeições do dia | <img src="prints/8.jpeg" alt="Dieta pessoal modo EU" width="220" /> |
+| Guia de estudos: sessões, horas e metas semanais | <img src="prints/9.jpeg" alt="Guia de estudos modo EU" width="220" /> |
+| Meus hobbies: projetos pessoais com progresso e metas | <img src="prints/10.jpeg" alt="Hobbies modo EU" width="220" /> |
+| Perfil no modo EU com evolução e recompensas | <img src="prints/11.jpeg" alt="Perfil no modo EU" width="220" /> |
+
+---
+
 ## 🏗️ Arquitetura
 
 ```

@@ -85,7 +85,7 @@ export const AddPersonalTransactionModal = ({ visible, onClose }: AddPersonalTra
                             value={amount}
                             onChangeText={setAmount}
                             placeholder="0,00"
-                            placeholderTextColor="#cbd5e1"
+                            placeholderTextColor="#64748b"
                             keyboardType="numeric"
                         />
 
@@ -95,7 +95,7 @@ export const AddPersonalTransactionModal = ({ visible, onClose }: AddPersonalTra
                             value={title}
                             onChangeText={setTitle}
                             placeholder={type === 'income' ? "Ex: Salário, Venda" : "Ex: Almoço, Uber"}
-                            placeholderTextColor="#94a3b8"
+                            placeholderTextColor="#64748b"
                         />
 
                         <Text style={styles.label}>Categoria</Text>
@@ -121,7 +121,7 @@ export const AddPersonalTransactionModal = ({ visible, onClose }: AddPersonalTra
                             value={description}
                             onChangeText={setDescription}
                             placeholder="Adicione detalhes..."
-                            placeholderTextColor="#94a3b8"
+                            placeholderTextColor="#64748b"
                         />
 
                         {/* Date summary */}

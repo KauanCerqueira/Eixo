@@ -11,9 +11,16 @@ export const ChatScreen = () => {
 
     const icons: Record<string, React.ReactNode> = {
         task: <CheckCircle size={20} color="#22C55E" />,
+        TaskCompleted: <CheckCircle size={20} color="#22C55E" />,
         expense: <DollarSign size={20} color="#F59E0B" />,
+        NewExpense: <DollarSign size={20} color="#F59E0B" />,
         event: <Calendar size={20} color="#3B82F6" />,
+        ShoppingItemAdded: <Calendar size={20} color="#3B82F6" />,
+        NewNotice: <Calendar size={20} color="#3B82F6" />,
+        DirectNotification: <Bell size={20} color="#3B82F6" />,
         achievement: <Trophy size={20} color="#8B5CF6" />,
+        RewardRedeemed: <Trophy size={20} color="#8B5CF6" />,
+        GoalProgress: <Trophy size={20} color="#8B5CF6" />,
     };
 
     const unreadCount = notifications.filter(n => !n.isRead).length;
@@ -103,7 +110,7 @@ const styles = StyleSheet.create({
     notifTitle: { fontSize: 14, fontWeight: 'bold' },
     notifMsg: { fontSize: 13, color: '#64748b', marginTop: 2 },
     timeBox: { alignItems: 'flex-end' },
-    time: { fontSize: 12, color: '#94a3b8' },
+    time: { fontSize: 12, color: '#64748b' },
     unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#EF4444', marginTop: 4 },
     membersRow: { flexDirection: 'row', justifyContent: 'space-around' },
     memberItem: { alignItems: 'center' },

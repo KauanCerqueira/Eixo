@@ -125,6 +125,7 @@ public class StudySession
     public User User { get; set; } = null!;
     public DateTime Date { get; set; } = DateTime.UtcNow;
     public string Subject { get; set; } = string.Empty;
+    public string? Topic { get; set; }
     public int DurationMinutes { get; set; } = 0;
     public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -24,6 +24,6 @@ const styles = StyleSheet.create({
     check: { width: 20, height: 20, borderRadius: 4, borderWidth: 2, borderColor: '#000', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
     checked: { backgroundColor: '#22C55E', borderColor: '#22C55E' },
     name: { flex: 1, fontSize: 14, fontWeight: '500' },
-    bought: { textDecorationLine: 'line-through', color: '#94a3b8' },
+    bought: { textDecorationLine: 'line-through', color: '#64748b' },
     qty: { fontSize: 12, color: '#64748b', backgroundColor: '#f1f5f9', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }
 });

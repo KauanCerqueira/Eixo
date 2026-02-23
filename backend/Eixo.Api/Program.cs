@@ -109,6 +109,23 @@ try
 
     // First choice: apply migrations.
     db.Database.Migrate();
+    EnsureSqliteCompatibilityColumns(db);
+
+    // Promote legacy master user to role-based auth if needed.
+    var legacyMaster = db.Users.FirstOrDefault(u => u.Name == "Kauan Cerqueira");
+    if (legacyMaster is not null && string.IsNullOrWhiteSpace(legacyMaster.FamilyRole))
+    {
+        legacyMaster.FamilyRole = "master";
+    }
+    if (legacyMaster is not null && legacyMaster.FamilyRole != "master")
+    {
+        legacyMaster.FamilyRole = "master";
+    }
+    if (db.Users.Any() && !db.Users.Any(u => u.FamilyRole == "master"))
+    {
+        var first = db.Users.OrderBy(u => u.Id).First();
+        first.FamilyRole = "master";
+    }
 
     // Cleanup legacy seeded/demo rows from older versions.
     var seededNames = new[] { "Ana", "João", "Maria" };
@@ -139,6 +156,10 @@ try
         db.SaveChanges();
         Console.WriteLine("🧹 Legacy demo seed data removed");
     }
+    else
+    {
+        db.SaveChanges();
+    }
 
     Console.WriteLine("✅ Database migrated successfully");
 }
@@ -151,6 +172,7 @@ catch (Exception migrateEx)
         using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<EixoDbContext>();
         db.Database.EnsureCreated();
+        EnsureSqliteCompatibilityColumns(db);
         Console.WriteLine("✅ Database schema created via EnsureCreated fallback");
     }
     catch (Exception ensureEx)
@@ -180,3 +202,53 @@ app.MapHub<NotificationHub>("/hubs/notifications");
 app.MapControllers();
 
 app.Run();
+
+static void EnsureSqliteCompatibilityColumns(EixoDbContext db)
+{
+    try
+    {
+        var provider = db.Database.ProviderName ?? string.Empty;
+        if (!provider.Contains("Sqlite", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        // Users
+        db.Database.ExecuteSqlRaw("ALTER TABLE Users ADD COLUMN FamilyRole TEXT NOT NULL DEFAULT 'member';");
+    }
+    catch { }
+
+    try
+    {
+        db.Database.ExecuteSqlRaw("ALTER TABLE Users ADD COLUMN FamilyRelation TEXT NULL;");
+    }
+    catch { }
+
+    try
+    {
+        db.Database.ExecuteSqlRaw("ALTER TABLE Events ADD COLUMN Description TEXT NULL;");
+    }
+    catch { }
+
+    try
+    {
+        db.Database.ExecuteSqlRaw("ALTER TABLE Events ADD COLUMN Location TEXT NULL;");
+    }
+    catch { }
+
+    try
+    {
+        db.Database.ExecuteSqlRaw("ALTER TABLE Events ADD COLUMN CreatedByUserId INTEGER NULL;");
+    }
+    catch { }
+
+    try
+    {
+        db.Database.ExecuteSqlRaw("ALTER TABLE GoalContributions ADD COLUMN UserId INTEGER NULL;");
+    }
+    catch { }
+
+    try
+    {
+        db.Database.ExecuteSqlRaw("ALTER TABLE StudySessions ADD COLUMN Topic TEXT NULL;");
+    }
+    catch { }
+}

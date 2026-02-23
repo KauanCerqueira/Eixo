@@ -71,7 +71,7 @@ export const AddStudySessionModal = ({ visible, onClose }: AddStudySessionModalP
                             value={subject}
                             onChangeText={setSubject}
                             placeholder="Ou digite outra..."
-                            placeholderTextColor="#94a3b8"
+                            placeholderTextColor="#64748b"
                         />
 
                         <Text style={styles.label}>Tópico Específico</Text>
@@ -80,7 +80,7 @@ export const AddStudySessionModal = ({ visible, onClose }: AddStudySessionModalP
                             value={topic}
                             onChangeText={setTopic}
                             placeholder="Ex: Verbos Irregulares, Equações..."
-                            placeholderTextColor="#94a3b8"
+                            placeholderTextColor="#64748b"
                         />
 
                         <Text style={styles.label}>Duração (minutos)</Text>
@@ -91,7 +91,7 @@ export const AddStudySessionModal = ({ visible, onClose }: AddStudySessionModalP
                                 value={duration}
                                 onChangeText={setDuration}
                                 placeholder="60"
-                                placeholderTextColor="#94a3b8"
+                                placeholderTextColor="#64748b"
                                 keyboardType="numeric"
                             />
                         </View>
@@ -102,7 +102,7 @@ export const AddStudySessionModal = ({ visible, onClose }: AddStudySessionModalP
                             value={notes}
                             onChangeText={setNotes}
                             placeholder="Resumo breve ou pontos importantes..."
-                            placeholderTextColor="#94a3b8"
+                            placeholderTextColor="#64748b"
                             multiline
                             numberOfLines={3}
                         />

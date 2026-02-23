@@ -46,7 +46,7 @@ public interface INotificationService
     Task NotifyNewExpense(string title, decimal amount, string paidBy, int actorUserId);
     Task NotifyGoalProgress(string goalTitle, decimal currentAmount, decimal targetAmount, int actorUserId);
     Task NotifyShoppingItemAdded(string itemName, string addedBy, int actorUserId);
-    Task NotifyNewNotice(string text, string author, int authorId);
+    Task NotifyNewNotice(string text, string author, int authorId, IEnumerable<int> recipientUserIds);
     Task NotifyUserDirect(int userId, string title, string message, string type);
 }
 
@@ -182,7 +182,7 @@ public class NotificationService : INotificationService
             new { type = "ShoppingItemAdded", itemName });
     }
 
-    public async Task NotifyNewNotice(string text, string author, int authorId)
+    public async Task NotifyNewNotice(string text, string author, int authorId, IEnumerable<int> recipientUserIds)
     {
         if (IsDuplicate($"notice:{authorId}:{text}", windowSeconds: 20)) return;
 
@@ -196,11 +196,18 @@ public class NotificationService : INotificationService
             timestamp = DateTime.UtcNow
         });
 
-        await _pushNotifications.SendToFamilyExceptAsync(
-            authorId,
-            $"Aviso de {author}",
-            text,
-            new { type = "NewNotice" });
+        var recipients = recipientUserIds
+            .Distinct()
+            .ToList();
+
+        if (recipients.Count > 0)
+        {
+            await _pushNotifications.SendToUsersAsync(
+                recipients,
+                $"Aviso de {author}",
+                text,
+                new { type = "NewNotice" });
+        }
     }
 
     public async Task NotifyUserDirect(int userId, string title, string message, string type)

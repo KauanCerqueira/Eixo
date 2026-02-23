@@ -163,6 +163,7 @@ const styles = StyleSheet.create({
         ...THEME.shadows.medium
     },
     actions: {
+        flexDirection: 'row',
         gap: 8
     },
     actionBtn: { 

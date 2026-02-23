@@ -8,6 +8,8 @@ public class User
     public string Name { get; set; } = string.Empty;
     public string Initials { get; set; } = string.Empty;
     public string Color { get; set; } = "#3B82F6";
+    public string FamilyRole { get; set; } = "member"; // master, admin, member
+    public string? FamilyRelation { get; set; } // Pai, Mae, Filho, etc.
     [JsonIgnore]
     public string Pin { get; set; } = "1234"; // Simple PIN for family auth
     public int Points { get; set; } = 0;

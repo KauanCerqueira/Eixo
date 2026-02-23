@@ -1,19 +1,31 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Plus } from 'lucide-react-native';
 import { THEME } from '../../theme';
 
 interface FABProps {
     onPress: () => void;
     label?: string;
+    bottomOffset?: number;
+    rightOffset?: number;
 }
 
-export const FAB = ({ onPress, label }: FABProps) => (
-    <TouchableOpacity style={styles.fab} onPress={onPress} activeOpacity={0.8}> 
-        <Plus size={32} color={THEME.colors.primary} strokeWidth={3} />
-        {label && <Text style={styles.label}>{label.toUpperCase()}</Text>}      
-    </TouchableOpacity>
-);
+export const FAB = ({ onPress, label, bottomOffset = 14, rightOffset = 24 }: FABProps) => {
+    const tabBarHeight = useBottomTabBarHeight();
+    const computedBottom = Math.max(bottomOffset, tabBarHeight + bottomOffset);
+
+    return (
+        <TouchableOpacity
+            style={[styles.fab, { bottom: computedBottom, right: rightOffset }]}
+            onPress={onPress}
+            activeOpacity={0.8}
+        >
+            <Plus size={32} color={THEME.colors.primary} strokeWidth={3} />
+            {label && <Text style={styles.label}>{label.toUpperCase()}</Text>}
+        </TouchableOpacity>
+    );
+};
 
 interface AddButtonProps {
     onPress: () => void;
@@ -33,8 +45,6 @@ export const AddButton = ({ onPress, size = 'small' }: AddButtonProps) => (
 const styles = StyleSheet.create({
     fab: {
         position: 'absolute',
-        bottom: 24,
-        right: 24,
         backgroundColor: THEME.colors.secondary, // Yellow pop!
         width: 64,
         height: 64,

@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     subtitle: { fontSize: 13, color: '#64748b' },
 
     disabledContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
-    disabledText: { textAlign: 'center', marginTop: 16, color: '#94a3b8', fontSize: 16 },
+    disabledText: { textAlign: 'center', marginTop: 16, color: '#64748b', fontSize: 16 },
     enableBtn: { marginTop: 24, backgroundColor: '#0f172a', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
     enableBtnText: { color: '#fff', fontWeight: 'bold' },
 
@@ -172,11 +172,11 @@ const styles = StyleSheet.create({
     logDate: { fontSize: 14, fontWeight: '600', color: '#0f172a' },
     symptomsRow: { flexDirection: 'row', gap: 4, marginTop: 2 },
     symptomTag: { fontSize: 10, color: '#fff', backgroundColor: '#A78BFA', paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 },
-    noSymptoms: { fontSize: 10, color: '#94a3b8', fontStyle: 'italic' },
+    noSymptoms: { fontSize: 10, color: '#64748b', fontStyle: 'italic' },
     logFlow: { fontSize: 12, color: '#64748b', fontWeight: '500' },
 
     emptyCard: { padding: 32, alignItems: 'center', justifyContent: 'center' },
-    emptyText: { color: '#94a3b8', fontStyle: 'italic' },
+    emptyText: { color: '#64748b', fontStyle: 'italic' },
 });
 
 export default CycleScreen;

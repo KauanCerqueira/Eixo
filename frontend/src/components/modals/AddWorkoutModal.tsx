@@ -64,7 +64,7 @@ export const AddWorkoutModal = ({ visible, onClose }: AddWorkoutModalProps) => {
                             value={type}
                             onChangeText={setType}
                             placeholder="Ex: Musculação, Corrida, Yoga"
-                            placeholderTextColor="#94a3b8"
+                            placeholderTextColor="#64748b"
                         />
 
                         <View style={styles.row}>
@@ -77,7 +77,7 @@ export const AddWorkoutModal = ({ visible, onClose }: AddWorkoutModalProps) => {
                                         value={duration}
                                         onChangeText={setDuration}
                                         placeholder="0"
-                                        placeholderTextColor="#94a3b8"
+                                        placeholderTextColor="#64748b"
                                         keyboardType="numeric"
                                     />
                                 </View>
@@ -91,7 +91,7 @@ export const AddWorkoutModal = ({ visible, onClose }: AddWorkoutModalProps) => {
                                         value={calories}
                                         onChangeText={setCalories}
                                         placeholder="0"
-                                        placeholderTextColor="#94a3b8"
+                                        placeholderTextColor="#64748b"
                                         keyboardType="numeric"
                                     />
                                 </View>
@@ -120,7 +120,7 @@ export const AddWorkoutModal = ({ visible, onClose }: AddWorkoutModalProps) => {
                             value={notes}
                             onChangeText={setNotes}
                             placeholder="Como você se sentiu? Cargas aumentaram?"
-                            placeholderTextColor="#94a3b8"
+                            placeholderTextColor="#64748b"
                             multiline
                             numberOfLines={3}
                         />

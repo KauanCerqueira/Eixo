@@ -96,6 +96,7 @@ public class EventsController : ControllerBase
     public async Task<ActionResult<IEnumerable<AgendaEvent>>> GetEvents()
     {
         return await _context.Events
+            .Include(e => e.CreatedBy)
             .OrderBy(e => e.Date)
             .ToListAsync();
     }
@@ -103,18 +104,68 @@ public class EventsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<AgendaEvent>> CreateEvent(CreateEventDto dto)
     {
+        if (string.IsNullOrWhiteSpace(dto.Title))
+            return BadRequest(new { message = "Título é obrigatório" });
+
+        if (dto.CreatedByUserId.HasValue)
+        {
+            var creatorExists = await _context.Users.AnyAsync(u => u.Id == dto.CreatedByUserId.Value);
+            if (!creatorExists)
+                return BadRequest(new { message = "Usuário criador não encontrado" });
+        }
+
         var ev = new AgendaEvent
         {
-            Title = dto.Title,
+            Title = dto.Title.Trim(),
+            Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
+            Location = string.IsNullOrWhiteSpace(dto.Location) ? null : dto.Location.Trim(),
             Date = dto.Date,
             Time = dto.Time,
-            IsFamily = dto.IsFamily
+            IsFamily = dto.IsFamily,
+            Type = dto.Type,
+            CreatedByUserId = dto.CreatedByUserId
         };
 
         _context.Events.Add(ev);
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetEvents), new { id = ev.Id }, ev);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateEvent(int id, UpdateEventDto dto)
+    {
+        var ev = await _context.Events.FindAsync(id);
+        if (ev == null)
+            return NotFound();
+
+        if (dto.Title is not null)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Title))
+                return BadRequest(new { message = "Título inválido" });
+            ev.Title = dto.Title.Trim();
+        }
+
+        if (dto.Description is not null)
+            ev.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
+
+        if (dto.Location is not null)
+            ev.Location = string.IsNullOrWhiteSpace(dto.Location) ? null : dto.Location.Trim();
+
+        if (dto.Date.HasValue)
+            ev.Date = dto.Date.Value;
+
+        if (dto.Time.HasValue)
+            ev.Time = dto.Time.Value;
+
+        if (dto.IsFamily.HasValue)
+            ev.IsFamily = dto.IsFamily.Value;
+
+        if (!string.IsNullOrWhiteSpace(dto.Type))
+            ev.Type = dto.Type.Trim();
+
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
@@ -130,7 +181,26 @@ public class EventsController : ControllerBase
     }
 }
 
-public record CreateEventDto(string Title, DateTime Date, TimeSpan? Time = null, bool IsFamily = true);
+public record CreateEventDto(
+    string Title,
+    DateTime Date,
+    TimeSpan? Time = null,
+    bool IsFamily = true,
+    string Type = "event",
+    string? Description = null,
+    string? Location = null,
+    int? CreatedByUserId = null
+);
+
+public record UpdateEventDto(
+    string? Title = null,
+    DateTime? Date = null,
+    TimeSpan? Time = null,
+    bool? IsFamily = null,
+    string? Type = null,
+    string? Description = null,
+    string? Location = null
+);
 
 [ApiController]
 [Route("api/[controller]")]
@@ -264,9 +334,8 @@ public class NoticesController : ControllerBase
 
         _context.Notices.Add(notice);
 
-        // Persist personal notifications for everyone except the author.
+        // Persist personal notifications for all family members (including author).
         var recipients = await _context.Users
-            .Where(u => u.Id != dto.AuthorId)
             .Select(u => u.Id)
             .ToListAsync();
 
@@ -284,7 +353,7 @@ public class NoticesController : ControllerBase
         await _context.SaveChangesAsync();
 
         // Broadcast real-time notification
-        await _notifications.NotifyNewNotice(sanitizedText, author.Name, dto.AuthorId);
+        await _notifications.NotifyNewNotice(sanitizedText, author.Name, dto.AuthorId, recipients);
 
         return CreatedAtAction(nameof(GetNotices), new { id = notice.Id }, notice);
     }

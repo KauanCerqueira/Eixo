@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     },
     nextText: {
         fontSize: 10,
-        color: '#94a3b8',
+        color: '#64748b',
         marginTop: 4,
         textAlign: 'right'
     }

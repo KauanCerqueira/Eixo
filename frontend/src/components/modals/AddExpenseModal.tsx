@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Modal, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { X } from 'lucide-react-native';
 import { useApp } from '../../context/AppContext';
 import { EXPENSE_CATEGORIES } from '../../types/types';
@@ -30,22 +30,32 @@ export const AddExpenseModal = ({ visible, onClose }: AddExpenseModalProps) => {
         }
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!title.trim() || !amount) return;
 
-        addExpense({
-            title: title.trim(),
-            amount: parseFloat(amount) || 0,
-            paidByUserId: currentUser.id,
-            category: category as any,
-            splitWithUserIds: splitWith,
-            date: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-        });
+        const numericAmount = parseFloat(amount.replace(',', '.'));
+        if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+            Alert.alert('Valor inválido', 'Informe um valor maior que zero.');
+            return;
+        }
 
-        setTitle('');
-        setAmount('');
-        setSplitWith(users.map(u => u.id));
-        onClose();
+        try {
+            await addExpense({
+                title: title.trim(),
+                amount: numericAmount,
+                paidByUserId: currentUser.id,
+                category: category as any,
+                splitWithUserIds: splitWith,
+                date: new Date().toISOString(),
+            });
+
+            setTitle('');
+            setAmount('');
+            setSplitWith(users.map(u => u.id));
+            onClose();
+        } catch (error: any) {
+            Alert.alert('Erro', error?.message || 'Não foi possível adicionar despesa.');
+        }
     };
 
     const splitAmount = splitWith.length > 0 ? (parseFloat(amount) || 0) / splitWith.length : 0;
@@ -61,10 +71,10 @@ export const AddExpenseModal = ({ visible, onClose }: AddExpenseModalProps) => {
 
                     <ScrollView style={styles.content}>
                         <Text style={styles.label}>Descrição</Text>
-                        <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Ex: Supermercado" placeholderTextColor="#94a3b8" />
+                        <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Ex: Supermercado" placeholderTextColor="#64748b" />
 
                         <Text style={styles.label}>Valor (R$)</Text>
-                        <TextInput style={styles.amountInput} value={amount} onChangeText={setAmount} placeholder="0,00" placeholderTextColor="#94a3b8" keyboardType="numeric" />
+                        <TextInput style={styles.amountInput} value={amount} onChangeText={setAmount} placeholder="0,00" placeholderTextColor="#64748b" keyboardType="decimal-pad" />
 
                         <Text style={styles.label}>Categoria</Text>
                         <View style={styles.categoriesGrid}>

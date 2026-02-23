@@ -79,7 +79,7 @@ export const AddMealModal = ({ visible, onClose }: AddMealModalProps) => {
                             value={name}
                             onChangeText={setName}
                             placeholder="Ex: Arroz, Feijão e Frango"
-                            placeholderTextColor="#94a3b8"
+                            placeholderTextColor="#64748b"
                         />
 
                         <Text style={styles.label}>Calorias (kcal)</Text>
@@ -90,7 +90,7 @@ export const AddMealModal = ({ visible, onClose }: AddMealModalProps) => {
                                 value={calories}
                                 onChangeText={setCalories}
                                 placeholder="0"
-                                placeholderTextColor="#94a3b8"
+                                placeholderTextColor="#64748b"
                                 keyboardType="numeric"
                             />
                         </View>

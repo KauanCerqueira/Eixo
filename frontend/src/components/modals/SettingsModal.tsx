@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, Switch } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, Switch, Alert } from 'react-native';
 import { X, Moon, Bell, LogOut, ChevronRight, Settings as SettingsIcon, Volume2 } from 'lucide-react-native';
 import { useApp } from '../../context/AppContext';
 import { useAuthSession } from '../../context/AuthSessionContext';
+import { pushNotificationsService } from '../../services/pushNotifications';
 
 interface SettingsModalProps {
     visible: boolean;
@@ -10,15 +11,44 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
-    const { userSettings, updateUserSettings } = useApp();
+    const { userSettings, updateUserSettings, currentUser } = useApp();
     const { logout } = useAuthSession();
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [isRegisteringPush, setIsRegisteringPush] = useState(false);
 
     const toggleCycle = () => updateUserSettings({ trackCycle: !userSettings.trackCycle });
 
+    const handleEnableNotifications = async () => {
+        if (!currentUser) return;
+        setIsRegisteringPush(true);
+        try {
+            await pushNotificationsService.registerForUser(currentUser.id);
+            Alert.alert('Notificações', 'Configuração atualizada neste dispositivo.');
+        } catch (error: any) {
+            Alert.alert('Erro', error?.message || 'Não foi possível ativar notificações.');
+        } finally {
+            setIsRegisteringPush(false);
+        }
+    };
+
+    const handleLogout = async () => {
+        if (isLoggingOut) return;
+        setIsLoggingOut(true);
+        try {
+            await logout();
+            onClose();
+        } catch (error: any) {
+            Alert.alert('Erro', error?.message || 'Não foi possível encerrar sessão.');
+        } finally {
+            setIsLoggingOut(false);
+        }
+    };
+
     return (
-        <Modal visible={visible} animationType="slide" transparent>
-            <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
-                <View style={styles.modal} onStartShouldSetResponder={() => true}>
+        <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+            <View style={styles.overlay}>
+                <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={onClose} />
+                <View style={styles.modal}>
                     <View style={styles.header}>
                         <View style={styles.titleRow}>
                             <SettingsIcon size={24} color="#0f172a" />
@@ -53,7 +83,15 @@ export const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
                                 </View>
                                 <Text style={styles.settingLabel}>Notificações</Text>
                             </View>
-                            <Text style={styles.comingSoon}>Em breve</Text>
+                            <TouchableOpacity
+                                style={[styles.inlineBtn, isRegisteringPush && styles.inlineBtnDisabled]}
+                                onPress={handleEnableNotifications}
+                                disabled={isRegisteringPush}
+                            >
+                                <Text style={styles.inlineBtnText}>
+                                    {isRegisteringPush ? 'Ativando...' : 'Ativar'}
+                                </Text>
+                            </TouchableOpacity>
                         </View>
 
                         <View style={styles.settingItem}>
@@ -82,16 +120,22 @@ export const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
 
                         <View style={styles.divider} />
 
-                        <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
+                        <TouchableOpacity
+                            style={[styles.logoutBtn, isLoggingOut && styles.logoutBtnDisabled]}
+                            onPress={handleLogout}
+                            disabled={isLoggingOut}
+                        >
                             <LogOut size={20} color="#EF4444" />
-                            <Text style={styles.logoutText}>Encerrar Sessão</Text>
+                            <Text style={styles.logoutText}>
+                                {isLoggingOut ? 'Encerrando...' : 'Encerrar Sessão'}
+                            </Text>
                         </TouchableOpacity>
 
                     </View>
 
                     <Text style={styles.version}>Eixo v2.1.0 (Alpha)</Text>
                 </View>
-            </TouchableOpacity>
+            </View>
         </Modal>
     );
 };
@@ -104,20 +148,31 @@ const styles = StyleSheet.create({
     title: { fontSize: 20, fontWeight: '900', color: '#0f172a' },
     content: { padding: 24 },
 
-    sectionTitle: { fontSize: 12, fontWeight: 'bold', color: '#94a3b8', letterSpacing: 0.5, marginBottom: 16 },
+    sectionTitle: { fontSize: 12, fontWeight: 'bold', color: '#64748b', letterSpacing: 0.5, marginBottom: 16 },
 
     settingItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
     settingIconRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     iconBox: { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
     settingLabel: { fontSize: 16, fontWeight: '600', color: '#334155' },
-    comingSoon: { fontSize: 12, color: '#94a3b8', fontWeight: '700' },
+    comingSoon: { fontSize: 12, color: '#64748b', fontWeight: '700' },
+    inlineBtn: {
+        backgroundColor: '#DBEAFE',
+        borderWidth: 1,
+        borderColor: '#93C5FD',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 8
+    },
+    inlineBtnDisabled: { opacity: 0.7 },
+    inlineBtnText: { fontSize: 12, fontWeight: '800', color: '#1D4ED8' },
 
     divider: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 8 },
 
     logoutBtn: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
+    logoutBtnDisabled: { opacity: 0.7 },
     logoutText: { fontSize: 16, fontWeight: '600', color: '#EF4444' },
 
-    version: { textAlign: 'center', fontSize: 12, color: '#cbd5e1', marginTop: 20 },
+    version: { textAlign: 'center', fontSize: 12, color: '#64748b', marginTop: 20 },
 
     // Account Styles
     accountCard: { alignItems: 'center', marginBottom: 32 },
@@ -138,7 +193,7 @@ const styles = StyleSheet.create({
     supportTitle: { fontSize: 20, fontWeight: '900', color: '#0f172a', marginBottom: 8 },
     supportText: { fontSize: 14, color: '#64748b', textAlign: 'center', lineHeight: 22, marginBottom: 24 },
     contactBox: { alignItems: 'center', paddingVertical: 16, borderTopWidth: 1, borderTopColor: '#e2e8f0', width: '100%' },
-    contactLabel: { fontSize: 12, color: '#94a3b8', marginBottom: 4 },
+    contactLabel: { fontSize: 12, color: '#64748b', marginBottom: 4 },
     contactName: { fontSize: 24, fontWeight: '900', color: '#0f172a' },
     contactSub: { fontSize: 13, color: '#3B82F6', fontWeight: '600' },
 });

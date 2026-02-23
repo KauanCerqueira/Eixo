@@ -52,7 +52,7 @@ export const AddHabitModal = ({ visible, onClose }: AddHabitModalProps) => {
 
                     <ScrollView style={styles.content}>
                         <Text style={styles.label}>Título</Text>
-                        <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Ex: Beber água" placeholderTextColor="#94a3b8" />
+                        <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Ex: Beber água" placeholderTextColor="#64748b" />
 
                         <Text style={styles.label}>Categoria</Text>
                         <View style={styles.optionsRow}>
@@ -67,11 +67,11 @@ export const AddHabitModal = ({ visible, onClose }: AddHabitModalProps) => {
                         <View style={styles.row}>
                             <View style={styles.halfInput}>
                                 <Text style={styles.label}>Meta diária</Text>
-                                <TextInput style={styles.input} value={target} onChangeText={setTarget} placeholder="3" keyboardType="numeric" placeholderTextColor="#94a3b8" />
+                                <TextInput style={styles.input} value={target} onChangeText={setTarget} placeholder="3" keyboardType="numeric" placeholderTextColor="#64748b" />
                             </View>
                             <View style={styles.halfInput}>
                                 <Text style={styles.label}>Unidade</Text>
-                                <TextInput style={styles.input} value={unit} onChangeText={setUnit} placeholder="litros" placeholderTextColor="#94a3b8" />
+                                <TextInput style={styles.input} value={unit} onChangeText={setUnit} placeholder="litros" placeholderTextColor="#64748b" />
                             </View>
                         </View>
 

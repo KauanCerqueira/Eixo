@@ -304,6 +304,7 @@ public class PersonalController : ControllerBase
         {
             UserId = dto.UserId,
             Subject = dto.Subject,
+            Topic = dto.Topic,
             DurationMinutes = dto.DurationMinutes,
             Notes = dto.Notes,
             Date = dto.Date ?? DateTime.UtcNow
@@ -368,5 +369,12 @@ public record CreateWishlistDto(int UserId, string Title, decimal Price, string 
 public record UpdateWishlistDto(decimal? AddToSaved = null);
 public record CreateWorkoutDto(int UserId, string Name, DateTime? Date = null, int DurationMinutes = 0, int? Calories = null, string? Intensity = null, string? Notes = null);
 public record CreateMealDto(int UserId, string Type = "lunch", List<string>? Items = null, int? Calories = null, int? Protein = null, int? Carbs = null, int? Fat = null, int WaterIntakeMl = 0, DateTime? Date = null);
-public record CreateStudyDto(int UserId, string Subject, int DurationMinutes, string? Notes = null, DateTime? Date = null);
+public record CreateStudyDto(
+    int UserId,
+    string Subject,
+    int DurationMinutes,
+    string? Topic = null,
+    string? Notes = null,
+    DateTime? Date = null
+);
 public record CreateCycleDayDto(int UserId, DateTime Date, string? FlowIntensity = null, List<string>? Symptoms = null, string? Mood = null, string? Notes = null);

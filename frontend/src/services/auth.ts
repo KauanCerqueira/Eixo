@@ -11,6 +11,8 @@ export interface AuthUser {
     name: string;
     initials: string;
     color: string;
+    familyRole?: 'master' | 'admin' | 'member';
+    familyRelation?: string;
     points: number;
     level: number;
     xp: number;

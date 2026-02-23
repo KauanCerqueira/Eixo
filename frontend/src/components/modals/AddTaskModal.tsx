@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Modal, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { X, Check } from 'lucide-react-native';
 import { Calendar } from 'react-native-calendars';
@@ -23,6 +23,7 @@ export const AddTaskModal = ({ visible, onClose }: AddTaskModalProps) => {
     const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
     const [dayOfWeek, setDayOfWeek] = useState(6);
     const [selectedUsers, setSelectedUsers] = useState<number[]>(users.map(u => u.id));
+    const [starterUserId, setStarterUserId] = useState<number | null>(users[0]?.id ?? null);
     const [pointsOnTime, setPointsOnTime] = useState('10');
     const [distribution, setDistribution] = useState<'auto' | 'manual'>('auto');
     const [scheduledDate, setScheduledDate] = useState('');
@@ -52,35 +53,66 @@ export const AddTaskModal = ({ visible, onClose }: AddTaskModalProps) => {
         });
     };
 
-    const handleCreate = () => {
+    useEffect(() => {
+        if (visible && selectedUsers.length === 0 && users.length > 0) {
+            setSelectedUsers(users.map((u) => u.id));
+        }
+    }, [visible, selectedUsers.length, users]);
+
+    useEffect(() => {
+        if (selectedUsers.length === 0) return;
+        if (!starterUserId || !selectedUsers.includes(starterUserId)) {
+            setStarterUserId(selectedUsers[0]);
+        }
+    }, [selectedUsers, starterUserId]);
+
+    const buildOrderedAssignees = () => {
+        if (selectedUsers.length === 0) return [];
+        if (!starterUserId) return [...selectedUsers];
+        const startIdx = selectedUsers.indexOf(starterUserId);
+        if (startIdx < 0) return [...selectedUsers];
+        return [...selectedUsers.slice(startIdx), ...selectedUsers.slice(0, startIdx)];
+    };
+
+    const handleCreate = async () => {
         if (!title.trim()) return;
         if (taskType === 'sporadic' && !scheduledDate) return;
+        const orderedUsers = buildOrderedAssignees();
 
-        // Format dates as dd/mm if it's sporadic input using US format from calendar
-        // Calendar returns YYYY-MM-DD. We usually store dd/mm for display or Iso. 
-        // AppContext expects date strings usually. Let's just pass the string.
-        // Actually AppContext logic uses 'dateStr' which is dd/mm.
-        // Calendar returns YYYY-MM-DD. Let's convert if needed, or stick to a standard. 
-        // The existing projection logic uses toLocaleDateString('pt-BR').
+        // For manual recurring, materialize selected dates as sporadic tasks
+        // so the schedule actually appears in agenda and can be completed.
+        if (taskType === 'recurring' && distribution === 'manual') {
+            const dates = Object.keys(manualDates).sort();
+            if (dates.length === 0) return;
 
-        let finalScheduledDate = undefined;
-        if (scheduledDate) {
-            const [y, m, d] = scheduledDate.split('-');
-            finalScheduledDate = `${d}/${m}`;
+            for (const date of dates) {
+                await addTask({
+                    title: title.trim(),
+                    category: category as any,
+                    frequency: 'weekly',
+                    dayOfWeek: undefined,
+                    assignedUserIds: orderedUsers,
+                    pointsOnTime: parseInt(pointsOnTime, 10) || 10,
+                    pointsLatePerDay: 2,
+                    distributionStrategy: 'manual',
+                    type: 'sporadic',
+                    scheduledDate: date
+                });
+            }
+        } else {
+            await addTask({
+                title: title.trim(),
+                category: category as any,
+                frequency,
+                dayOfWeek: frequency === 'weekly' ? dayOfWeek : undefined,
+                assignedUserIds: orderedUsers,
+                pointsOnTime: parseInt(pointsOnTime, 10) || 10,
+                pointsLatePerDay: 2,
+                distributionStrategy: distribution,
+                type: taskType,
+                scheduledDate: scheduledDate || undefined
+            });
         }
-
-        addTask({
-            title: title.trim(),
-            category: category as any,
-            frequency,
-            dayOfWeek: frequency === 'weekly' ? dayOfWeek : undefined,
-            assignedUserIds: selectedUsers,
-            pointsOnTime: parseInt(pointsOnTime) || 10,
-            pointsLatePerDay: 2,
-            distributionStrategy: distribution,
-            type: taskType,
-            scheduledDate: finalScheduledDate
-        });
 
         // Reset
         setTitle('');
@@ -88,6 +120,7 @@ export const AddTaskModal = ({ visible, onClose }: AddTaskModalProps) => {
         setManualDates({});
         setTaskType('recurring');
         setScheduledDate('');
+        setStarterUserId(users[0]?.id ?? null);
         onClose();
     };
 
@@ -124,7 +157,7 @@ export const AddTaskModal = ({ visible, onClose }: AddTaskModalProps) => {
                                 </View>
 
                                 <Text style={styles.label}>Título</Text>
-                                <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Ex: Lavar banheiro" placeholderTextColor="#94a3b8" />
+                                <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Ex: Lavar banheiro" placeholderTextColor="#64748b" />
 
                                 <Text style={styles.label}>Categoria</Text>
                                 <View style={styles.optionsRow}>
@@ -145,6 +178,30 @@ export const AddTaskModal = ({ visible, onClose }: AddTaskModalProps) => {
                                         </TouchableOpacity>
                                     ))}
                                 </View>
+
+                                <Text style={styles.label}>Quem começa?</Text>
+                                <View style={styles.optionsRow}>
+                                    {users
+                                        .filter(u => selectedUsers.includes(u.id))
+                                        .map(user => (
+                                            <TouchableOpacity
+                                                key={`starter-${user.id}`}
+                                                style={[styles.optionBtn, starterUserId === user.id && styles.optionActive]}
+                                                onPress={() => setStarterUserId(user.id)}
+                                            >
+                                                <Text style={[styles.optionText, starterUserId === user.id && styles.optionTextActive]}>
+                                                    {user.name}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                </View>
+
+                                <Text style={styles.hintText}>
+                                    Ordem atual: {buildOrderedAssignees()
+                                        .map(id => users.find(u => u.id === id)?.name ?? '')
+                                        .filter(Boolean)
+                                        .join(' → ') || 'Sem participantes'}
+                                </Text>
 
                                 <View style={styles.pointsItem}>
                                     <Text style={styles.label}>Pontos por completar</Text>
@@ -298,7 +355,7 @@ const styles = StyleSheet.create({
     dayText: { fontSize: 13, fontWeight: '600', color: '#64748b' },
     dayTextActive: { color: '#000' },
 
-    hintText: { fontSize: 12, color: '#94a3b8', marginTop: 12, fontStyle: 'italic' },
+    hintText: { fontSize: 12, color: '#64748b', marginTop: 12, fontStyle: 'italic' },
 
     footer: { flexDirection: 'row', padding: 20, gap: 12 },
     backBtn: { alignItems: 'center', justifyContent: 'center', padding: 16 },

@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     workoutCalories: { fontSize: 12, color: '#64748b', fontWeight: '600', marginTop: 2 },
 
     emptyCard: { padding: 32, alignItems: 'center', justifyContent: 'center' },
-    emptyText: { color: '#94a3b8', fontStyle: 'italic' },
+    emptyText: { color: '#64748b', fontStyle: 'italic' },
 });
 
 export default WorkoutScreen;

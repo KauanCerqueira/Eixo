@@ -15,10 +15,14 @@ public class AgendaEvent
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string? Location { get; set; }
     public DateTime Date { get; set; }
     public TimeSpan? Time { get; set; }
     public bool IsFamily { get; set; } = true;
     public string Type { get; set; } = "event"; // event, task_instance
+    public int? CreatedByUserId { get; set; }
+    public User? CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 

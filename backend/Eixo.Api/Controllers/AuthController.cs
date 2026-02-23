@@ -54,6 +54,8 @@ public class AuthController : ControllerBase
                 Name = user.Name,
                 Initials = user.Initials,
                 Color = user.Color,
+                FamilyRole = user.FamilyRole,
+                FamilyRelation = user.FamilyRelation,
                 Points = user.Points,
                 Level = user.Level,
                 Xp = user.Xp,
@@ -85,11 +87,14 @@ public class AuthController : ControllerBase
         var initials = GetInitials(name);
         var color = palette[Math.Abs(name.GetHashCode()) % palette.Length];
 
+        var isFirstUser = !await _context.Users.AnyAsync();
+
         var user = new User
         {
             Name = name,
             Initials = initials,
             Color = color,
+            FamilyRole = isFirstUser ? "master" : "member",
             Pin = _hasher.HashPassword(pin),
             Points = 0,
             Xp = 0,
@@ -113,6 +118,8 @@ public class AuthController : ControllerBase
                 Name = user.Name,
                 Initials = user.Initials,
                 Color = user.Color,
+                FamilyRole = user.FamilyRole,
+                FamilyRelation = user.FamilyRelation,
                 Points = user.Points,
                 Level = user.Level,
                 Xp = user.Xp,
@@ -142,6 +149,8 @@ public class AuthController : ControllerBase
             Name = user.Name,
             Initials = user.Initials,
             Color = user.Color,
+            FamilyRole = user.FamilyRole,
+            FamilyRelation = user.FamilyRelation,
             Points = user.Points,
             Level = user.Level,
             Xp = user.Xp,
@@ -228,6 +237,8 @@ public class UserDto
     public string Name { get; set; } = string.Empty;
     public string Initials { get; set; } = string.Empty;
     public string Color { get; set; } = string.Empty;
+    public string FamilyRole { get; set; } = "member";
+    public string? FamilyRelation { get; set; }
     public int Points { get; set; }
     public int Level { get; set; }
     public int Xp { get; set; }

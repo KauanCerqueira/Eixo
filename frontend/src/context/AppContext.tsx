@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
     api, User, RecurringTask, Expense, Income, Goal, Debt, Subscription,
     ShoppingItem, AgendaEvent, Notification, Notice, Reward, PersonalHabit,
@@ -11,6 +11,7 @@ import {
     CreateDebtDto, CreateSubscriptionDto
 } from '../services/api';
 import { signalRService, RealTimeNotification } from '../services/signalr';
+import { ENV } from '../config/env';
 
 export type ContextMode = 'nos' | 'eu';
 
@@ -21,6 +22,19 @@ export interface ToastNotification {
     type: 'success' | 'info' | 'warning';
     timestamp: Date;
 }
+
+const REALTIME_NOTIFICATION_META: Record<
+    RealTimeNotification['type'],
+    { title: string; type: string }
+> = {
+    TaskCompleted: { title: 'Tarefa concluída', type: 'task' },
+    RewardRedeemed: { title: 'Recompensa resgatada', type: 'achievement' },
+    NewExpense: { title: 'Nova despesa', type: 'expense' },
+    GoalProgress: { title: 'Atualização de meta', type: 'achievement' },
+    ShoppingItemAdded: { title: 'Lista de compras', type: 'event' },
+    NewNotice: { title: 'Novo aviso', type: 'event' },
+    DirectNotification: { title: 'Notificação', type: 'event' },
+};
 
 interface AppContextType {
     // State
@@ -34,6 +48,7 @@ interface AppContextType {
     currentUser: User | null;
     setCurrentUserById: (userId: number) => void;
     deleteUserById: (userId: number, requesterId: number) => Promise<void>;
+    updateFamilyProfile: (userId: number, familyRole: 'master' | 'admin' | 'member', familyRelation?: string) => Promise<void>;
     leaderboard: LeaderboardEntry[];
     refreshUsers: (preferredUserId?: number) => Promise<User[]>;
 
@@ -43,7 +58,7 @@ interface AppContextType {
     addTask: (task: CreateTaskDto) => Promise<void>;
     updateTask: (id: number, updates: Partial<RecurringTask>) => Promise<void>;
     deleteTask: (id: number) => Promise<void>;
-    completeTask: (id: number) => Promise<void>;
+    completeTask: (id: number, userId?: number) => Promise<void>;
 
     // Finance
     expenses: Expense[];
@@ -61,7 +76,7 @@ interface AppContextType {
     payDebtInstallment: (id: number) => Promise<void>;
     addSubscription: (sub: CreateSubscriptionDto) => Promise<void>;
     addGoal: (goal: CreateGoalDto) => Promise<void>;
-    addContributionToGoal: (goalId: number, amount: number) => Promise<void>;
+    addContributionToGoal: (goalId: number, amount: number, note?: string) => Promise<void>;
 
     // Shopping
     shopping: ShoppingItem[];
@@ -75,6 +90,7 @@ interface AppContextType {
     personalEvents: AgendaEvent[];
     refreshEvents: () => Promise<void>;
     addEvent: (event: CreateEventDto) => Promise<void>;
+    updateEvent: (id: number, event: Partial<AgendaEvent>) => Promise<void>;
     deleteEvent: (id: number) => Promise<void>;
 
     // Notifications & Notices
@@ -132,6 +148,8 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
+    const SYNC_INTERVAL_MS = ENV.USE_SIGNALR ? 60000 : 30000;
+    const SIGNALR_FULL_RESYNC_MS = 5 * 60 * 1000;
     // Core State
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -181,6 +199,23 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     // Real-time toast notifications
     const [toasts, setToasts] = useState<ToastNotification[]>([]);
     const recentRealtimeEventsRef = useRef<Map<string, number>>(new Map());
+    const realtimeRefreshThrottleRef = useRef<Map<string, number>>(new Map());
+    const refreshInFlightRef = useRef<Map<string, Promise<unknown>>>(new Map());
+    const lastPollingSyncRef = useRef(0);
+
+    const runRefreshOnce = useCallback(async <T,>(key: string, work: () => Promise<T>): Promise<T> => {
+        const existing = refreshInFlightRef.current.get(key) as Promise<T> | undefined;
+        if (existing) return existing;
+
+        const promise = work().finally(() => {
+            if (refreshInFlightRef.current.get(key) === promise) {
+                refreshInFlightRef.current.delete(key);
+            }
+        });
+
+        refreshInFlightRef.current.set(key, promise);
+        return promise;
+    }, []);
 
     // Helper to add toast
     const addToast = useCallback((message: string, type: 'success' | 'info' | 'warning' = 'info') => {
@@ -203,44 +238,49 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     // Computed
-    const familyBalance = incomes.reduce((sum, i) => sum + i.amount, 0) -
-        expenses.reduce((sum, e) => sum + e.amount, 0);
-    const personalBalance = personalFinance
-        .reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0);
-    const familyEvents = events.filter(e => e.isFamily);
-    const personalEvents = events.filter(e => !e.isFamily);
-    const featuredDebts = debts.filter(d => d.paidInstallments < d.totalInstallments);
+    const familyBalance = useMemo(() =>
+        incomes.reduce((sum, i) => sum + i.amount, 0) -
+        expenses.reduce((sum, e) => sum + e.amount, 0),
+    [incomes, expenses]);
+    const personalBalance = useMemo(() =>
+        personalFinance.reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0),
+    [personalFinance]);
+    const familyEvents = useMemo(() => events.filter(e => e.isFamily), [events]);
+    const personalEvents = useMemo(() => events.filter(e => !e.isFamily), [events]);
+    const featuredDebts = useMemo(() => debts.filter(d => d.paidInstallments < d.totalInstallments), [debts]);
 
     // ==================== REFRESH FUNCTIONS ====================
 
     const refreshUsers = useCallback(async (preferredUserId?: number) => {
-        try {
-            const [usersData, leaderboardData] = await Promise.all([
-                api.getUsers(),
-                api.getLeaderboard()
-            ]);
-            setUsers(usersData);
-            setLeaderboard(leaderboardData);
-            if (usersData.length > 0) {
-                const preferred = preferredUserId
-                    ? usersData.find(u => u.id === preferredUserId)
-                    : undefined;
+        return runRefreshOnce('users', async () => {
+            try {
+                const [usersData, leaderboardData] = await Promise.all([
+                    api.getUsers(),
+                    api.getLeaderboard()
+                ]);
+                setUsers(usersData);
+                setLeaderboard(leaderboardData);
+                if (usersData.length > 0) {
+                    const preferred = preferredUserId
+                        ? usersData.find(u => u.id === preferredUserId)
+                        : undefined;
 
-                if (preferred) {
-                    setCurrentUser(preferred);
-                } else if (!currentUser) {
-                    setCurrentUser(usersData[0]);
+                    if (preferred) {
+                        setCurrentUser(preferred);
+                    } else if (!currentUser) {
+                        setCurrentUser(usersData[0]);
+                    }
+                } else {
+                    setCurrentUser(null);
                 }
-            } else {
-                setCurrentUser(null);
+                return usersData;
+            } catch (err) {
+                setError('Failed to load users');
+                console.error(err);
+                return [];
             }
-            return usersData;
-        } catch (err) {
-            setError('Failed to load users');
-            console.error(err);
-            return [];
-        }
-    }, [currentUser]);
+        });
+    }, [currentUser, runRefreshOnce]);
 
     const setCurrentUserById = useCallback((userId: number) => {
         setCurrentUser(prev => {
@@ -258,102 +298,139 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [refreshUsers, currentUser?.id]);
 
+    const updateFamilyProfile = useCallback(async (
+        userId: number,
+        familyRole: 'master' | 'admin' | 'member',
+        familyRelation?: string
+    ) => {
+        if (!currentUser) return;
+        await api.updateFamilyProfile(userId, currentUser.id, familyRole, familyRelation);
+        await refreshUsers(currentUser.id);
+    }, [currentUser, refreshUsers]);
+
     const refreshTasks = useCallback(async () => {
-        try {
-            const data = await api.getTasks();
-            setTasks(data);
-        } catch (err) {
-            console.error('Failed to load tasks:', err);
-        }
-    }, []);
+        await runRefreshOnce('tasks', async () => {
+            try {
+                const data = await api.getTasks();
+                setTasks(data);
+            } catch (err) {
+                console.error('Failed to load tasks:', err);
+            }
+        });
+    }, [runRefreshOnce]);
 
     const refreshFinance = useCallback(async () => {
-        try {
-            const [expensesData, incomesData, debtsData, subsData, goalsData] = await Promise.all([
-                api.getExpenses(),
-                api.getIncomes(),
-                api.getDebts(),
-                api.getSubscriptions(),
-                api.getGoals()
-            ]);
-            setExpenses(expensesData);
-            setIncomes(incomesData);
-            setDebts(debtsData);
-            setSubscriptions(subsData);
-            setGoals(goalsData);
-        } catch (err) {
-            console.error('Failed to load finance:', err);
-        }
-    }, []);
+        await runRefreshOnce('finance', async () => {
+            try {
+                const [expensesData, incomesData, debtsData, subsData, goalsData] = await Promise.all([
+                    api.getExpenses(),
+                    api.getIncomes(),
+                    api.getDebts(),
+                    api.getSubscriptions(),
+                    api.getGoals()
+                ]);
+                setExpenses(expensesData);
+                setIncomes(incomesData);
+                setDebts(debtsData);
+                setSubscriptions(subsData);
+                setGoals(goalsData);
+            } catch (err) {
+                console.error('Failed to load finance:', err);
+            }
+        });
+    }, [runRefreshOnce]);
 
     const refreshShopping = useCallback(async () => {
-        try {
-            const data = await api.getShopping();
-            setShopping(data);
-        } catch (err) {
-            console.error('Failed to load shopping:', err);
-        }
-    }, []);
+        await runRefreshOnce('shopping', async () => {
+            try {
+                const data = await api.getShopping();
+                setShopping(data);
+            } catch (err) {
+                console.error('Failed to load shopping:', err);
+            }
+        });
+    }, [runRefreshOnce]);
 
     const refreshEvents = useCallback(async () => {
-        try {
-            const data = await api.getEvents();
-            setEvents(data);
-        } catch (err) {
-            console.error('Failed to load events:', err);
-        }
-    }, []);
+        await runRefreshOnce('events', async () => {
+            try {
+                const data = await api.getEvents();
+                setEvents(data);
+            } catch (err) {
+                console.error('Failed to load events:', err);
+            }
+        });
+    }, [runRefreshOnce]);
 
     const refreshNotifications = useCallback(async () => {
-        try {
-            const [notifs, noticesData] = await Promise.all([
-                api.getNotifications(currentUser?.id),
-                api.getNotices()
-            ]);
-            setNotifications(notifs);
-            setNotices(noticesData);
-        } catch (err) {
-            console.error('Failed to load notifications:', err);
-        }
-    }, [currentUser]);
+        await runRefreshOnce('notifications', async () => {
+            try {
+                const [notifs, noticesData] = await Promise.all([
+                    api.getNotifications(currentUser?.id),
+                    api.getNotices()
+                ]);
+                setNotifications(prev => {
+                    const localRealtime = prev.filter(n => n.id < 0);
+                    const merged = [...localRealtime, ...notifs];
+                    const dedup = new Set<string>();
+                    return merged
+                        .filter((n) => {
+                            const key = `${n.type}|${n.title}|${n.message}|${n.createdAt}`;
+                            if (dedup.has(key)) return false;
+                            dedup.add(key);
+                            return true;
+                        })
+                        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                        .slice(0, 80);
+                });
+                setNotices(noticesData);
+            } catch (err) {
+                console.error('Failed to load notifications:', err);
+            }
+        });
+    }, [currentUser, runRefreshOnce]);
 
     const refreshRewards = useCallback(async () => {
-        try {
-            const data = await api.getRewards();
-            setRewards(data);
-        } catch (err) {
-            console.error('Failed to load rewards:', err);
-        }
-    }, []);
+        await runRefreshOnce('rewards', async () => {
+            try {
+                const data = await api.getRewards();
+                setRewards(data);
+            } catch (err) {
+                console.error('Failed to load rewards:', err);
+            }
+        });
+    }, [runRefreshOnce]);
 
     const refreshPersonal = useCallback(async () => {
         if (!currentUser) return;
-        try {
-            const [habitsData, hobbiesData, wishlistData, transData, workoutsData,
-                mealsData, studyData, cycleData, settingsData] = await Promise.all([
-                    api.getHabits(currentUser.id),
-                    api.getHobbies(currentUser.id),
-                    api.getWishlist(currentUser.id),
-                    api.getPersonalTransactions(currentUser.id),
-                    api.getWorkouts(currentUser.id),
-                    api.getMeals(currentUser.id),
-                    api.getStudySessions(currentUser.id),
-                    api.getCycleDays(currentUser.id),
-                    api.getUserSettings(currentUser.id)
-                ]);
-            setHabits(habitsData);
-            setHobbies(hobbiesData);
-            setWishlist(wishlistData);
-            setPersonalFinance(transData);
-            setWorkouts(workoutsData);
-            setMeals(mealsData);
-            setStudySessions(studyData);
-            setCycleLog(cycleData);
-            setUserSettings(settingsData);
-        } catch (err) {
-            console.error('Failed to load personal data:', err);
-        }
-    }, [currentUser]);
+        await runRefreshOnce('personal', async () => {
+            try {
+                const [habitsData, hobbiesData, wishlistData, transData, workoutsData,
+                    mealsData, studyData, cycleData, settingsData] = await Promise.all([
+                        api.getHabits(currentUser.id),
+                        api.getHobbies(currentUser.id),
+                        api.getWishlist(currentUser.id),
+                        api.getPersonalTransactions(currentUser.id),
+                        api.getWorkouts(currentUser.id),
+                        api.getMeals(currentUser.id),
+                        api.getStudySessions(currentUser.id),
+                        api.getCycleDays(currentUser.id),
+                        api.getUserSettings(currentUser.id)
+                    ]);
+                setHabits(habitsData);
+                setHobbies(hobbiesData);
+                setWishlist(wishlistData);
+                setPersonalFinance(transData);
+                setWorkouts(workoutsData);
+                setMeals(mealsData);
+                setStudySessions(studyData);
+                setCycleLog(cycleData);
+                setUserSettings(settingsData);
+            } catch (err) {
+                console.error('Failed to load personal data:', err);
+            }
+        });
+    }, [currentUser, runRefreshOnce]);
 
     const getProjectedInstances = useCallback((task: RecurringTask, limit = 20) => {
         const assignees = task.assignments?.map(a => a.user).filter(Boolean) ?? [];
@@ -374,9 +451,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             }
 
             const assignedTo = assignees[i % assignees.length];
+            const isoDate = date.toISOString().slice(0, 10);
             instances.push({
                 id: `${task.id}-${i}`,
-                date: date.toLocaleDateString('pt-BR'),
+                date: isoDate,
                 assignedTo
             });
         }
@@ -391,34 +469,39 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             setIsLoading(true);
             try {
                 await refreshUsers();
-                await Promise.all([
+                // Unblock UI quickly; continue loading secondary sections in background.
+                setIsLoading(false);
+                void Promise.all([
                     refreshTasks(),
                     refreshFinance(),
                     refreshShopping(),
                     refreshEvents(),
                     refreshNotifications(),
                     refreshRewards()
-                ]);
+                ]).catch((error) => {
+                    console.error('Background initial load failed:', error);
+                });
             } catch (err) {
                 setError('Failed to load data');
                 console.error(err);
-            } finally {
                 setIsLoading(false);
             }
         };
         loadData();
     }, []);
 
-    // Load personal data when user changes
+    // Load personal and user-scoped notifications when active user changes
     useEffect(() => {
         if (currentUser) {
             refreshPersonal();
+            refreshNotifications();
         }
-    }, [currentUser, refreshPersonal]);
+    }, [currentUser, refreshPersonal, refreshNotifications]);
 
     // ==================== SIGNALR REAL-TIME CONNECTION ====================
 
     useEffect(() => {
+        if (!ENV.USE_SIGNALR) return;
         if (isLoading || !currentUser?.id) return;
 
         signalRService.connect(currentUser.id).catch((err) => {
@@ -427,13 +510,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }, [isLoading, currentUser?.id]);
 
     useEffect(() => {
+        if (!ENV.USE_SIGNALR) return;
+        const refreshWithThrottle = (key: string, fn: () => Promise<void>, minIntervalMs = 2500) => {
+            const now = Date.now();
+            const lastRun = realtimeRefreshThrottleRef.current.get(key) ?? 0;
+            if (now - lastRun < minIntervalMs) return;
+            realtimeRefreshThrottleRef.current.set(key, now);
+            void fn();
+        };
+
         // Subscribe to real-time notifications
         const unsubscribe = signalRService.subscribe((notification) => {
-            const actorUserId = notification.data?.actorUserId ?? notification.data?.authorId;
-            if (currentUser?.id && actorUserId && Number(actorUserId) === currentUser.id) {
-                return;
-            }
-
             const dedupKey = `${notification.type}:${notification.message}`;
             const now = Date.now();
             const lastSeen = recentRealtimeEventsRef.current.get(dedupKey) ?? 0;
@@ -448,30 +535,43 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             // Show toast for all notifications
             addToast(notification.message, 'info');
 
+            const realtimeMeta = REALTIME_NOTIFICATION_META[notification.type];
+            setNotifications(prev => [
+                {
+                    id: -Math.floor(Date.now() + Math.random() * 1000),
+                    title: realtimeMeta?.title || 'Notificação',
+                    message: notification.message,
+                    isRead: false,
+                    type: realtimeMeta?.type || 'event',
+                    createdAt: notification.timestamp || new Date().toISOString(),
+                },
+                ...prev
+            ].slice(0, 80));
+
             // Refresh relevant data based on notification type
             switch (notification.type) {
                 case 'TaskCompleted':
-                    refreshTasks();
-                    refreshUsers();
+                    refreshWithThrottle('tasks', refreshTasks);
+                    refreshWithThrottle('users', () => refreshUsers().then(() => undefined));
                     break;
                 case 'RewardRedeemed':
-                    refreshUsers();
-                    refreshRewards();
+                    refreshWithThrottle('users', () => refreshUsers().then(() => undefined));
+                    refreshWithThrottle('rewards', refreshRewards);
                     break;
                 case 'NewExpense':
-                    refreshFinance();
+                    refreshWithThrottle('finance', refreshFinance);
                     break;
                 case 'GoalProgress':
-                    refreshFinance();
+                    refreshWithThrottle('finance', refreshFinance);
                     break;
                 case 'ShoppingItemAdded':
-                    refreshShopping();
+                    refreshWithThrottle('shopping', refreshShopping);
                     break;
                 case 'NewNotice':
-                    refreshNotifications();
+                    refreshWithThrottle('notifications', refreshNotifications);
                     break;
                 case 'DirectNotification':
-                    refreshNotifications();
+                    refreshWithThrottle('notifications', refreshNotifications);
                     break;
             }
         });
@@ -483,209 +583,355 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }, [currentUser?.id, addToast, refreshTasks, refreshUsers, refreshRewards, refreshFinance, refreshShopping, refreshNotifications]);
 
     useEffect(() => {
+        if (!ENV.USE_SIGNALR) return;
         return () => {
             signalRService.disconnect();
         };
     }, []);
 
+    // ==================== POLLING SYNC (BLOCKS) ====================
+    useEffect(() => {
+        if (isLoading || !currentUser?.id) return;
+
+        let active = true;
+        let inFlight = false;
+        let block = 0;
+
+        const runBlock = async () => {
+            if (!active || inFlight) return;
+            if (ENV.USE_SIGNALR && signalRService.connected) {
+                const now = Date.now();
+                if (now - lastPollingSyncRef.current < SIGNALR_FULL_RESYNC_MS) {
+                    return;
+                }
+            }
+
+            inFlight = true;
+            try {
+                switch (block % 4) {
+                    case 0:
+                        if (ENV.USE_SIGNALR && signalRService.connected) {
+                            await refreshNotifications();
+                        } else {
+                            await Promise.all([refreshUsers(), refreshNotifications()]);
+                        }
+                        break;
+                    case 1:
+                        await Promise.all([refreshTasks(), refreshShopping()]);
+                        break;
+                    case 2:
+                        await Promise.all([refreshFinance(), refreshRewards()]);
+                        break;
+                    default:
+                        await refreshEvents();
+                        break;
+                }
+                lastPollingSyncRef.current = Date.now();
+                block++;
+            } catch (error) {
+                console.warn('Polling sync failed:', error);
+            } finally {
+                inFlight = false;
+            }
+        };
+
+        const intervalId = setInterval(runBlock, SYNC_INTERVAL_MS);
+        void runBlock();
+
+        return () => {
+            active = false;
+            clearInterval(intervalId);
+        };
+    }, [
+        isLoading,
+        currentUser?.id,
+        refreshUsers,
+        refreshNotifications,
+        refreshTasks,
+        refreshShopping,
+        refreshFinance,
+        refreshRewards,
+        refreshEvents,
+        SIGNALR_FULL_RESYNC_MS,
+    ]);
+
     // ==================== ACTION FUNCTIONS ======================================
 
     // Tasks
     const addTask = async (task: CreateTaskDto) => {
-        await api.createTask(task);
-        await refreshTasks();
+        const created = await api.createTask(task);
+        setTasks(prev => [created, ...prev]);
+        void refreshTasks();
     };
 
     const updateTask = async (id: number, updates: Partial<RecurringTask>) => {
         await api.updateTask(id, updates);
-        await refreshTasks();
+        setTasks(prev => prev.map(task => (
+            task.id === id ? { ...task, ...updates } : task
+        )));
+        void refreshTasks();
     };
 
     const deleteTask = async (id: number) => {
         await api.deleteTask(id);
-        await refreshTasks();
+        setTasks(prev => prev.filter(task => task.id !== id));
+        void refreshTasks();
     };
 
-    const completeTask = async (id: number) => {
-        if (!currentUser) return;
-        await api.completeTask(id, currentUser.id);
-        await Promise.all([refreshTasks(), refreshUsers()]);
+    const completeTask = async (id: number, userId?: number) => {
+        if (!currentUser && !userId) return;
+        const actorId = userId ?? currentUser!.id;
+        await api.completeTask(id, actorId);
+        setTasks(prev => prev.map(task => task.id === id
+            ? {
+                ...task,
+                isDone: true,
+                completedByUserId: actorId,
+                lastCompleted: new Date().toISOString(),
+            }
+            : task
+        ));
+        void Promise.all([refreshTasks(), refreshUsers()]);
     };
 
     // Expenses
     const addExpense = async (expense: CreateExpenseDto) => {
-        await api.createExpense(expense);
-        await refreshFinance();
+        const created = await api.createExpense(expense);
+        setExpenses(prev => [created, ...prev]);
+        void refreshFinance();
     };
 
     const deleteExpense = async (id: number) => {
         await api.deleteExpense(id);
-        await refreshFinance();
+        setExpenses(prev => prev.filter(expense => expense.id !== id));
+        void refreshFinance();
     };
 
     // Incomes
     const addIncome = async (income: CreateIncomeDto) => {
-        await api.createIncome(income);
-        await refreshFinance();
+        const created = await api.createIncome(income);
+        setIncomes(prev => [created, ...prev]);
+        void refreshFinance();
     };
 
     // Debts
     const addDebt = async (debt: CreateDebtDto) => {
-        await api.createDebt(debt);
-        await refreshFinance();
+        const created = await api.createDebt(debt);
+        setDebts(prev => [created, ...prev]);
+        void refreshFinance();
     };
 
     const payDebtInstallment = async (id: number) => {
-        await api.payDebtInstallment(id);
-        await refreshFinance();
+        const response = await api.payDebtInstallment(id);
+        setDebts(prev => prev.map(debt => debt.id === id
+            ? { ...debt, paidInstallments: response.paidInstallments }
+            : debt
+        ));
+        void refreshFinance();
     };
 
     // Subscriptions
     const addSubscription = async (sub: CreateSubscriptionDto) => {
-        await api.createSubscription(sub);
-        await refreshFinance();
+        const created = await api.createSubscription(sub);
+        setSubscriptions(prev => [created, ...prev]);
+        void refreshFinance();
     };
 
     // Goals
     const addGoal = async (goal: CreateGoalDto) => {
-        await api.createGoal(goal);
-        await refreshFinance();
+        const created = await api.createGoal(goal);
+        setGoals(prev => [created, ...prev]);
+        void refreshFinance();
     };
 
-    const addContributionToGoal = async (goalId: number, amount: number) => {
-        await api.contributeToGoal(goalId, amount, undefined, currentUser?.id);
-        await refreshFinance();
+    const addContributionToGoal = async (goalId: number, amount: number, note?: string) => {
+        const contribution = await api.contributeToGoal(goalId, amount, note, currentUser?.id);
+        setGoals(prev => prev.map(goal => goal.id === goalId
+            ? { ...goal, currentAmount: contribution.currentAmount }
+            : goal
+        ));
+        void refreshFinance();
     };
 
     // Shopping
     const addShoppingItem = async (item: CreateShoppingItemDto) => {
-        await api.createShoppingItem(item);
-        await refreshShopping();
+        const created = await api.createShoppingItem(item);
+        setShopping(prev => [created, ...prev]);
+        void refreshShopping();
     };
 
     const toggleShoppingItem = async (id: number) => {
-        await api.toggleShoppingItem(id);
-        await refreshShopping();
+        setShopping(prev => prev.map(item =>
+            item.id === id ? { ...item, isBought: !item.isBought } : item
+        ));
+        try {
+            const response = await api.toggleShoppingItem(id);
+            setShopping(prev => prev.map(item =>
+                item.id === id ? { ...item, isBought: response.isBought } : item
+            ));
+        } catch (error) {
+            setShopping(prev => prev.map(item =>
+                item.id === id ? { ...item, isBought: !item.isBought } : item
+            ));
+            throw error;
+        } finally {
+            void refreshShopping();
+        }
     };
 
     const deleteShoppingItem = async (id: number) => {
         await api.deleteShoppingItem(id);
-        await refreshShopping();
+        setShopping(prev => prev.filter(item => item.id !== id));
+        void refreshShopping();
     };
 
     // Events
     const addEvent = async (event: CreateEventDto) => {
-        await api.createEvent(event);
-        await refreshEvents();
+        const created = await api.createEvent(event);
+        setEvents(prev => [created, ...prev]);
+        void refreshEvents();
+    };
+
+    const updateEvent = async (id: number, event: Partial<AgendaEvent>) => {
+        await api.updateEvent(id, event);
+        setEvents(prev => prev.map(item => (
+            item.id === id ? { ...item, ...event } : item
+        )));
+        void refreshEvents();
     };
 
     const deleteEvent = async (id: number) => {
         await api.deleteEvent(id);
-        await refreshEvents();
+        setEvents(prev => prev.filter(event => event.id !== id));
+        void refreshEvents();
     };
 
     // Notifications
     const markNotificationRead = async (id: number) => {
+        setNotifications(prev => prev.map(notification =>
+            notification.id === id ? { ...notification, isRead: true } : notification
+        ));
+        if (id <= 0) return;
         await api.markNotificationRead(id);
-        await refreshNotifications();
+        void refreshNotifications();
     };
 
     // Notices
     const addNotice = async (notice: CreateNoticeDto) => {
-        await api.createNotice(notice);
-        await refreshNotifications();
+        const created = await api.createNotice(notice);
+        setNotices(prev => [created, ...prev]);
+        void refreshNotifications();
     };
 
     const deleteNotice = async (id: number) => {
         await api.deleteNotice(id);
-        await refreshNotifications();
+        setNotices(prev => prev.filter(notice => notice.id !== id));
+        void refreshNotifications();
     };
 
     // Rewards
     const redeemReward = async (rewardId: number) => {
         if (!currentUser) return;
         await api.redeemReward(rewardId, currentUser.id);
-        await Promise.all([refreshUsers(), refreshRewards()]);
+        void Promise.all([refreshUsers(), refreshRewards()]);
     };
 
     // Personal - Habits
     const addHabit = async (habit: CreateHabitDto) => {
-        await api.createHabit(habit);
-        await refreshPersonal();
+        const created = await api.createHabit(habit);
+        setHabits(prev => [created, ...prev]);
+        void refreshPersonal();
     };
 
     const incrementHabit = async (id: number) => {
         await api.incrementHabit(id);
-        await refreshPersonal();
+        void refreshPersonal();
     };
 
     const deleteHabit = async (id: number) => {
         await api.deleteHabit(id);
-        await refreshPersonal();
+        setHabits(prev => prev.filter(habit => habit.id !== id));
+        void refreshPersonal();
     };
 
     // Personal - Hobbies
     const addHobby = async (hobby: CreateHobbyDto) => {
-        await api.createHobby(hobby);
-        await refreshPersonal();
+        const created = await api.createHobby(hobby);
+        setHobbies(prev => [created, ...prev]);
+        void refreshPersonal();
     };
 
     const updateHobbyProgress = async (id: number, progress: number) => {
-        await api.updateHobby(id, progress);
-        await refreshPersonal();
+        const updated = await api.updateHobby(id, progress);
+        setHobbies(prev => prev.map(hobby => (
+            hobby.id === id ? updated : hobby
+        )));
+        void refreshPersonal();
     };
 
     const deleteHobby = async (id: number) => {
         await api.deleteHobby(id);
-        await refreshPersonal();
+        setHobbies(prev => prev.filter(hobby => hobby.id !== id));
+        void refreshPersonal();
     };
 
     // Personal - Wishlist
     const addWishlistItem = async (item: CreateWishlistItemDto) => {
-        await api.createWishlistItem(item);
-        await refreshPersonal();
+        const created = await api.createWishlistItem(item);
+        setWishlist(prev => [created, ...prev]);
+        void refreshPersonal();
     };
 
     const updateWishlistSaved = async (id: number, amount: number) => {
-        await api.updateWishlistSaved(id, amount);
-        await refreshPersonal();
+        const updated = await api.updateWishlistSaved(id, amount);
+        setWishlist(prev => prev.map(item => (
+            item.id === id ? updated : item
+        )));
+        void refreshPersonal();
     };
 
     const deleteWishlistItem = async (id: number) => {
         await api.deleteWishlistItem(id);
-        await refreshPersonal();
+        setWishlist(prev => prev.filter(item => item.id !== id));
+        void refreshPersonal();
     };
 
     // Personal - Transactions
     const addPersonalTransaction = async (t: CreatePersonalTransactionDto) => {
-        await api.createPersonalTransaction(t);
-        await refreshPersonal();
+        const created = await api.createPersonalTransaction(t);
+        setPersonalFinance(prev => [created, ...prev]);
+        void refreshPersonal();
     };
 
     const deletePersonalTransaction = async (id: number) => {
         await api.deletePersonalTransaction(id);
-        await refreshPersonal();
+        setPersonalFinance(prev => prev.filter(transaction => transaction.id !== id));
+        void refreshPersonal();
     };
 
     // Personal - Workouts, Meals, Study, Cycle
     const addWorkoutSession = async (w: CreateWorkoutDto) => {
-        await api.createWorkout(w);
-        await refreshPersonal();
+        const created = await api.createWorkout(w);
+        setWorkouts(prev => [created, ...prev]);
+        void refreshPersonal();
     };
 
     const addMealLog = async (m: CreateMealDto) => {
-        await api.createMeal(m);
-        await refreshPersonal();
+        const created = await api.createMeal(m);
+        setMeals(prev => [created, ...prev]);
+        void refreshPersonal();
     };
 
     const addStudySession = async (s: CreateStudySessionDto) => {
-        await api.createStudySession(s);
-        await refreshPersonal();
+        const created = await api.createStudySession(s);
+        setStudySessions(prev => [created, ...prev]);
+        void refreshPersonal();
     };
 
     const addCycleDay = async (d: CreateCycleDayDto) => {
-        await api.createCycleDay(d);
-        await refreshPersonal();
+        const created = await api.createCycleDay(d);
+        setCycleLog(prev => [created, ...prev]);
+        void refreshPersonal();
     };
 
     // Settings
@@ -706,6 +952,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             currentUser,
             setCurrentUserById,
             deleteUserById,
+            updateFamilyProfile,
             leaderboard,
             refreshUsers,
 
@@ -743,6 +990,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             personalEvents,
             refreshEvents,
             addEvent,
+            updateEvent,
             deleteEvent,
 
             notifications,

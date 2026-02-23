@@ -316,7 +316,7 @@ export const LoginScreen = ({ onLogin }: LoginScreenProps) => {
              <TextInput
               style={styles.input}
               placeholder="SEU NOME"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor="#64748b"
               value={registerName}
               onChangeText={setRegisterName}
               autoCapitalize="words"
@@ -328,7 +328,7 @@ export const LoginScreen = ({ onLogin }: LoginScreenProps) => {
              <TextInput
               style={styles.input}
               placeholder="4 DÍGITOS"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor="#64748b"
               value={registerPin}
               onChangeText={setRegisterPin}
               keyboardType="number-pad"
@@ -342,7 +342,7 @@ export const LoginScreen = ({ onLogin }: LoginScreenProps) => {
              <TextInput
               style={styles.input}
               placeholder="REPITA OS 4 DÍGITOS"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor="#64748b"
               value={registerPinConfirm}
               onChangeText={setRegisterPinConfirm}
               keyboardType="number-pad"
@@ -793,7 +793,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerText: {
-    color: '#94a3b8',
+    color: '#64748b',
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 1,
