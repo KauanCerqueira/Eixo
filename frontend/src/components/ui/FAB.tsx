@@ -1,6 +1,7 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Plus } from 'lucide-react-native';
+import { THEME } from '../../theme';
 
 interface FABProps {
     onPress: () => void;
@@ -8,9 +9,9 @@ interface FABProps {
 }
 
 export const FAB = ({ onPress, label }: FABProps) => (
-    <TouchableOpacity style={styles.fab} onPress={onPress} activeOpacity={0.8}>
-        <Plus size={28} color="#000" strokeWidth={3} />
-        {label && <Text style={styles.label}>{label}</Text>}
+    <TouchableOpacity style={styles.fab} onPress={onPress} activeOpacity={0.8}> 
+        <Plus size={32} color={THEME.colors.primary} strokeWidth={3} />
+        {label && <Text style={styles.label}>{label.toUpperCase()}</Text>}      
     </TouchableOpacity>
 );
 
@@ -19,48 +20,62 @@ interface AddButtonProps {
     size?: 'small' | 'large';
 }
 
-export const AddButton = ({ onPress, size = 'small' }: AddButtonProps) => (
+export const AddButton = ({ onPress, size = 'small' }: AddButtonProps) => (     
     <TouchableOpacity
-        style={[styles.addBtn, size === 'large' && styles.addBtnLarge]}
+        style={[styles.addBtn, size === 'large' ? styles.addBtnLarge : styles.addBtnSmall]}
         onPress={onPress}
         activeOpacity={0.7}
     >
-        <Plus size={size === 'large' ? 20 : 16} color="#fff" strokeWidth={3} />
+        <Plus size={size === 'large' ? 24 : 16} color="#fff" strokeWidth={3} /> 
     </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
     fab: {
         position: 'absolute',
-        bottom: 90,
-        right: 20,
-        backgroundColor: '#FACC15',
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        bottom: 24,
+        right: 24,
+        backgroundColor: THEME.colors.secondary, // Yellow pop!
+        width: 64,
+        height: 64,
+        borderRadius: 32,
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 3,
         borderColor: '#000',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 8,
+        shadowOffset: { width: 4, height: 4 },
+        shadowOpacity: 1,
+        shadowRadius: 0,
+        elevation: 6,
+        zIndex: 50,
     },
     label: {
+        marginTop: 4,
         fontSize: 10,
-        fontWeight: 'bold',
-        marginTop: 2,
+        fontWeight: '900',
+        color: '#000',
     },
     addBtn: {
-        backgroundColor: '#22C55E',
-        borderRadius: 99,
-        padding: 4,
+        backgroundColor: THEME.colors.success, // Green
+        justifyContent: 'center',
+        alignItems: 'center',
         borderWidth: 2,
         borderColor: '#000',
+        // Hard Shadow
+        shadowColor: '#000',
+        shadowOffset: { width: 2, height: 2 },
+        shadowOpacity: 1,
+        shadowRadius: 0,
+    },
+    addBtnSmall: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
     },
     addBtnLarge: {
-        padding: 8,
-    },
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+    }
 });

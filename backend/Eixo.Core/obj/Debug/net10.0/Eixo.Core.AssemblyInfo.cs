@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Eixo.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dc6ba80c694443b3bc66a69fdcf908eb17be7b1b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+05b9b8850b7fb16d27b710152939955a5195535b")]
 [assembly: System.Reflection.AssemblyProductAttribute("Eixo.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Eixo.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

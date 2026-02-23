@@ -22,7 +22,7 @@ export const AddTaskModal = ({ visible, onClose }: AddTaskModalProps) => {
     const [category, setCategory] = useState<string>('casa');
     const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
     const [dayOfWeek, setDayOfWeek] = useState(6);
-    const [selectedUsers, setSelectedUsers] = useState<string[]>(users.map(u => u.id));
+    const [selectedUsers, setSelectedUsers] = useState<number[]>(users.map(u => u.id));
     const [pointsOnTime, setPointsOnTime] = useState('10');
     const [distribution, setDistribution] = useState<'auto' | 'manual'>('auto');
     const [scheduledDate, setScheduledDate] = useState('');
@@ -30,7 +30,7 @@ export const AddTaskModal = ({ visible, onClose }: AddTaskModalProps) => {
     // For Manual Distribution
     const [manualDates, setManualDates] = useState<Record<string, { selected: boolean, marked: boolean, selectedColor: string }>>({});
 
-    const toggleUser = (userId: string) => {
+    const toggleUser = (userId: number) => {
         if (selectedUsers.includes(userId)) {
             if (selectedUsers.length > 1) {
                 setSelectedUsers(selectedUsers.filter(id => id !== userId));
@@ -56,8 +56,6 @@ export const AddTaskModal = ({ visible, onClose }: AddTaskModalProps) => {
         if (!title.trim()) return;
         if (taskType === 'sporadic' && !scheduledDate) return;
 
-        const rotation = users.filter(u => selectedUsers.includes(u.id));
-
         // Format dates as dd/mm if it's sporadic input using US format from calendar
         // Calendar returns YYYY-MM-DD. We usually store dd/mm for display or Iso. 
         // AppContext expects date strings usually. Let's just pass the string.
@@ -76,7 +74,7 @@ export const AddTaskModal = ({ visible, onClose }: AddTaskModalProps) => {
             category: category as any,
             frequency,
             dayOfWeek: frequency === 'weekly' ? dayOfWeek : undefined,
-            rotation,
+            assignedUserIds: selectedUsers,
             pointsOnTime: parseInt(pointsOnTime) || 10,
             pointsLatePerDay: 2,
             distributionStrategy: distribution,

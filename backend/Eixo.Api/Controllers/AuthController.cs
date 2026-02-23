@@ -63,15 +63,44 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Quick login (select user without PIN)
+    /// Register a new family member
     /// </summary>
-    [HttpPost("quick-login")]
-    public async Task<ActionResult<AuthResponse>> QuickLogin([FromBody] QuickLoginRequest request)
+    [HttpPost("register")]
+    public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
     {
-        var user = await _context.Users.FindAsync(request.UserId);
+        var name = request.Name?.Trim() ?? string.Empty;
+        var pin = request.Pin?.Trim() ?? string.Empty;
 
-        if (user == null)
-            return NotFound(new { message = "Usuário não encontrado" });
+        if (string.IsNullOrWhiteSpace(name))
+            return BadRequest(new { message = "Nome é obrigatório" });
+
+        if (pin.Length != 4 || !pin.All(char.IsDigit))
+            return BadRequest(new { message = "PIN deve ter 4 dígitos" });
+
+        var exists = await _context.Users.AnyAsync(u => u.Name.ToLower() == name.ToLower());
+        if (exists)
+            return Conflict(new { message = "Já existe um usuário com esse nome" });
+
+        var palette = new[] { "#3B82F6", "#10B981", "#F59E0B", "#EC4899", "#6366F1", "#14B8A6", "#EF4444" };
+        var initials = GetInitials(name);
+        var color = palette[Math.Abs(name.GetHashCode()) % palette.Length];
+
+        var user = new User
+        {
+            Name = name,
+            Initials = initials,
+            Color = color,
+            Pin = _hasher.HashPassword(pin),
+            Points = 0,
+            Xp = 0,
+            Level = 1,
+            Streak = 0,
+            TasksCompleted = 0,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
 
         var token = GenerateJwtToken(user);
 
@@ -86,7 +115,8 @@ public class AuthController : ControllerBase
                 Color = user.Color,
                 Points = user.Points,
                 Level = user.Level,
-                Xp = user.Xp
+                Xp = user.Xp,
+                Streak = user.Streak
             }
         });
     }
@@ -162,11 +192,29 @@ public class AuthController : ControllerBase
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
+    private static string GetInitials(string name)
+    {
+        var parts = name
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Take(2)
+            .ToArray();
+
+        if (parts.Length == 0)
+            return "US";
+
+        if (parts.Length == 1)
+            return parts[0].Length >= 2
+                ? parts[0][..2].ToUpperInvariant()
+                : parts[0].ToUpperInvariant();
+
+        return $"{parts[0][0]}{parts[1][0]}".ToUpperInvariant();
+    }
 }
 
 // Request/Response DTOs
 public record LoginRequest(string Name, string Pin);
-public record QuickLoginRequest(int UserId);
+public record RegisterRequest(string Name, string Pin);
 
 public class AuthResponse
 {

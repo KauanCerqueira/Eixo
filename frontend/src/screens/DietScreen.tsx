@@ -6,15 +6,19 @@ import { Card } from '../components/ui/Card';
 import { FAB } from '../components/ui/FAB';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { AddMealModal } from '../components/modals/AddMealModal';
+import { isSameCalendarDay } from '../utils/date';
 
 const DietScreen = () => {
     const { meals, userSettings } = useApp();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [waterIntake, setWaterIntake] = useState(0);
 
-    const todayMeals = meals.filter(m => new Date(m.date).toDateString() === new Date().toDateString());
+    const todayIso = new Date().toISOString();
+    const todayMeals = meals.filter(m => isSameCalendarDay(m.date, todayIso));
     const totalCalories = todayMeals.reduce((acc, m) => acc + (m.calories || 0), 0);
-    const calorieProgress = Math.min(100, (totalCalories / userSettings.dailyCalorieGoal) * 100);
+    const calorieGoal = userSettings.dailyCalorieGoal > 0 ? userSettings.dailyCalorieGoal : 1;
+    const waterGoal = userSettings.dailyWaterGoal > 0 ? userSettings.dailyWaterGoal : 1;
+    const calorieProgress = Math.min(100, (totalCalories / calorieGoal) * 100);
 
     return (
         <View style={styles.container}>
@@ -49,7 +53,7 @@ const DietScreen = () => {
                         <TouchableOpacity onPress={() => setWaterIntake(Math.max(0, waterIntake - 250))} style={styles.waterBtn}>
                             <Text style={styles.waterBtnText}>-250</Text>
                         </TouchableOpacity>
-                        <ProgressBar progress={(waterIntake / userSettings.dailyWaterGoal) * 100} style={{ flex: 1, marginHorizontal: 12 }} color="#3B82F6" />
+                        <ProgressBar progress={(waterIntake / waterGoal) * 100} style={{ flex: 1, marginHorizontal: 12 }} color="#3B82F6" />
                         <TouchableOpacity onPress={() => setWaterIntake(waterIntake + 250)} style={styles.waterBtn}>
                             <Text style={styles.waterBtnText}>+250</Text>
                         </TouchableOpacity>

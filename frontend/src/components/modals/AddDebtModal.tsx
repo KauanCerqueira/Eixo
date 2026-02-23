@@ -16,16 +16,15 @@ export const AddDebtModal = ({ visible, onClose }: AddDebtModalProps) => {
     const [installmentValue, setInstallmentValue] = useState('');
 
     const handleCreate = () => {
-        if (!title || !totalAmount || !installments || !installmentValue) return;
+        if (!title || !totalAmount || !installments || !installmentValue || !currentUser) return;
 
         addDebt({
             title: title.trim(),
             totalAmount: parseFloat(totalAmount),
             totalInstallments: parseInt(installments),
-            paidInstallments: 0,
             installmentAmount: parseFloat(installmentValue),
             dueDateDay: 10, // Default for now
-            owner: currentUser
+            ownerUserId: currentUser.id
         });
 
         setTitle(''); setTotalAmount(''); setInstallments(''); setInstallmentValue('');

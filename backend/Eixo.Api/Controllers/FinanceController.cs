@@ -48,6 +48,19 @@ public class ExpensesController : ControllerBase
     public async Task<ActionResult<Expense>> CreateExpense(CreateExpenseDto dto)
     {
         var paidBy = await _context.Users.FindAsync(dto.PaidByUserId);
+        if (paidBy == null)
+            return BadRequest(new { message = "Usuário pagador não encontrado" });
+
+        if (dto.SplitWithUserIds?.Any() == true)
+        {
+            var validUsers = await _context.Users
+                .Where(u => dto.SplitWithUserIds.Contains(u.Id))
+                .Select(u => u.Id)
+                .ToListAsync();
+
+            if (validUsers.Count != dto.SplitWithUserIds.Count)
+                return BadRequest(new { message = "Um ou mais usuários do rateio não existem" });
+        }
         
         var expense = new Expense
         {
@@ -78,7 +91,7 @@ public class ExpensesController : ControllerBase
         }
 
         // Broadcast real-time notification
-        await _notifications.NotifyNewExpense(dto.Title, dto.Amount, paidBy?.Name ?? "Alguém");
+        await _notifications.NotifyNewExpense(dto.Title, dto.Amount, paidBy?.Name ?? "Alguém", dto.PaidByUserId);
 
         return CreatedAtAction(nameof(GetExpense), new { id = expense.Id }, expense);
     }
@@ -128,6 +141,10 @@ public class IncomesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Income>> CreateIncome(CreateIncomeDto dto)
     {
+        var userExists = await _context.Users.AnyAsync(u => u.Id == dto.ReceivedByUserId);
+        if (!userExists)
+            return BadRequest(new { message = "Usuário recebedor não encontrado" });
+
         var income = new Income
         {
             Title = dto.Title,
@@ -186,6 +203,10 @@ public class DebtsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Debt>> CreateDebt(CreateDebtDto dto)
     {
+        var ownerExists = await _context.Users.AnyAsync(u => u.Id == dto.OwnerUserId);
+        if (!ownerExists)
+            return BadRequest(new { message = "Usuário dono da dívida não encontrado" });
+
         var debt = new Debt
         {
             Title = dto.Title,
@@ -358,7 +379,7 @@ public class GoalsController : ControllerBase
         await _context.SaveChangesAsync();
 
         // Broadcast real-time notification
-        await _notifications.NotifyGoalProgress(goal.Title, goal.CurrentAmount, goal.TargetAmount);
+        await _notifications.NotifyGoalProgress(goal.Title, goal.CurrentAmount, goal.TargetAmount, dto.UserId);
 
         return Ok(new { currentAmount = goal.CurrentAmount, progress = goal.CurrentAmount / goal.TargetAmount * 100 });
     }
@@ -385,4 +406,4 @@ public record CreateGoalDto(
     string Unit = "R$"
 );
 
-public record ContributeDto(decimal Amount, string? Note = null);
+public record ContributeDto(decimal Amount, string? Note = null, int UserId = 0);

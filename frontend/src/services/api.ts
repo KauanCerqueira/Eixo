@@ -5,9 +5,20 @@ const API_BASE_URL = ENV.API_BASE;
 
 class ApiService {
     private baseUrl: string;
+    private readonly timeoutMs = 20000;
 
     constructor(baseUrl: string = API_BASE_URL) {
         this.baseUrl = baseUrl;
+    }
+
+    private async fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+        try {
+            return await fetch(input, { ...init, signal: controller.signal });
+        } finally {
+            clearTimeout(timeout);
+        }
     }
 
     private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -22,9 +33,14 @@ class ApiService {
         };
 
         try {
-            const response = await fetch(url, config);
+            const response = await this.fetchWithTimeout(url, config);
 
             if (!response.ok) {
+                const contentType = response.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    const json = await response.json();
+                    throw new Error(json?.message || `API Error: ${response.status}`);
+                }
                 const errorText = await response.text();
                 throw new Error(`API Error: ${response.status} - ${errorText}`);
             }
@@ -63,6 +79,12 @@ class ApiService {
         return this.request<void>(`/users/${userId}/settings`, {
             method: 'PUT',
             body: JSON.stringify(settings),
+        });
+    }
+
+    async deleteUser(userId: number, requesterId: number) {
+        return this.request<void>(`/users/${userId}?requesterId=${requesterId}`, {
+            method: 'DELETE',
         });
     }
 
@@ -184,10 +206,10 @@ class ApiService {
         });
     }
 
-    async contributeToGoal(id: number, amount: number, note?: string) {
+    async contributeToGoal(id: number, amount: number, note?: string, userId?: number) {
         return this.request<{ currentAmount: number; progress: number }>(`/goals/${id}/contribute`, {
             method: 'POST',
-            body: JSON.stringify({ amount, note }),
+            body: JSON.stringify({ amount, note, userId }),
         });
     }
 
@@ -244,6 +266,20 @@ class ApiService {
 
     async markNotificationRead(id: number) {
         return this.request<void>(`/notifications/${id}/read`, { method: 'PUT' });
+    }
+
+    async registerPushDevice(userId: number, token: string) {
+        return this.request<{ success: boolean }>(`/notifications/devices/register`, {
+            method: 'POST',
+            body: JSON.stringify({ userId, token }),
+        });
+    }
+
+    async unregisterPushDevice(token: string, userId?: number) {
+        return this.request<{ success: boolean }>(`/notifications/devices/unregister`, {
+            method: 'POST',
+            body: JSON.stringify({ token, userId }),
+        });
     }
 
     // ==================== NOTICES ====================
@@ -465,6 +501,7 @@ export interface RecurringTask {
     distributionStrategy: string;
     currentAssigneeIndex: number;
     assignments?: { userId: number; user: User; order: number }[];
+    rotation?: User[];
 }
 
 export interface Expense {
@@ -546,6 +583,7 @@ export interface Notification {
     isRead: boolean;
     type: string;
     createdAt: string;
+    time?: string;
 }
 
 export interface Notice {
@@ -621,7 +659,7 @@ export interface MealLog {
     userId: number;
     date: string;
     type: string;
-    items: string;
+    items: string | string[];
     calories?: number;
     protein?: number;
     carbs?: number;
@@ -634,6 +672,7 @@ export interface StudySession {
     userId: number;
     date: string;
     subject: string;
+    topic?: string;
     durationMinutes: number;
     notes?: string;
 }
@@ -643,7 +682,7 @@ export interface CycleDay {
     userId: number;
     date: string;
     flowIntensity?: string;
-    symptoms: string;
+    symptoms: string | string[];
     mood?: string;
     notes?: string;
 }
@@ -688,6 +727,8 @@ export interface CreateDebtDto {
     dueDateDay?: number;
     ownerUserId: number;
     description?: string;
+    paidInstallments?: number;
+    owner?: User | null;
 }
 
 export interface CreateSubscriptionDto {
@@ -701,6 +742,7 @@ export interface CreateGoalDto {
     title: string;
     description: string;
     targetAmount: number;
+    currentAmount?: number;
     deadline?: string;
     type?: string;
     unit?: string;
@@ -710,6 +752,8 @@ export interface CreateShoppingItemDto {
     name: string;
     quantity?: string;
     addedByUserId: number;
+    isBought?: boolean;
+    addedBy?: User | null;
 }
 
 export interface CreateEventDto {
@@ -717,6 +761,7 @@ export interface CreateEventDto {
     date: string;
     time?: string;
     isFamily?: boolean;
+    type?: string;
 }
 
 export interface CreateNoticeDto {
@@ -739,6 +784,7 @@ export interface CreateHabitDto {
     userId: number;
     title: string;
     category?: string;
+    current?: number;
     target?: number;
     unit?: string;
     color?: string;
@@ -748,6 +794,8 @@ export interface CreateHobbyDto {
     userId: number;
     title: string;
     category?: string;
+    progress?: number;
+    notes?: string[];
 }
 
 export interface CreateWishlistItemDto {
@@ -760,6 +808,9 @@ export interface CreateWishlistItemDto {
 export interface CreateWorkoutDto {
     userId: number;
     name: string;
+    type?: string;
+    duration?: number;
+    exercises?: any[];
     date?: string;
     durationMinutes?: number;
     calories?: number;
@@ -782,6 +833,7 @@ export interface CreateMealDto {
 export interface CreateStudySessionDto {
     userId: number;
     subject: string;
+    topic?: string;
     durationMinutes: number;
     notes?: string;
     date?: string;

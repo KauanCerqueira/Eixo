@@ -78,7 +78,7 @@ public class RewardsController : ControllerBase
         await _context.SaveChangesAsync();
 
         // Broadcast real-time notification
-        await _notifications.NotifyRewardRedeemed(user.Name, reward.Title);
+        await _notifications.NotifyRewardRedeemed(user.Name, reward.Title, user.Id);
 
         return Ok(new { 
             remainingPoints = user.Points, 

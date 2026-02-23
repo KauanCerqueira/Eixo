@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, Switch } from 'react-native';
 import { X, Moon, Bell, LogOut, ChevronRight, Settings as SettingsIcon, Volume2 } from 'lucide-react-native';
 import { useApp } from '../../context/AppContext';
+import { useAuthSession } from '../../context/AuthSessionContext';
 
 interface SettingsModalProps {
     visible: boolean;
@@ -9,11 +10,10 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
-    const { userSettings, updateUserSettings, contextMode } = useApp();
+    const { userSettings, updateUserSettings } = useApp();
+    const { logout } = useAuthSession();
 
     const toggleCycle = () => updateUserSettings({ trackCycle: !userSettings.trackCycle });
-    // Mock toggles for visual purposes if not in settings yet
-    const toggleNotifications = () => { /* Logic to be implemented */ };
 
     return (
         <Modal visible={visible} animationType="slide" transparent>
@@ -53,12 +53,7 @@ export const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
                                 </View>
                                 <Text style={styles.settingLabel}>Notificações</Text>
                             </View>
-                            <Switch
-                                value={true}
-                                onValueChange={toggleNotifications}
-                                trackColor={{ false: '#e2e8f0', true: '#60A5FA' }}
-                                thumbColor={'#2563EB'}
-                            />
+                            <Text style={styles.comingSoon}>Em breve</Text>
                         </View>
 
                         <View style={styles.settingItem}>
@@ -68,10 +63,7 @@ export const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
                                 </View>
                                 <Text style={styles.settingLabel}>Sons do App</Text>
                             </View>
-                            <Switch
-                                value={false}
-                                trackColor={{ false: '#e2e8f0', true: '#4ADE80' }}
-                            />
+                            <Text style={styles.comingSoon}>Em breve</Text>
                         </View>
 
                         <TouchableOpacity style={[styles.settingItem, { marginTop: 8 }]}>
@@ -90,7 +82,7 @@ export const SettingsModal = ({ visible, onClose }: SettingsModalProps) => {
 
                         <View style={styles.divider} />
 
-                        <TouchableOpacity style={styles.logoutBtn}>
+                        <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
                             <LogOut size={20} color="#EF4444" />
                             <Text style={styles.logoutText}>Encerrar Sessão</Text>
                         </TouchableOpacity>
@@ -118,6 +110,7 @@ const styles = StyleSheet.create({
     settingIconRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     iconBox: { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
     settingLabel: { fontSize: 16, fontWeight: '600', color: '#334155' },
+    comingSoon: { fontSize: 12, color: '#94a3b8', fontWeight: '700' },
 
     divider: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 8 },
 

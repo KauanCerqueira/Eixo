@@ -5,11 +5,19 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
+using Eixo.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
 // Add services
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -71,6 +79,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Add SignalR for real-time notifications
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<INotificationService, NotificationService>();
+builder.Services.AddSingleton<PushDeviceStore>();
+builder.Services.AddHttpClient<IPushNotificationService, ExpoPushNotificationService>();
 
 // Add Infrastructure (SQLite)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
@@ -96,16 +106,58 @@ try
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<EixoDbContext>();
-    
-    // Apply migrations (creates database if not exists)
+
+    // First choice: apply migrations.
     db.Database.Migrate();
+
+    // Cleanup legacy seeded/demo rows from older versions.
+    var seededNames = new[] { "Ana", "João", "Maria" };
+    var onlyLegacyUsers = db.Users.Count() == 3 &&
+                          db.Users.All(u => seededNames.Contains(u.Name));
+
+    if (onlyLegacyUsers)
+    {
+        db.Users.RemoveRange(db.Users);
+    }
+
+    var onlyLegacyRewards = db.Rewards.Count() == 4 &&
+                            db.Rewards.Any(r => r.Title == "Folga da Louça");
+    if (onlyLegacyRewards)
+    {
+        db.Rewards.RemoveRange(db.Rewards);
+    }
+
+    var onlyLegacySubscriptions = db.Subscriptions.Count() == 3 &&
+                                  db.Subscriptions.Any(s => s.Title == "Netflix");
+    if (onlyLegacySubscriptions)
+    {
+        db.Subscriptions.RemoveRange(db.Subscriptions);
+    }
+
+    if (onlyLegacyUsers || onlyLegacyRewards || onlyLegacySubscriptions)
+    {
+        db.SaveChanges();
+        Console.WriteLine("🧹 Legacy demo seed data removed");
+    }
+
     Console.WriteLine("✅ Database migrated successfully");
 }
-catch (Exception ex)
+catch (Exception migrateEx)
 {
-    Console.WriteLine($"❌ Database migration failed: {ex.Message}");
-    // In production, you might want to log this but continue, or fail fast.
-    // For now we log and continue to allow debugging.
+    Console.WriteLine($"❌ Database migration failed: {migrateEx.Message}");
+
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<EixoDbContext>();
+        db.Database.EnsureCreated();
+        Console.WriteLine("✅ Database schema created via EnsureCreated fallback");
+    }
+    catch (Exception ensureEx)
+    {
+        Console.WriteLine($"❌ Database initialization fallback failed: {ensureEx.Message}");
+        throw;
+    }
 }
 
 // Configure pipeline
@@ -116,7 +168,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAll");
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 // Add authentication middleware
 app.UseAuthentication();

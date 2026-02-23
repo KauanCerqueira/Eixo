@@ -8,6 +8,7 @@ import {
 } from 'lucide-react-native';
 import { Header } from '../components/layout/Header';
 import { useApp } from '../context/AppContext';
+import { THEME } from '../theme';
 
 // Screens
 import { HomeScreen } from '../screens/HomeScreen';
@@ -29,6 +30,8 @@ import { HobbiesScreen } from '../screens/HobbiesScreen';
 
 const Tab = createBottomTabNavigator();
 
+// We need to pass navigation props if Header needs them, or just rely on context
+// Since Header is static in this wrapper, let's keep it simply
 const ScreenWrapper = ({ children }: { children: React.ReactNode }) => (
     <View style={styles.wrapper}>
         <Header />
@@ -62,16 +65,20 @@ const NavigatorContent = () => {
         <Tab.Navigator
             screenOptions={{
                 headerShown: false,
-                tabBarActiveTintColor: '#FACC15',
-                tabBarInactiveTintColor: '#94A3B8',
+                tabBarActiveTintColor: THEME.colors.text,
+                tabBarInactiveTintColor: THEME.colors.textSecondary,
                 tabBarStyle: styles.tabBar,
                 tabBarLabelStyle: styles.tabLabel,
+                tabBarShowLabel: true,
             }}
         >
             <Tab.Screen
                 name="Home"
                 component={HomeWithHeader}
-                options={{ tabBarIcon: ({ color, size }) => <Home color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Início' }}
+                options={{ 
+                    tabBarIcon: ({ color, size, focused }) => <Home color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                    tabBarLabel: 'INÍCIO' 
+                }}
             />
 
             {contextMode === 'nos' ? (
@@ -80,32 +87,50 @@ const NavigatorContent = () => {
                     <Tab.Screen
                         name="Tasks"
                         component={TasksWithHeader}
-                        options={{ tabBarIcon: ({ color, size }) => <ClipboardList color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Tarefas' }}
+                        options={{ 
+                            tabBarIcon: ({ color, size, focused }) => <ClipboardList color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                            tabBarLabel: 'TAREFAS' 
+                        }}
                     />
                     <Tab.Screen
                         name="Agenda"
                         component={AgendaWithHeader}
-                        options={{ tabBarIcon: ({ color, size }) => <Calendar color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Agenda' }}
+                        options={{ 
+                            tabBarIcon: ({ color, size, focused }) => <Calendar color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                            tabBarLabel: 'AGENDA' 
+                        }}
                     />
                     <Tab.Screen
                         name="Finance"
                         component={FamilyFinanceWithHeader}
-                        options={{ tabBarIcon: ({ color, size }) => <Landmark color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Finanças' }}
+                        options={{ 
+                            tabBarIcon: ({ color, size, focused }) => <Landmark color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                            tabBarLabel: 'FINANÇAS' 
+                        }}
                     />
                     <Tab.Screen
                         name="Shopping"
                         component={ShoppingWithHeader}
-                        options={{ tabBarIcon: ({ color, size }) => <ShoppingCart color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Compras' }}
+                        options={{ 
+                            tabBarIcon: ({ color, size, focused }) => <ShoppingCart color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                            tabBarLabel: 'COMPRAS' 
+                        }}
                     />
                     <Tab.Screen
                         name="Goals"
                         component={GoalsWithHeader}
-                        options={{ tabBarIcon: ({ color, size }) => <Target color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Metas' }}
+                        options={{ 
+                            tabBarIcon: ({ color, size, focused }) => <Target color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                            tabBarLabel: 'METAS' 
+                        }}
                     />
                     <Tab.Screen
                         name="Profile"
                         component={ProfileWithHeader}
-                        options={{ tabBarIcon: ({ color, size }) => <User color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Perfil' }}
+                        options={{ 
+                            tabBarIcon: ({ color, size, focused }) => <User color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                            tabBarLabel: 'PERFIL' 
+                        }}
                     />
                 </>
             ) : (
@@ -114,39 +139,60 @@ const NavigatorContent = () => {
                     <Tab.Screen
                         name="PersonalFinance"
                         component={PersonalFinanceWithHeader}
-                        options={{ tabBarIcon: ({ color, size }) => <Banknote color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Finanças' }}
+                        options={{ 
+                            tabBarIcon: ({ color, size, focused }) => <Banknote color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                            tabBarLabel: 'FINANÇAS' 
+                        }}
                     />
                     <Tab.Screen
                         name="Workout"
                         component={WorkoutWithHeader}
-                        options={{ tabBarIcon: ({ color, size }) => <Dumbbell color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Treino' }}
+                        options={{ 
+                            tabBarIcon: ({ color, size, focused }) => <Dumbbell color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                            tabBarLabel: 'TREINO' 
+                        }}
                     />
                     <Tab.Screen
                         name="Diet"
                         component={DietWithHeader}
-                        options={{ tabBarIcon: ({ color, size }) => <Utensils color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Dieta' }}
+                        options={{ 
+                            tabBarIcon: ({ color, size, focused }) => <Utensils color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                            tabBarLabel: 'DIETA' 
+                        }}
                     />
                     <Tab.Screen
                         name="Study"
                         component={StudyWithHeader}
-                        options={{ tabBarIcon: ({ color, size }) => <BookOpen color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Estudos' }}
+                        options={{ 
+                            tabBarIcon: ({ color, size, focused }) => <BookOpen color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                            tabBarLabel: 'ESTUDOS' 
+                        }}
                     />
                     <Tab.Screen
                         name="Hobbies"
                         component={HobbiesWithHeader}
-                        options={{ tabBarIcon: ({ color, size }) => <Palette color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Hobbies' }}
+                        options={{ 
+                            tabBarIcon: ({ color, size, focused }) => <Palette color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                            tabBarLabel: 'HOBBIES' 
+                        }}
                     />
                     {userSettings?.trackCycle && (
                         <Tab.Screen
                             name="Cycle"
                             component={CycleWithHeader}
-                            options={{ tabBarIcon: ({ color, size }) => <Moon color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Ciclo' }}
+                            options={{ 
+                                tabBarIcon: ({ color, size, focused }) => <Moon color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                                tabBarLabel: 'CICLO' 
+                            }}
                         />
                     )}
                     <Tab.Screen
                         name="Profile"
                         component={ProfileWithHeader}
-                        options={{ tabBarIcon: ({ color, size }) => <User color={color} size={size} strokeWidth={2.5} />, tabBarLabel: 'Perfil' }}
+                        options={{ 
+                            tabBarIcon: ({ color, size, focused }) => <User color={color} size={size} strokeWidth={focused ? 3 : 2} />, 
+                            tabBarLabel: 'PERFIL' 
+                        }}
                     />
                 </>
             )}
@@ -162,8 +208,21 @@ export const AppNavigator = () => (
 );
 
 const styles = StyleSheet.create({
-    wrapper: { flex: 1, backgroundColor: '#fff' },
+    wrapper: { flex: 1, backgroundColor: THEME.colors.background },
     content: { flex: 1 },
-    tabBar: { height: 70, paddingBottom: 12, paddingTop: 8, borderTopWidth: 2, borderTopColor: '#000', backgroundColor: '#fff' },
-    tabLabel: { fontSize: 10, fontWeight: '600' },
+    tabBar: { 
+        height: 80, 
+        paddingBottom: 20, 
+        paddingTop: 8, 
+        borderTopWidth: 3, 
+        borderTopColor: THEME.colors.text, 
+        backgroundColor: THEME.colors.card,
+        elevation: 0,
+        shadowOpacity: 0
+    },
+    tabLabel: { 
+        fontSize: 10, 
+        fontWeight: '800', 
+        letterSpacing: 0.5 
+    },
 });

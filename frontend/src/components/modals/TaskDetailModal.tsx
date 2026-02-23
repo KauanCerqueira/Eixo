@@ -34,11 +34,11 @@ export const TaskDetailModal = ({ visible, onClose, task }: TaskDetailModalProps
     // Note: getProjectedInstances logic in Context is currently simple/limited count
     // For a full calendar we might need more, but let's stick to the Context's capability or expand it.
     // The context currently takes a 'limit' count. Let's ask for 30 instances to cover a few months.
-    const instances = useMemo(() => getProjectedInstances(task, 30), [task]);
+    const instances = useMemo(() => getProjectedInstances(task, 30), [getProjectedInstances, task]);
 
     const markedDates = useMemo(() => {
         const marks: any = {};
-        instances.forEach(inst => {
+        instances.forEach((inst) => {
             // inst.date is DD/MM format in current implementation of context
             // We need YYYY-MM-DD. Assuming current year for simplicity as per context logic
             const [day, month] = inst.date.split('/');
@@ -67,7 +67,7 @@ export const TaskDetailModal = ({ visible, onClose, task }: TaskDetailModalProps
         return marks;
     }, [instances, selectedDate]);
 
-    const selectedInstance = instances.find(inst => {
+    const selectedInstance = instances.find((inst) => {
         const [day, month] = inst.date.split('/');
         const year = new Date().getFullYear();
         const isoDate = `${year}-${month}-${day}`;
@@ -192,7 +192,7 @@ export const TaskDetailModal = ({ visible, onClose, task }: TaskDetailModalProps
                             </Card>
                             <Card style={styles.statCard}>
                                 <View style={styles.avatars}>
-                                    {task.rotation.map((u, i) => (
+                                    {(task.rotation ?? task.assignments?.map(a => a.user) ?? []).map((u, i) => (
                                         <View key={u.id} style={{ marginLeft: i > 0 ? -10 : 0 }}>
                                             <Avatar user={u} size={24} />
                                         </View>

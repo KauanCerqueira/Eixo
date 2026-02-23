@@ -180,7 +180,7 @@ public class TasksController : ControllerBase
         await _context.SaveChangesAsync();
 
         // Broadcast real-time notification
-        await _notifications.NotifyTaskCompleted(task.Id, task.Title, user.Name, points);
+        await _notifications.NotifyTaskCompleted(task.Id, task.Title, user.Name, points, user.Id);
 
         return Ok(new { pointsEarned = points });
     }

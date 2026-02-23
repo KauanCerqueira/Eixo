@@ -162,3 +162,9 @@ C:\Reps\Eixo\backend\Eixo.Api\obj\Debug\net10.0\Eixo.Api.csproj.Up2Date
 C:\Reps\Eixo\backend\Eixo.Api\obj\Debug\net10.0\Eixo.Api.genruntimeconfig.cache
 C:\Reps\Eixo\backend\Eixo.Api\obj\Debug\net10.0\ref\Eixo.Api.dll
 C:\Reps\Eixo\backend\Eixo.Api\bin\Debug\net10.0\BCrypt.Net-Next.dll
+C:\Reps\Eixo\backend\Eixo.Api\bin\Debug\net10.0\publish\web.config
+C:\Reps\Eixo\backend\Eixo.Api\bin\Debug\net10.0\publish\appsettings.Development.json
+C:\Reps\Eixo\backend\Eixo.Api\bin\Debug\net10.0\publish\appsettings.json
+C:\Reps\Eixo\backend\Eixo.Api\bin\Debug\net10.0\publish\Eixo.Api.deps.json
+C:\Reps\Eixo\backend\Eixo.Api\bin\Debug\net10.0\publish\Eixo.Api.runtimeconfig.json
+C:\Reps\Eixo\backend\Eixo.Api\bin\Debug\net10.0\publish\Eixo.Api.staticwebassets.endpoints.json

@@ -15,7 +15,7 @@ const INTENSITIES = [
 ];
 
 export const AddWorkoutModal = ({ visible, onClose }: AddWorkoutModalProps) => {
-    const { addWorkoutSession } = useApp();
+    const { addWorkoutSession, currentUser } = useApp();
 
     const [type, setType] = useState('');
     const [duration, setDuration] = useState('');
@@ -24,9 +24,11 @@ export const AddWorkoutModal = ({ visible, onClose }: AddWorkoutModalProps) => {
     const [notes, setNotes] = useState('');
 
     const handleSave = () => {
-        if (!type || !duration) return;
+        if (!type || !duration || !currentUser) return;
 
         addWorkoutSession({
+            userId: currentUser.id,
+            name: type,
             type,
             duration: parseInt(duration),
             calories: calories ? parseInt(calories) : undefined,

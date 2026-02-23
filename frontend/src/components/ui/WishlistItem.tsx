@@ -10,7 +10,8 @@ interface WishlistItemProps {
 }
 
 export const WishlistItem = ({ title, price, saved, priority }: WishlistItemProps) => {
-    const progress = (saved / price) * 100;
+    const safePrice = price > 0 ? price : 1;
+    const progress = Math.min(100, Math.max(0, (saved / safePrice) * 100));
     const priorityColors = { high: '#EF4444', medium: '#F59E0B', low: '#94A3B8' };
 
     return (

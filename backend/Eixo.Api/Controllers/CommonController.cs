@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Eixo.Core.Entities;
 using Eixo.Infrastructure.Data;
 using Eixo.Api.Hubs;
+using Eixo.Api.Services;
 
 namespace Eixo.Api.Controllers;
 
@@ -33,6 +34,8 @@ public class ShoppingController : ControllerBase
     public async Task<ActionResult<ShoppingItem>> CreateItem(CreateShoppingItemDto dto)
     {
         var addedBy = await _context.Users.FindAsync(dto.AddedByUserId);
+        if (addedBy == null)
+            return BadRequest(new { message = "Usuário que adicionou o item não encontrado" });
         
         var item = new ShoppingItem
         {
@@ -45,7 +48,7 @@ public class ShoppingController : ControllerBase
         await _context.SaveChangesAsync();
 
         // Broadcast real-time notification
-        await _notifications.NotifyShoppingItemAdded(dto.Name, addedBy?.Name ?? "Alguém");
+        await _notifications.NotifyShoppingItemAdded(dto.Name, addedBy?.Name ?? "Alguém", dto.AddedByUserId);
 
         return CreatedAtAction(nameof(GetItems), new { id = item.Id }, item);
     }
@@ -134,10 +137,12 @@ public record CreateEventDto(string Title, DateTime Date, TimeSpan? Time = null,
 public class NotificationsController : ControllerBase
 {
     private readonly EixoDbContext _context;
+    private readonly IPushNotificationService _pushNotifications;
 
-    public NotificationsController(EixoDbContext context)
+    public NotificationsController(EixoDbContext context, IPushNotificationService pushNotifications)
     {
         _context = context;
+        _pushNotifications = pushNotifications;
     }
 
     [HttpGet]
@@ -177,6 +182,33 @@ public class NotificationsController : ControllerBase
         await _context.SaveChangesAsync();
         return NoContent();
     }
+
+    [HttpPost("devices/register")]
+    public async Task<IActionResult> RegisterPushDevice([FromBody] RegisterPushDeviceDto dto)
+    {
+        if (dto.UserId <= 0)
+            return BadRequest(new { message = "UserId inválido" });
+
+        if (string.IsNullOrWhiteSpace(dto.Token))
+            return BadRequest(new { message = "Token é obrigatório" });
+
+        var userExists = await _context.Users.AnyAsync(u => u.Id == dto.UserId);
+        if (!userExists)
+            return BadRequest(new { message = "Usuário não encontrado" });
+
+        await _pushNotifications.RegisterDeviceAsync(dto.UserId, dto.Token);
+        return Ok(new { success = true });
+    }
+
+    [HttpPost("devices/unregister")]
+    public async Task<IActionResult> UnregisterPushDevice([FromBody] UnregisterPushDeviceDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Token))
+            return BadRequest(new { message = "Token é obrigatório" });
+
+        await _pushNotifications.UnregisterDeviceAsync(dto.Token, dto.UserId);
+        return Ok(new { success = true });
+    }
 }
 
 [ApiController]
@@ -204,20 +236,55 @@ public class NoticesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Notice>> CreateNotice(CreateNoticeDto dto)
     {
+        var sanitizedText = (dto.Text ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(sanitizedText))
+            return BadRequest(new { message = "Texto do aviso é obrigatório" });
+
+        if (sanitizedText.Length > 400)
+            return BadRequest(new { message = "Aviso muito longo (máx. 400 caracteres)" });
+
+        var duplicatedRecently = await _context.Notices.AnyAsync(n =>
+            n.AuthorId == dto.AuthorId &&
+            n.Text == sanitizedText &&
+            n.CreatedAt >= DateTime.UtcNow.AddSeconds(-20));
+
+        if (duplicatedRecently)
+            return Conflict(new { message = "Aviso duplicado em intervalo curto" });
+
         var author = await _context.Users.FindAsync(dto.AuthorId);
+        if (author == null)
+            return BadRequest(new { message = "Autor não encontrado" });
         
         var notice = new Notice
         {
-            Text = dto.Text,
+            Text = sanitizedText,
             AuthorId = dto.AuthorId,
             Type = dto.Type
         };
 
         _context.Notices.Add(notice);
+
+        // Persist personal notifications for everyone except the author.
+        var recipients = await _context.Users
+            .Where(u => u.Id != dto.AuthorId)
+            .Select(u => u.Id)
+            .ToListAsync();
+
+        foreach (var userId in recipients)
+        {
+            _context.Notifications.Add(new Notification
+            {
+                Title = $"Aviso de {author.Name}",
+                Message = sanitizedText,
+                Type = "event",
+                UserId = userId
+            });
+        }
+
         await _context.SaveChangesAsync();
 
         // Broadcast real-time notification
-        await _notifications.NotifyNewNotice(dto.Text, author?.Name ?? "Alguém");
+        await _notifications.NotifyNewNotice(sanitizedText, author.Name, dto.AuthorId);
 
         return CreatedAtAction(nameof(GetNotices), new { id = notice.Id }, notice);
     }
@@ -236,3 +303,5 @@ public class NoticesController : ControllerBase
 }
 
 public record CreateNoticeDto(string Text, int AuthorId, string Type = "info");
+public record RegisterPushDeviceDto(int UserId, string Token);
+public record UnregisterPushDeviceDto(string Token, int? UserId = null);

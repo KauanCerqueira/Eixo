@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { Moon, Settings } from 'lucide-react-native';
 import { Card } from '../components/ui/Card';
 import { AddCycleEntryModal } from '../components/modals/AddCycleEntryModal';
+import { formatDate, parseFlexibleDate } from '../utils/date';
 
 const CycleScreen = () => {
     const { cycleLog, userSettings, updateUserSettings } = useApp();
@@ -13,11 +14,31 @@ const CycleScreen = () => {
         updateUserSettings({ trackCycle: !userSettings.trackCycle });
     };
 
-    // Simple Prediction Logic (Mock)
-    const today = new Date();
-    const nextPeriod = new Date();
-    nextPeriod.setDate(today.getDate() + 12); // Mock: 12 days left
-    const daysLeft = 12;
+    const sortedCycleDates = cycleLog
+        .map(entry => parseFlexibleDate(entry.date))
+        .filter((date): date is Date => !!date)
+        .filter(d => !Number.isNaN(d.getTime()))
+        .sort((a, b) => a.getTime() - b.getTime());
+
+    const prediction = (() => {
+        if (sortedCycleDates.length < 2) return null;
+
+        const intervals: number[] = [];
+        for (let i = 1; i < sortedCycleDates.length; i++) {
+            const days = Math.round((sortedCycleDates[i].getTime() - sortedCycleDates[i - 1].getTime()) / (1000 * 60 * 60 * 24));
+            if (days > 0 && days < 90) intervals.push(days);
+        }
+        if (intervals.length === 0) return null;
+
+        const avgCycleDays = Math.round(intervals.reduce((sum, days) => sum + days, 0) / intervals.length);
+        const lastPeriod = sortedCycleDates[sortedCycleDates.length - 1];
+        const nextPeriod = new Date(lastPeriod);
+        nextPeriod.setDate(nextPeriod.getDate() + avgCycleDays);
+
+        const now = new Date();
+        const daysLeft = Math.max(0, Math.round((nextPeriod.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+        return { daysLeft, nextPeriod, avgCycleDays };
+    })();
 
     if (!userSettings.trackCycle) {
         return (
@@ -54,9 +75,18 @@ const CycleScreen = () => {
                     <View style={styles.predictionContent}>
                         <Moon size={32} color="#8B5CF6" />
                         <View style={{ alignItems: 'center' }}>
-                            <Text style={styles.predictionLabel}>PRÓXIMA MENSTRUAÇÃO EM</Text>
-                            <Text style={styles.predictionValue}>{daysLeft} dias</Text>
-                            <Text style={styles.predictionDate}>{nextPeriod.toLocaleDateString()}</Text>
+                            {prediction ? (
+                                <>
+                                    <Text style={styles.predictionLabel}>PRÓXIMA MENSTRUAÇÃO EM</Text>
+                                    <Text style={styles.predictionValue}>{prediction.daysLeft} dias</Text>
+                                    <Text style={styles.predictionDate}>{prediction.nextPeriod.toLocaleDateString('pt-BR')}</Text>
+                                </>
+                            ) : (
+                                <>
+                                    <Text style={styles.predictionLabel}>PREDIÇÃO INDISPONÍVEL</Text>
+                                    <Text style={styles.predictionDate}>Registre pelo menos 2 ciclos para estimar.</Text>
+                                </>
+                            )}
                         </View>
                     </View>
                 </Card>
@@ -84,11 +114,11 @@ const CycleScreen = () => {
                                         { backgroundColor: '#FCD34D' }
                                 ]} />
                                 <View>
-                                    <Text style={styles.logDate}>{new Date(day.date).toLocaleDateString()}</Text>
+                                    <Text style={styles.logDate}>{formatDate(day.date)}</Text>
                                     <View style={styles.symptomsRow}>
-                                        {day.symptoms && day.symptoms.length > 0 ? (
-                                            day.symptoms.map(s => (
-                                                <Text key={s} style={styles.symptomTag}>{s}</Text>
+                                        {(Array.isArray(day.symptoms) ? day.symptoms : (day.symptoms ? [day.symptoms] : [])).length > 0 ? (
+                                            (Array.isArray(day.symptoms) ? day.symptoms : [day.symptoms]).map((s, symptomIdx) => (
+                                                <Text key={`${s}-${symptomIdx}`} style={styles.symptomTag}>{s}</Text>
                                             ))
                                         ) : (
                                             <Text style={styles.noSymptoms}>Sem sintomas</Text>

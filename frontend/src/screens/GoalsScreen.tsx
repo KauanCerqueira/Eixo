@@ -41,48 +41,56 @@ export const GoalsScreen = () => {
                 {/* Goals List */}
                 {filteredGoals.length > 0 ? filteredGoals.map(goal => (
                     <Card key={goal.id} style={[styles.goalCard, goal.type === 'finance' ? styles.borderFinance : styles.borderGeneral]}>
-                        <View style={styles.cardHeader}>
-                            <View>
-                                <View style={styles.tagRow}>
-                                    {goal.type === 'finance' ? <Banknote size={12} color="#8B5CF6" /> : <Star size={12} color="#F59E0B" />}
-                                    <Text style={[styles.tagText, { color: goal.type === 'finance' ? '#8B5CF6' : '#F59E0B' }]}>
-                                        {goal.type === 'finance' ? 'Financeira' : 'Geral / Hábito'}
-                                    </Text>
-                                </View>
-                                <Text style={styles.goalTitle}>{goal.title}</Text>
-                            </View>
-                            <Text style={styles.goalPercent}>{Math.round((goal.currentAmount / goal.targetAmount) * 100)}%</Text>
-                        </View>
+                        {(() => {
+                            const safeTarget = goal.targetAmount > 0 ? goal.targetAmount : 1;
+                            const progress = Math.min(100, Math.max(0, (goal.currentAmount / safeTarget) * 100));
+                            return (
+                                <>
+                                    <View style={styles.cardHeader}>
+                                        <View>
+                                            <View style={styles.tagRow}>
+                                                {goal.type === 'finance' ? <Banknote size={12} color="#8B5CF6" /> : <Star size={12} color="#F59E0B" />}
+                                                <Text style={[styles.tagText, { color: goal.type === 'finance' ? '#8B5CF6' : '#F59E0B' }]}>
+                                                    {goal.type === 'finance' ? 'Financeira' : 'Geral / Hábito'}
+                                                </Text>
+                                            </View>
+                                            <Text style={styles.goalTitle}>{goal.title}</Text>
+                                        </View>
+                                        <Text style={styles.goalPercent}>{Math.round(progress)}%</Text>
+                                    </View>
 
-                        {goal.description ? <Text style={styles.goalDesc}>{goal.description}</Text> : null}
+                                    {goal.description ? <Text style={styles.goalDesc}>{goal.description}</Text> : null}
 
-                        <View style={styles.progressSection}>
-                            <ProgressBar
-                                progress={(goal.currentAmount / goal.targetAmount) * 100}
-                                color={goal.type === 'finance' ? '#8B5CF6' : '#F59E0B'}
-                            />
-                            <View style={styles.progressStats}>
-                                <Text style={styles.statCurrent}>
-                                    {goal.unit === 'R$'
-                                        ? `R$ ${goal.currentAmount} `
-                                        : `${goal.currentAmount} ${goal.unit || ''} `}
-                                </Text>
-                                <Text style={styles.statTarget}>
-                                    / {goal.unit === 'R$'
-                                        ? `R$ ${goal.targetAmount} `
-                                        : `${goal.targetAmount} ${goal.unit || ''} `}
-                                </Text>
-                            </View>
-                        </View>
+                                    <View style={styles.progressSection}>
+                                        <ProgressBar
+                                            progress={progress}
+                                            color={goal.type === 'finance' ? '#8B5CF6' : '#F59E0B'}
+                                        />
+                                        <View style={styles.progressStats}>
+                                            <Text style={styles.statCurrent}>
+                                                {goal.unit === 'R$'
+                                                    ? `R$ ${goal.currentAmount} `
+                                                    : `${goal.currentAmount} ${goal.unit || ''} `}
+                                            </Text>
+                                            <Text style={styles.statTarget}>
+                                                / {goal.unit === 'R$'
+                                                    ? `R$ ${goal.targetAmount} `
+                                                    : `${goal.targetAmount} ${goal.unit || ''} `}
+                                            </Text>
+                                        </View>
+                                    </View>
 
-                        <TouchableOpacity onPress={() => addContributionToGoal(goal.id, 1)} style={styles.addBtn}>
-                            <PlusCircle size={16} color={goal.type === 'finance' ? '#8B5CF6' : '#F59E0B'} />
-                            <Text style={[styles.addBtnText, { color: goal.type === 'finance' ? '#8B5CF6' : '#F59E0B' }]}>
-                                {goal.type === 'finance' ? 'Adicionar Saldo' : 'Registrar Progresso'}
-                            </Text>
-                        </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => addContributionToGoal(goal.id, 1)} style={styles.addBtn}>
+                                        <PlusCircle size={16} color={goal.type === 'finance' ? '#8B5CF6' : '#F59E0B'} />
+                                        <Text style={[styles.addBtnText, { color: goal.type === 'finance' ? '#8B5CF6' : '#F59E0B' }]}>
+                                            {goal.type === 'finance' ? 'Adicionar Saldo' : 'Registrar Progresso'}
+                                        </Text>
+                                    </TouchableOpacity>
 
-                        {goal.deadline && <Text style={styles.deadline}>Prazo: {goal.deadline}</Text>}
+                                    {goal.deadline && <Text style={styles.deadline}>Prazo: {goal.deadline}</Text>}
+                                </>
+                            );
+                        })()}
                     </Card>
                 )) : (
                     <View style={styles.emptyState}>

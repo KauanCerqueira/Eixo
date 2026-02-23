@@ -13,6 +13,12 @@ const StudyScreen = () => {
     const totalHours = studySessions.reduce((acc, s) => acc + s.durationMinutes, 0) / 60;
     const sessionsCount = studySessions.length;
 
+    const formatDate = (value: string) => {
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return '-';
+        return parsed.toLocaleDateString();
+    };
+
     return (
         <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.scroll}>
@@ -59,7 +65,7 @@ const StudyScreen = () => {
                             </View>
                             <View style={styles.sessionRight}>
                                 <Text style={styles.sessionDuration}>{s.durationMinutes} min</Text>
-                                <Text style={styles.sessionDate}>{new Date(s.date).toLocaleDateString()}</Text>
+                                <Text style={styles.sessionDate}>{formatDate(s.date)}</Text>
                             </View>
                         </Card>
                     ))

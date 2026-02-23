@@ -9,6 +9,8 @@ import { FamilyBoard } from '../components/dashboard/FamilyBoard';
 import { EventCard } from '../components/ui/EventCard';
 import { useNavigation } from '@react-navigation/native';
 import { PersonalDashboard } from '../components/dashboard/PersonalDashboard';
+import { formatDate, parseFlexibleDate } from '../utils/date';
+import { THEME } from '../theme';
 
 export const HomeScreen = () => {
     const {
@@ -20,7 +22,7 @@ export const HomeScreen = () => {
     if (isLoading) {
         return (
             <View style={[styles.container, styles.loadingContainer]}>
-                <ActivityIndicator size="large" color="#3B82F6" />
+                <ActivityIndicator size="large" color={THEME.colors.primary} />
                 <Text style={styles.loadingText}>Carregando...</Text>
             </View>
         );
@@ -37,22 +39,12 @@ export const HomeScreen = () => {
         return users[0] || { id: 0, name: 'N/A', initials: 'NA', color: '#ccc' };
     };
 
-    // Format event date for comparison
-    const parseDate = (dateStr: string) => {
-        if (dateStr.includes('T')) {
-            return new Date(dateStr);
-        }
-        // Handle dd/mm format
-        const parts = dateStr.split('/');
-        if (parts.length === 2) {
-            const year = new Date().getFullYear();
-            return new Date(year, parseInt(parts[1]) - 1, parseInt(parts[0]));
-        }
-        return new Date(dateStr);
-    };
-
+    const now = new Date();
     const nextEvents = familyEvents
-        .filter(e => parseDate(e.date) >= new Date())
+        .filter(e => {
+            const parsed = parseFlexibleDate(e.date);
+            return !!parsed && parsed >= now;
+        })
         .slice(0, 3);
 
     const userName = currentUser?.name?.split(' ')[0] || 'Usuário';
@@ -63,9 +55,9 @@ export const HomeScreen = () => {
 
                 {/* Welcome Section */}
                 <View style={styles.welcomeSection}>
-                    <Text style={styles.welcomeText}>Olá,</Text>
-                    <Text style={styles.userName}>{userName} 👋</Text>
-                    <Text style={styles.userSub}>Aqui está o resumo da casa hoje.</Text>
+                    <Text style={styles.welcomeText}>OLÁ,</Text>
+                    <Text style={styles.userName}>{userName?.toUpperCase()} 👋</Text>
+                    <Text style={styles.userSub}>AQUI ESTÁ O RESUMO DA CASA HOJE.</Text>
                 </View>
 
                 {contextMode === 'nos' ? (
@@ -81,11 +73,11 @@ export const HomeScreen = () => {
                         {/* 3. Quick Tasks Overview */}
                         <View style={styles.sectionHeader}>
                             <View style={styles.sectionIconRow}>
-                                <ClipboardList size={18} color="#0f172a" />
+                                <ClipboardList size={20} color={THEME.colors.text} strokeWidth={2.5} />
                                 <Text style={styles.sectionTitle}>TAREFAS URGENTES</Text>
                             </View>
                             <TouchableOpacity onPress={() => navigation.navigate('Tasks')}>
-                                <Text style={styles.seeAll}>Ver todas</Text>
+                                <Text style={styles.seeAll}>VER TODAS</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -95,7 +87,7 @@ export const HomeScreen = () => {
                                     <View style={styles.taskRow}>
                                         <Text style={styles.taskTitle} numberOfLines={1}>{task.title}</Text>
                                         <View style={styles.assigneeBadge}>
-                                            <Avatar user={getAssignedUser(task)} size={20} />
+                                            <Avatar user={getAssignedUser(task)} size={24} />
                                         </View>
                                     </View>
                                 </Card>
@@ -109,18 +101,18 @@ export const HomeScreen = () => {
                         {/* 4. Events */}
                         <View style={[styles.sectionHeader, { marginTop: 24 }]}>
                             <View style={styles.sectionIconRow}>
-                                <Calendar size={18} color="#0f172a" />
+                                <Calendar size={20} color={THEME.colors.text} strokeWidth={2.5} />
                                 <Text style={styles.sectionTitle}>PRÓXIMOS EVENTOS</Text>
                             </View>
                             <TouchableOpacity onPress={() => navigation.navigate('Agenda')}>
-                                <Text style={styles.seeAll}>Ver agenda</Text>
+                                <Text style={styles.seeAll}>VER AGENDA</Text>
                             </TouchableOpacity>
                         </View>
 
                         <Card style={styles.eventContainer}>
                             {nextEvents.length > 0 ? (
                                 nextEvents.map(ev => (
-                                    <EventCard key={ev.id} title={ev.title} date={typeof ev.date === 'string' && ev.date.includes('T') ? new Date(ev.date).toLocaleDateString('pt-BR') : ev.date} type="event" />
+                                    <EventCard key={ev.id} title={ev.title} date={formatDate(ev.date)} type="event" />
                                 ))
                             ) : (
                                 <Text style={styles.emptyText}>Nenhum evento próximo.</Text>
@@ -139,30 +131,54 @@ export const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#fff' },
+    container: { flex: 1, backgroundColor: THEME.colors.background },
     scroll: { padding: 20, paddingBottom: 100 },
     loadingContainer: { justifyContent: 'center', alignItems: 'center' },
-    loadingText: { marginTop: 12, color: '#64748b', fontSize: 14 },
+    loadingText: { marginTop: 12, color: THEME.colors.textSecondary, fontSize: 14, fontWeight: '700' },
 
-    welcomeSection: { marginBottom: 24 },
-    welcomeText: { fontSize: 16, color: '#64748b' },
-    userName: { fontSize: 26, fontWeight: '900', color: '#0f172a' },
-    userSub: { fontSize: 13, color: '#94a3b8', marginTop: 4 },
+    welcomeSection: { marginBottom: 32 },
+    welcomeText: { fontSize: 16, color: THEME.colors.textSecondary, fontWeight: '900', letterSpacing: 1 },
+    userName: { 
+        fontSize: 40, 
+        fontWeight: '900', 
+        color: THEME.colors.text,
+        letterSpacing: -2,
+        marginBottom: 8,
+    },
+    userSub: { 
+        fontSize: 14, 
+        color: THEME.colors.textSecondary, 
+        fontWeight: '700',
+        borderLeftWidth: 4,
+        borderLeftColor: THEME.colors.accent,
+        paddingLeft: 12,
+    },
 
-    content: { gap: 8 },
+    content: { gap: 24 },
 
-    sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-    sectionIconRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    sectionTitle: { fontSize: 13, fontWeight: '900', color: '#0f172a', letterSpacing: 0.5 },
-    seeAll: { fontSize: 12, color: '#3B82F6', fontWeight: '600' },
+    sectionHeader: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: 16,
+        paddingHorizontal: 4,
+    },
+    sectionIconRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    sectionTitle: { fontSize: 16, fontWeight: '900', color: THEME.colors.text, letterSpacing: 0.5 },
+    seeAll: { fontSize: 13, color: THEME.colors.info, fontWeight: '800' },
 
-    miniTaskCard: { padding: 12, marginBottom: 8, borderLeftWidth: 3, borderLeftColor: '#F59E0B' },
+    miniTaskCard: { 
+        padding: 16, 
+        marginBottom: 12, 
+        borderLeftWidth: 6, 
+        borderLeftColor: THEME.colors.warning
+    },
     taskRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    taskTitle: { fontSize: 14, fontWeight: '600', color: '#334155', flex: 1, marginRight: 8 },
+    taskTitle: { fontSize: 16, fontWeight: '700', color: THEME.colors.text, flex: 1, marginRight: 8 },
     assigneeBadge: { marginLeft: 8 },
 
-    emptyCard: { padding: 20, alignItems: 'center' },
-    emptyText: { color: '#94a3b8', fontStyle: 'italic' },
+    emptyCard: { padding: 32, alignItems: 'center', backgroundColor: '#FFF' },
+    emptyText: { color: THEME.colors.textSecondary, fontWeight: '600' },
 
-    eventContainer: { gap: 8 }
+    eventContainer: { gap: 8, padding: 16 }
 });

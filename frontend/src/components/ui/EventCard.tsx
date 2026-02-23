@@ -5,7 +5,7 @@ import { Calendar, ShoppingCart, DollarSign, Trophy, Bell } from 'lucide-react-n
 interface EventCardProps {
     title: string;
     date: string;
-    type?: 'event' | 'shopping' | 'expense' | 'achievement';
+    type?: 'event' | 'shopping' | 'expense' | 'achievement' | 'task';
 }
 
 export const EventCard = ({ title, date, type = 'event' }: EventCardProps) => {
@@ -14,6 +14,7 @@ export const EventCard = ({ title, date, type = 'event' }: EventCardProps) => {
         shopping: <ShoppingCart size={20} color="#10B981" />,
         expense: <DollarSign size={20} color="#F59E0B" />,
         achievement: <Trophy size={20} color="#8B5CF6" />,
+        task: <Calendar size={20} color="#22C55E" />,
     };
 
     return (

@@ -13,7 +13,7 @@ const SYMPTOMS = [
 ];
 
 export const AddCycleEntryModal = ({ visible, onClose }: AddCycleEntryModalProps) => {
-    const { addCycleDay } = useApp();
+    const { addCycleDay, currentUser } = useApp();
     const [flowIntensity, setFlowIntensity] = useState<'light' | 'medium' | 'heavy'>('medium');
     const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
     const [mood, setMood] = useState<'happy' | 'sad' | 'anxious' | 'irritable' | 'neutral' | undefined>(undefined);
@@ -28,7 +28,10 @@ export const AddCycleEntryModal = ({ visible, onClose }: AddCycleEntryModalProps
     };
 
     const handleSave = () => {
+        if (!currentUser) return;
+
         addCycleDay({
+            userId: currentUser.id,
             date: new Date().toISOString(),
             flowIntensity,
             symptoms: selectedSymptoms,

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useRef } from 'react';
 import {
     api, User, RecurringTask, Expense, Income, Goal, Debt, Subscription,
     ShoppingItem, AgendaEvent, Notification, Notice, Reward, PersonalHabit,
@@ -32,8 +32,10 @@ interface AppContextType {
     // Users
     users: User[];
     currentUser: User | null;
+    setCurrentUserById: (userId: number) => void;
+    deleteUserById: (userId: number, requesterId: number) => Promise<void>;
     leaderboard: LeaderboardEntry[];
-    refreshUsers: () => Promise<void>;
+    refreshUsers: (preferredUserId?: number) => Promise<User[]>;
 
     // Tasks
     tasks: RecurringTask[];
@@ -47,6 +49,7 @@ interface AppContextType {
     expenses: Expense[];
     incomes: Income[];
     debts: Debt[];
+    featuredDebts: Debt[];
     subscriptions: Subscription[];
     goals: Goal[];
     familyBalance: number;
@@ -115,6 +118,11 @@ interface AppContextType {
     addStudySession: (s: CreateStudySessionDto) => Promise<void>;
     addCycleDay: (d: CreateCycleDayDto) => Promise<void>;
     updateUserSettings: (s: Partial<UserSettings>) => Promise<void>;
+    getProjectedInstances: (task: RecurringTask, limit?: number) => Array<{
+        id: string;
+        date: string;
+        assignedTo: User;
+    }>;
 
     // Real-time notifications
     toasts: ToastNotification[];
@@ -172,6 +180,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     // Real-time toast notifications
     const [toasts, setToasts] = useState<ToastNotification[]>([]);
+    const recentRealtimeEventsRef = useRef<Map<string, number>>(new Map());
 
     // Helper to add toast
     const addToast = useCallback((message: string, type: 'success' | 'info' | 'warning' = 'info') => {
@@ -200,10 +209,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         .reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0);
     const familyEvents = events.filter(e => e.isFamily);
     const personalEvents = events.filter(e => !e.isFamily);
+    const featuredDebts = debts.filter(d => d.paidInstallments < d.totalInstallments);
 
     // ==================== REFRESH FUNCTIONS ====================
 
-    const refreshUsers = useCallback(async () => {
+    const refreshUsers = useCallback(async (preferredUserId?: number) => {
         try {
             const [usersData, leaderboardData] = await Promise.all([
                 api.getUsers(),
@@ -211,14 +221,42 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             ]);
             setUsers(usersData);
             setLeaderboard(leaderboardData);
-            if (usersData.length > 0 && !currentUser) {
-                setCurrentUser(usersData[0]);
+            if (usersData.length > 0) {
+                const preferred = preferredUserId
+                    ? usersData.find(u => u.id === preferredUserId)
+                    : undefined;
+
+                if (preferred) {
+                    setCurrentUser(preferred);
+                } else if (!currentUser) {
+                    setCurrentUser(usersData[0]);
+                }
+            } else {
+                setCurrentUser(null);
             }
+            return usersData;
         } catch (err) {
             setError('Failed to load users');
             console.error(err);
+            return [];
         }
     }, [currentUser]);
+
+    const setCurrentUserById = useCallback((userId: number) => {
+        setCurrentUser(prev => {
+            if (prev?.id === userId) return prev;
+            const match = users.find(u => u.id === userId);
+            return match ?? prev;
+        });
+    }, [users]);
+
+    const deleteUserById = useCallback(async (userId: number, requesterId: number) => {
+        await api.deleteUser(userId, requesterId);
+        const usersData = await refreshUsers();
+        if (currentUser?.id === userId) {
+            setCurrentUser(usersData[0] ?? null);
+        }
+    }, [refreshUsers, currentUser?.id]);
 
     const refreshTasks = useCallback(async () => {
         try {
@@ -317,6 +355,35 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [currentUser]);
 
+    const getProjectedInstances = useCallback((task: RecurringTask, limit = 20) => {
+        const assignees = task.assignments?.map(a => a.user).filter(Boolean) ?? [];
+        if (assignees.length === 0) return [];
+
+        const instances: Array<{ id: string; date: string; assignedTo: User }> = [];
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        for (let i = 0; i < limit; i++) {
+            const date = new Date(start);
+            if (task.frequency === 'daily') {
+                date.setDate(start.getDate() + i);
+            } else if (task.frequency === 'weekly') {
+                date.setDate(start.getDate() + (i * 7));
+            } else {
+                date.setDate(start.getDate() + (i * 30));
+            }
+
+            const assignedTo = assignees[i % assignees.length];
+            instances.push({
+                id: `${task.id}-${i}`,
+                date: date.toLocaleDateString('pt-BR'),
+                assignedTo
+            });
+        }
+
+        return instances;
+    }, []);
+
     // ==================== INITIAL LOAD ====================
 
     useEffect(() => {
@@ -352,21 +419,32 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     // ==================== SIGNALR REAL-TIME CONNECTION ====================
 
     useEffect(() => {
-        // Connect to SignalR hub
-        const connectSignalR = async () => {
-            try {
-                await signalRService.connect(currentUser?.id);
-            } catch (err) {
-                console.warn('SignalR connection failed (backend may be offline):', err);
-            }
-        };
+        if (isLoading || !currentUser?.id) return;
 
-        if (!isLoading) {
-            connectSignalR();
-        }
+        signalRService.connect(currentUser.id).catch((err) => {
+            console.warn('SignalR connection failed (backend may be offline):', err);
+        });
+    }, [isLoading, currentUser?.id]);
 
+    useEffect(() => {
         // Subscribe to real-time notifications
         const unsubscribe = signalRService.subscribe((notification) => {
+            const actorUserId = notification.data?.actorUserId ?? notification.data?.authorId;
+            if (currentUser?.id && actorUserId && Number(actorUserId) === currentUser.id) {
+                return;
+            }
+
+            const dedupKey = `${notification.type}:${notification.message}`;
+            const now = Date.now();
+            const lastSeen = recentRealtimeEventsRef.current.get(dedupKey) ?? 0;
+            if (now - lastSeen < 4000) {
+                return;
+            }
+            if (recentRealtimeEventsRef.current.size > 200) {
+                recentRealtimeEventsRef.current.clear();
+            }
+            recentRealtimeEventsRef.current.set(dedupKey, now);
+
             // Show toast for all notifications
             addToast(notification.message, 'info');
 
@@ -398,12 +476,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             }
         });
 
-        // Cleanup on unmount
+        // Cleanup subscription only
         return () => {
             unsubscribe();
+        };
+    }, [currentUser?.id, addToast, refreshTasks, refreshUsers, refreshRewards, refreshFinance, refreshShopping, refreshNotifications]);
+
+    useEffect(() => {
+        return () => {
             signalRService.disconnect();
         };
-    }, [isLoading, currentUser, addToast, refreshTasks, refreshUsers, refreshRewards, refreshFinance, refreshShopping, refreshNotifications]);
+    }, []);
 
     // ==================== ACTION FUNCTIONS ======================================
 
@@ -470,7 +553,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const addContributionToGoal = async (goalId: number, amount: number) => {
-        await api.contributeToGoal(goalId, amount);
+        await api.contributeToGoal(goalId, amount, undefined, currentUser?.id);
         await refreshFinance();
     };
 
@@ -621,6 +704,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
             users,
             currentUser,
+            setCurrentUserById,
+            deleteUserById,
             leaderboard,
             refreshUsers,
 
@@ -634,6 +719,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             expenses,
             incomes,
             debts,
+            featuredDebts,
             subscriptions,
             goals,
             familyBalance,
@@ -697,6 +783,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             addStudySession,
             addCycleDay,
             updateUserSettings,
+            getProjectedInstances,
 
             // Real-time
             toasts,

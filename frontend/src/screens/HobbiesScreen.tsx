@@ -62,11 +62,11 @@ export const HobbiesScreen = () => {
 
                             <View style={styles.notesSection}>
                                 <Text style={styles.notesTitle}>NOTAS / METAS</Text>
-                                {project.notes.length > 0 ? (
-                                    project.notes.map((note, i) => (
+                                {(project.notes?.length ?? 0) > 0 ? (
+                                    project.notes!.map((note, i) => (
                                         <View key={i} style={styles.noteItem}>
                                             <CheckSquare size={14} color="#94a3b8" style={{ marginTop: 2 }} />
-                                            <Text style={styles.noteText}>{note}</Text>
+                                            <Text style={styles.noteText}>{typeof note === 'string' ? note : note.text}</Text>
                                         </View>
                                     ))
                                 ) : (

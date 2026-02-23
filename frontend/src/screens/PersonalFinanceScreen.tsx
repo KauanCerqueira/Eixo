@@ -5,6 +5,7 @@ import { TrendingUp, TrendingDown, Trash2 } from 'lucide-react-native';
 import { Card } from '../components/ui/Card';
 import { FAB } from '../components/ui/FAB';
 import { AddPersonalTransactionModal } from '../components/modals/AddPersonalTransactionModal';
+import { formatDate } from '../utils/date';
 
 const PersonalFinanceScreen = () => {
     const { personalFinance, deletePersonalTransaction, personalBalance } = useApp();
@@ -64,7 +65,7 @@ const PersonalFinanceScreen = () => {
                                 <View>
                                     <Text style={styles.transactionTitle}>{item.title}</Text>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Text style={styles.transactionDate}>{new Date(item.date).toLocaleDateString()}</Text>
+                                        <Text style={styles.transactionDate}>{formatDate(item.date)}</Text>
                                         {item.category && <Text style={styles.transactionCategory}> • {item.category}</Text>}
                                     </View>
                                     {item.description ? <Text style={styles.transactionDesc} numberOfLines={1}>{item.description}</Text> : null}

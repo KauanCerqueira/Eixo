@@ -19,7 +19,7 @@ interface AddHabitModalProps {
 const COLORS = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899'];
 
 export const AddHabitModal = ({ visible, onClose }: AddHabitModalProps) => {
-    const { addHabit } = useApp();
+    const { addHabit, currentUser } = useApp();
     const [title, setTitle] = useState('');
     const [category, setCategory] = useState('fitness');
     const [target, setTarget] = useState('');
@@ -27,8 +27,16 @@ export const AddHabitModal = ({ visible, onClose }: AddHabitModalProps) => {
     const [color, setColor] = useState(COLORS[0]);
 
     const handleSave = () => {
-        if (!title.trim() || !target) return;
-        addHabit({ title: title.trim(), category: category as any, current: 0, target: parseInt(target) || 1, unit: unit.trim() || 'vezes', color });
+        if (!title.trim() || !target || !currentUser) return;
+        addHabit({
+            userId: currentUser.id,
+            title: title.trim(),
+            category: category as any,
+            current: 0,
+            target: parseInt(target) || 1,
+            unit: unit.trim() || 'vezes',
+            color
+        });
         setTitle(''); setTarget(''); setUnit('');
         onClose();
     };

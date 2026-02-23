@@ -1,8 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ENV } from '../config/env';
 
-const API_BASE_URL = 'http://10.0.2.2:5000/api';
+const API_BASE_URL = ENV.API_BASE;
 const TOKEN_KEY = '@eixo_token';
 const USER_KEY = '@eixo_user';
+const FIRST_LAUNCH_KEY = '@eixo_first_launch_done';
 
 export interface AuthUser {
     id: number;
@@ -23,12 +25,51 @@ export interface AuthState {
 class AuthService {
     private token: string | null = null;
     private user: AuthUser | null = null;
+    private readonly timeoutMs = 15000;
+
+    private async fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+        try {
+            return await fetch(input, { ...init, signal: controller.signal });
+        } finally {
+            clearTimeout(timeout);
+        }
+    }
+
+    private async parseError(response: Response): Promise<string> {
+        const fallback = `Erro de rede (${response.status})`;
+        const contentType = response.headers.get('content-type') || '';
+        try {
+            if (contentType.includes('application/json')) {
+                const json = await response.json();
+                return json?.message || fallback;
+            }
+            const text = await response.text();
+            return text || fallback;
+        } catch {
+            return fallback;
+        }
+    }
+
+    private async ensureFirstLaunchRequiresLogin(): Promise<void> {
+        const firstLaunchDone = await AsyncStorage.getItem(FIRST_LAUNCH_KEY);
+        if (firstLaunchDone) return;
+
+        // If the app was restored with stale storage, force fresh auth on first launch.
+        await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY]);
+        this.token = null;
+        this.user = null;
+        await AsyncStorage.setItem(FIRST_LAUNCH_KEY, '1');
+    }
 
     /**
      * Initialize auth state from storage
      */
     async initialize(): Promise<AuthState> {
         try {
+            await this.ensureFirstLaunchRequiresLogin();
+
             const [storedToken, storedUser] = await Promise.all([
                 AsyncStorage.getItem(TOKEN_KEY),
                 AsyncStorage.getItem(USER_KEY)
@@ -61,15 +102,24 @@ class AuthService {
      * Login with name and PIN
      */
     async login(name: string, pin: string): Promise<AuthState> {
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, pin })
-        });
+        let response: Response;
+        try {
+            response = await this.fetchWithTimeout(`${API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, pin })
+            });
+        } catch (error: any) {
+            const isTimeout = error?.name === 'AbortError';
+            throw new Error(
+                isTimeout
+                    ? `Tempo de conexão excedido. Verifique a API: ${API_BASE_URL}`
+                    : `Falha de rede. Verifique a API: ${API_BASE_URL}`
+            );
+        }
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Login failed');
+            throw new Error(await this.parseError(response));
         }
 
         const data = await response.json();
@@ -83,18 +133,27 @@ class AuthService {
     }
 
     /**
-     * Quick login by user ID (no PIN required)
+     * Register and authenticate a new user
      */
-    async quickLogin(userId: number): Promise<AuthState> {
-        const response = await fetch(`${API_BASE_URL}/auth/quick-login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId })
-        });
+    async register(name: string, pin: string): Promise<AuthState> {
+        let response: Response;
+        try {
+            response = await this.fetchWithTimeout(`${API_BASE_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, pin })
+            });
+        } catch (error: any) {
+            const isTimeout = error?.name === 'AbortError';
+            throw new Error(
+                isTimeout
+                    ? `Tempo de conexão excedido. Verifique a API: ${API_BASE_URL}`
+                    : `Falha de rede. Verifique a API: ${API_BASE_URL}`
+            );
+        }
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Quick login failed');
+            throw new Error(await this.parseError(response));
         }
 
         const data = await response.json();
@@ -123,7 +182,7 @@ class AuthService {
         if (!this.token) return false;
 
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/validate`, {
+            const response = await this.fetchWithTimeout(`${API_BASE_URL}/auth/validate`, {
                 headers: { 'Authorization': `Bearer ${this.token}` }
             });
             return response.ok;

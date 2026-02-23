@@ -57,7 +57,7 @@ export const WishlistScreen = () => {
                         title={item.title}
                         price={item.price}
                         saved={item.saved}
-                        priority={item.priority}
+                        priority={item.priority as 'high' | 'medium' | 'low'}
                     />
                 ))}
 

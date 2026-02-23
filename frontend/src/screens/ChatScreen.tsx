@@ -4,11 +4,12 @@ import { Bell, CheckCircle, DollarSign, Calendar, Trophy } from 'lucide-react-na
 import { useApp } from '../context/AppContext';
 import { Card } from '../components/ui/Card';
 import { Avatar } from '../components/ui/Avatar';
+import { formatTime } from '../utils/date';
 
 export const ChatScreen = () => {
     const { contextMode, notifications, markNotificationRead, users } = useApp();
 
-    const icons = {
+    const icons: Record<string, React.ReactNode> = {
         task: <CheckCircle size={20} color="#22C55E" />,
         expense: <DollarSign size={20} color="#F59E0B" />,
         event: <Calendar size={20} color="#3B82F6" />,
@@ -45,13 +46,13 @@ export const ChatScreen = () => {
                     <TouchableOpacity key={n.id} onPress={() => markNotificationRead(n.id)} activeOpacity={0.7}>
                         <Card style={[styles.notifCard, !n.isRead && styles.unread]}>
                             <View style={styles.notifRow}>
-                                <View style={styles.iconBox}>{icons[n.type]}</View>
+                                <View style={styles.iconBox}>{icons[n.type] ?? <Bell size={20} color="#64748b" />}</View>
                                 <View style={styles.notifInfo}>
                                     <Text style={styles.notifTitle}>{n.title}</Text>
                                     <Text style={styles.notifMsg}>{n.message}</Text>
                                 </View>
                                 <View style={styles.timeBox}>
-                                    <Text style={styles.time}>{n.time}</Text>
+                                    <Text style={styles.time}>{formatTime(n.createdAt)}</Text>
                                     {!n.isRead && <View style={styles.unreadDot} />}
                                 </View>
                             </View>

@@ -13,12 +13,19 @@ const WorkoutScreen = () => {
 
     // Derived Stats
     const totalWorkouts = workouts.length;
-    const totalMinutes = workouts.reduce((acc, w) => acc + (w.durationMinutes || w.durationMinutes || 0), 0);
+    const totalMinutes = workouts.reduce((acc, w) => acc + (w.durationMinutes || 0), 0);
     const totalCalories = workouts.reduce((acc, w) => acc + (w.calories || 0), 0);
 
-    // Weekly Habit Progress (Mocking 'Treino' habit if exists)
+    // Weekly habit progress
     const workoutHabit = habits.find(h => h.category === 'fitness') || { current: 0, target: 4 };
-    const progress = Math.min(100, (workoutHabit.current / workoutHabit.target) * 100);
+    const safeTarget = workoutHabit.target > 0 ? workoutHabit.target : 1;
+    const progress = Math.min(100, (workoutHabit.current / safeTarget) * 100);
+
+    const formatDate = (value: string) => {
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return '-';
+        return parsed.toLocaleDateString();
+    };
 
     return (
         <View style={styles.container}>
@@ -71,10 +78,10 @@ const WorkoutScreen = () => {
                                     <Dumbbell size={20} color="#fff" />
                                 </View>
                                 <View>
-                                    <Text style={styles.workoutType}>{w.type}</Text>
+                                    <Text style={styles.workoutType}>{w.name}</Text>
                                     <View style={styles.workoutMeta}>
                                         <Calendar size={12} color="#94a3b8" />
-                                        <Text style={styles.workoutDate}>{new Date(w.date).toLocaleDateString()}</Text>
+                                        <Text style={styles.workoutDate}>{formatDate(w.date)}</Text>
                                     </View>
                                 </View>
                             </View>

@@ -26,67 +26,98 @@ class SignalRService {
     private listeners: NotificationListener[] = [];
     private isConnected = false;
     private userId: number | null = null;
+    private connectPromise: Promise<void> | null = null;
 
     /**
      * Start connection to SignalR hub
      */
     async connect(userId?: number): Promise<void> {
-        if (this.isConnected && this.connection) {
-            console.log('SignalR: Already connected');
+        if (userId) {
+            this.userId = userId;
+        }
+
+        if (this.connection && this.connection.state === signalR.HubConnectionState.Connected) {
+            this.isConnected = true;
+            await this.joinCurrentUserChannel();
             return;
         }
 
-        this.connection = new signalR.HubConnectionBuilder()
-            .withUrl(HUB_URL)
-            .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) // Retry intervals
-            .configureLogging(signalR.LogLevel.Information)
-            .build();
-
-        // Register event handlers
-        this.registerEventHandlers();
-
-        try {
-            await this.connection.start();
-            this.isConnected = true;
-            console.log('SignalR: Connected to notification hub');
-
-            // Join user-specific channel
-            if (userId) {
-                this.userId = userId;
-                await this.connection.invoke('JoinUserChannel', userId);
-                console.log(`SignalR: Joined user channel ${userId}`);
-            }
-        } catch (error) {
-            console.error('SignalR: Connection failed', error);
-            this.isConnected = false;
+        if (this.connectPromise) {
+            await this.connectPromise;
+            await this.joinCurrentUserChannel();
+            return;
         }
 
-        // Handle reconnection
-        this.connection.onreconnected(() => {
-            console.log('SignalR: Reconnected');
-            this.isConnected = true;
-            if (this.userId) {
-                this.connection?.invoke('JoinUserChannel', this.userId);
-            }
-        });
+        if (!this.connection) {
+            this.connection = new signalR.HubConnectionBuilder()
+                .withUrl(HUB_URL)
+                .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) // Retry intervals
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
 
-        this.connection.onclose(() => {
-            console.log('SignalR: Disconnected');
-            this.isConnected = false;
-        });
+            // Register event handlers once
+            this.registerEventHandlers();
+
+            // Handle reconnection lifecycle
+            this.connection.onreconnecting(() => {
+                this.isConnected = false;
+            });
+
+            this.connection.onreconnected(async () => {
+                this.isConnected = true;
+                await this.joinCurrentUserChannel();
+            });
+
+            this.connection.onclose(() => {
+                this.isConnected = false;
+            });
+        }
+
+        this.connectPromise = (async () => {
+            try {
+                await this.connection!.start();
+                this.isConnected = true;
+                await this.joinCurrentUserChannel();
+            } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                const handshakeInterrupted = message.toLowerCase().includes('stopped before the hub handshake could complete');
+                if (handshakeInterrupted) {
+                    console.warn('SignalR: handshake interrupted, aguardando próxima tentativa automática');
+                } else {
+                    console.warn('SignalR: Connection failed', error);
+                }
+                this.isConnected = false;
+            } finally {
+                this.connectPromise = null;
+            }
+        })();
+
+        await this.connectPromise;
     }
 
     /**
      * Disconnect from SignalR hub
      */
     async disconnect(): Promise<void> {
-        if (this.connection && this.isConnected) {
-            if (this.userId) {
-                await this.connection.invoke('LeaveUserChannel', this.userId);
-            }
+        if (!this.connection) return;
+        try {
             await this.connection.stop();
+        } catch (error) {
+            console.warn('SignalR: stop failed', error);
+        } finally {
             this.isConnected = false;
-            console.log('SignalR: Disconnected');
+        }
+    }
+
+    private async joinCurrentUserChannel(): Promise<void> {
+        if (!this.connection || !this.userId) return;
+        if (this.connection.state !== signalR.HubConnectionState.Connected) return;
+
+        try {
+            await this.connection.invoke('JoinUserChannel', this.userId);
+        } catch (error) {
+            // Avoid crashing UI with redbox when reconnect races happen.
+            console.warn('SignalR: JoinUserChannel failed', error);
         }
     }
 

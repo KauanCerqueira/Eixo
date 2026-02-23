@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { THEME } from '../../theme';
 
-type BadgeVariant = 'pending' | 'done' | 'urgent' | 'info';
+type BadgeVariant = 'pending' | 'done' | 'urgent' | 'info' | 'success';
 
 interface BadgeProps {
     variant: BadgeVariant;
@@ -9,21 +10,33 @@ interface BadgeProps {
 }
 
 export const Badge = ({ variant, children }: BadgeProps) => {
+    // Neubrutalism: Always black border, vibrant BG
     const variantStyles = {
-        pending: { bg: '#FEF3C7', border: '#F59E0B', text: '#92400E' },
-        done: { bg: '#D1FAE5', border: '#10B981', text: '#065F46' },
-        urgent: { bg: '#FEE2E2', border: '#EF4444', text: '#991B1B' },
-        info: { bg: '#DBEAFE', border: '#3B82F6', text: '#1E40AF' },
+        pending: { bg: THEME.colors.warning, text: '#000' },
+        done: { bg: THEME.colors.success, text: '#000' },
+        success: { bg: THEME.colors.success, text: '#000' },
+        urgent: { bg: THEME.colors.error, text: '#FFF' },
+        info: { bg: THEME.colors.info, text: '#FFF' },
     }[variant];
 
     return (
-        <View style={[styles.badge, { backgroundColor: variantStyles.bg, borderColor: variantStyles.border }]}>
+        <View style={[styles.badge, { backgroundColor: variantStyles.bg }]}>
             <Text style={[styles.text, { color: variantStyles.text }]}>{children}</Text>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 99, borderWidth: 1 },
-    text: { fontSize: 11, fontWeight: 'bold' }
+    badge: { 
+        paddingHorizontal: 8, 
+        paddingVertical: 4, 
+        borderRadius: 8, // Less rounded
+        borderWidth: 2,
+        borderColor: '#000',
+        alignSelf: 'flex-start',
+    },
+    text: { 
+        fontSize: 12, 
+        fontWeight: '900' 
+    }
 });

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Eixo.Core.Entities;
 
 public class User
@@ -6,6 +8,7 @@ public class User
     public string Name { get; set; } = string.Empty;
     public string Initials { get; set; } = string.Empty;
     public string Color { get; set; } = "#3B82F6";
+    [JsonIgnore]
     public string Pin { get; set; } = "1234"; // Simple PIN for family auth
     public int Points { get; set; } = 0;
     public int Xp { get; set; } = 0;

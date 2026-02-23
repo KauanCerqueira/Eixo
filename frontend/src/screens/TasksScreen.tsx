@@ -8,6 +8,8 @@ import { TASK_CATEGORIES } from '../types/types';
 import { TaskDetailModal } from '../components/modals/TaskDetailModal';
 import { AddTaskModal } from '../components/modals/AddTaskModal';
 import { FAB } from '../components/ui/FAB';
+import { THEME } from '../theme';
+import { Calendar, Repeat } from 'lucide-react-native';
 
 export const TasksScreen = () => {
     const { tasks, users, isLoading } = useApp();
@@ -34,6 +36,7 @@ export const TasksScreen = () => {
     // Group tasks by category
     const filteredTasks = tasks.filter(t => (t.type || 'recurring') === activeTab);
 
+    // Only show categories that have tasks
     const groupedTasks = TASK_CATEGORIES.map(cat => ({
         ...cat,
         tasks: filteredTasks.filter(t => t.category === cat.id)
@@ -42,64 +45,88 @@ export const TasksScreen = () => {
     if (isLoading) {
         return (
             <View style={[styles.container, styles.loadingContainer]}>
-                <ActivityIndicator size="large" color="#3B82F6" />
+                <ActivityIndicator size="large" color={THEME.colors.primary} />
+                <Text style={styles.loadingText}>Carregando tarefas...</Text>
             </View>
         );
     }
 
     return (
         <View style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scroll}>
-                <View style={styles.header}>
-                    <Text style={styles.pageTitle}>Gerenciador de Tarefas</Text>
-                    <Text style={styles.pageSubtitle}>Toque em uma tarefa para ver a escala.</Text>
-                </View>
+            <View style={styles.header}>
+                <Text style={styles.pageTitle}>TAREFAS</Text>
+                <Text style={styles.pageSubtitle}>QUEM FAZ O QUÊ E QUANDO.</Text>
+            </View>
 
-                {/* Tabs */}
-                <View style={styles.tabs}>
-                    <TouchableOpacity style={[styles.tab, activeTab === 'recurring' && styles.tabActive]} onPress={() => setActiveTab('recurring')}>
-                        <Text style={[styles.tabText, activeTab === 'recurring' && styles.tabTextActive]}>Rotinas 🔄</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.tab, activeTab === 'sporadic' && styles.tabActive]} onPress={() => setActiveTab('sporadic')}>
-                        <Text style={[styles.tabText, activeTab === 'sporadic' && styles.tabTextActive]}>Esporádicas 📅</Text>
-                    </TouchableOpacity>
-                </View>
+            {/* Tabs */}
+            <View style={styles.tabsContainer}>
+                <TouchableOpacity 
+                    style={[styles.tab, activeTab === 'recurring' && styles.tabActive]} 
+                    onPress={() => setActiveTab('recurring')}
+                    activeOpacity={0.9}
+                >
+                    <Repeat size={18} color={activeTab === 'recurring' ? '#000' : THEME.colors.textSecondary} />
+                    <Text style={[styles.tabText, activeTab === 'recurring' && styles.tabTextActive]}>ROTINAS</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={[styles.tab, activeTab === 'sporadic' && styles.tabActive]} 
+                    onPress={() => setActiveTab('sporadic')}
+                    activeOpacity={0.9}
+                >
+                    <Calendar size={18} color={activeTab === 'sporadic' ? '#000' : THEME.colors.textSecondary} />
+                    <Text style={[styles.tabText, activeTab === 'sporadic' && styles.tabTextActive]}>ESPORÁDICAS</Text>
+                </TouchableOpacity>
+            </View>
 
-                {groupedTasks.length > 0 ? groupedTasks.map(group => (
-                    <View key={group.id} style={styles.groupSection}>
-                        <Text style={styles.groupTitle}>{group.icon} {group.label.toUpperCase()}</Text>
+            <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+                {groupedTasks.length > 0 ? (
+                    groupedTasks.map(group => (
+                        <View key={group.id} style={styles.groupSection}>
+                            <View style={styles.groupHeader}>
+                                <Text style={styles.groupIcon}>{group.icon}</Text>
+                                <Text style={styles.groupTitle}>{group.label.toUpperCase()}</Text>
+                            </View>
 
-                        {group.tasks.map(task => {
-                            const assignedUser = getAssignedUser(task);
-                            return (
-                                <TouchableOpacity key={task.id} onPress={() => openTask(task)}>
-                                    <Card style={styles.taskCard}>
-                                        <View style={styles.taskHeader}>
-                                            <Text style={styles.taskTitle}>{task.title}</Text>
-                                            <Badge variant="info">{task.pointsOnTime} pts</Badge>
-                                        </View>
-
-                                        <View style={styles.taskFooter}>
-                                            <View style={styles.nextUp}>
-                                                <Text style={styles.nextLabel}>Próximo:</Text>
-                                                <Avatar user={assignedUser} size={20} />
-                                                <Text style={styles.nextName}>{assignedUser.name}</Text>
+                            {group.tasks.map(task => {
+                                const assignedUser = getAssignedUser(task);
+                                return (
+                                    <TouchableOpacity 
+                                        key={task.id} 
+                                        onPress={() => openTask(task)}
+                                        activeOpacity={0.9}
+                                    >
+                                        <Card style={styles.taskCard}>
+                                            <View style={styles.cardContent}>
+                                                <View style={styles.taskMain}>
+                                                    <View style={styles.taskTopRow}>
+                                                        <Text style={styles.taskTitle}>{task.title}</Text>
+                                                        {task.isDone && <Badge variant="success">FEITO</Badge>}
+                                                    </View>
+                                                    <View style={styles.pointsBadge}>
+                                                        <Text style={styles.pointsText}>{task.pointsOnTime} PTS</Text>
+                                                    </View>
+                                                </View>
+                                                
+                                                <View style={styles.assigneeSection}>
+                                                    <Text style={styles.assigneeLabel}>VEZ DE:</Text>
+                                                    <View style={styles.assigneeRow}>
+                                                        <Avatar user={assignedUser} size={24} />
+                                                        <Text style={styles.assigneeName}>{assignedUser.name}</Text>
+                                                    </View>
+                                                </View>
                                             </View>
-                                            <Text style={styles.freqText}>
-                                                {activeTab === 'recurring'
-                                                    ? (task.frequency === 'daily' ? 'Diário' : task.frequency === 'weekly' ? 'Semanal' : 'Mensal')
-                                                    : `Para: ${task.scheduledDate || 'Sem data'}`
-                                                }
-                                            </Text>
-                                        </View>
-                                    </Card>
-                                </TouchableOpacity>
-                            );
-                        })}
-                    </View>
-                )) : (
+                                        </Card>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                    ))
+                ) : (
                     <View style={styles.emptyState}>
-                        <Text style={styles.emptyText}>Nenhuma tarefa {activeTab === 'recurring' ? 'de rotina' : 'esporádica'} encontrada.</Text>
+                        <Text style={styles.emptyIcon}>🤷‍♂️</Text>
+                        <Text style={styles.emptyText}>
+                            NENHUMA TAREFA {activeTab === 'recurring' ? 'DE ROTINA' : 'ESPORÁDICA'}.
+                        </Text>
                     </View>
                 )}
             </ScrollView>
@@ -107,12 +134,14 @@ export const TasksScreen = () => {
             {/* Contextual FAB */}
             <FAB onPress={() => setAddVisible(true)} />
 
-            {/* Modals */}
-            <TaskDetailModal
-                visible={isDetailVisible}
-                onClose={() => setDetailVisible(false)}
-                task={selectedTask}
-            />
+            {/* Modals - Passed as is */}
+            {selectedTask && (
+                <TaskDetailModal
+                    visible={isDetailVisible}
+                    onClose={() => setDetailVisible(false)}
+                    task={selectedTask}
+                />
+            )}
 
             <AddTaskModal
                 visible={isAddVisible}
@@ -123,32 +152,164 @@ export const TasksScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#fff' },
-    scroll: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 100 },
+    container: { flex: 1, backgroundColor: THEME.colors.background },
+    scroll: { padding: 20, paddingBottom: 100 },
     loadingContainer: { justifyContent: 'center', alignItems: 'center' },
-    header: { marginBottom: 20 },
-    pageTitle: { fontSize: 24, fontWeight: '900', color: '#0f172a' },
-    pageSubtitle: { fontSize: 13, color: '#64748b' },
+    loadingText: { marginTop: 16, fontWeight: '700', color: THEME.colors.textSecondary },
 
-    tabs: { flexDirection: 'row', marginBottom: 20, backgroundColor: '#f1f5f9', padding: 4, borderRadius: 12 },
-    tab: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 10 },
-    tabActive: { backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 2, elevation: 1 },
-    tabText: { fontSize: 13, fontWeight: '600', color: '#64748b' },
-    tabTextActive: { color: '#0f172a' },
+    header: { 
+        paddingHorizontal: 20,
+        paddingTop: 20,
+        paddingBottom: 12,
+        backgroundColor: THEME.colors.background,
+        zIndex: 10
+    },
+    pageTitle: { 
+        fontSize: 32, 
+        fontWeight: '900', 
+        color: THEME.colors.text,
+        letterSpacing: -1,
+        marginBottom: 4
+    },
+    pageSubtitle: { 
+        fontSize: 12, 
+        color: THEME.colors.textSecondary,
+        fontWeight: '700',
+        letterSpacing: 1,
+        borderLeftWidth: 4,
+        borderLeftColor: THEME.colors.primary,
+        paddingLeft: 10
+    },
 
-    emptyState: { alignItems: 'center', marginTop: 40 },
-    emptyText: { color: '#94a3b8' },
+    tabsContainer: { 
+        flexDirection: 'row', 
+        marginHorizontal: 20,
+        marginBottom: 8, 
+        backgroundColor: '#FFF', 
+        padding: 6, 
+        borderRadius: 16,
+        borderWidth: 3,
+        borderColor: THEME.colors.text,
+        ...THEME.shadows.small
+    },
+    tab: { 
+        flex: 1, 
+        flexDirection: 'row',
+        paddingVertical: 12, 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        borderRadius: 10,
+        gap: 8
+    },
+    tabActive: { 
+        backgroundColor: THEME.colors.accent, 
+        borderWidth: 2,
+        borderColor: THEME.colors.text
+    },
+    tabText: { 
+        fontSize: 13, 
+        fontWeight: '700', 
+        color: THEME.colors.textSecondary 
+    },
+    tabTextActive: { 
+        color: THEME.colors.text,
+        fontWeight: '900'
+    },
 
-    groupSection: { marginBottom: 24 },
-    groupTitle: { fontSize: 12, fontWeight: 'bold', color: '#94a3b8', marginBottom: 10 },
+    emptyState: { 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        marginTop: 60, 
+        backgroundColor: '#FFF',
+        padding: 32,
+        borderRadius: 20,
+        borderWidth: 3,
+        borderColor: THEME.colors.text,
+        borderStyle: 'dashed'
+    },
+    emptyIcon: { fontSize: 40, marginBottom: 16 },
+    emptyText: { color: THEME.colors.text, fontWeight: '700', textAlign: 'center' },
 
-    taskCard: { marginBottom: 12, padding: 16 },
-    taskHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
-    taskTitle: { fontSize: 16, fontWeight: 'bold', color: '#0f172a' },
+    groupSection: { marginBottom: 32 },
+    groupHeader: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        marginBottom: 16,
+        gap: 8,
+        paddingHorizontal: 4
+    },
+    groupIcon: { fontSize: 24 },
+    groupTitle: { 
+        fontSize: 16, 
+        fontWeight: '900', 
+        color: THEME.colors.text,
+        letterSpacing: 1 
+    },
 
-    taskFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    nextUp: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    nextLabel: { fontSize: 12, color: '#64748b' },
-    nextName: { fontSize: 12, fontWeight: '600', color: '#0f172a' },
-    freqText: { fontSize: 12, color: '#94a3b8' },
+    taskCard: { 
+        marginBottom: 16, 
+        padding: 0,
+        overflow: 'hidden',
+        borderLeftWidth: 6,
+        borderLeftColor: THEME.colors.text
+    },
+    cardContent: {
+        padding: 16,
+        gap: 16
+    },
+    taskMain: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'flex-start' 
+    },
+    taskTopRow: {
+        flex: 1,
+        gap: 8
+    },
+    taskTitle: { 
+        fontSize: 18, 
+        fontWeight: '900', 
+        color: THEME.colors.text,
+        lineHeight: 24
+    },
+    
+    pointsBadge: {
+        backgroundColor: THEME.colors.info,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+        borderWidth: 2,
+        borderColor: THEME.colors.text,
+        transform: [{ rotate: '3deg' }]
+    },
+    pointsText: {
+        fontSize: 12,
+        fontWeight: '900',
+        color: '#FFF'
+    },
+
+    assigneeSection: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        paddingTop: 12,
+        borderTopWidth: 2,
+        borderTopColor: '#f1f5f9'
+    },
+    assigneeLabel: { 
+        fontSize: 12, 
+        color: THEME.colors.textSecondary,
+        fontWeight: '700'
+    },
+    assigneeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8
+    },
+    assigneeName: { 
+        fontSize: 14, 
+        fontWeight: '800', 
+        color: THEME.colors.text 
+    },
+    freqText: { fontSize: 12, color: THEME.colors.textSecondary, fontStyle: 'italic' },
 });

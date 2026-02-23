@@ -17,7 +17,7 @@ const SUBJECTS = [
 ];
 
 export const AddStudySessionModal = ({ visible, onClose }: AddStudySessionModalProps) => {
-    const { addStudySession } = useApp();
+    const { addStudySession, currentUser } = useApp();
 
     const [subject, setSubject] = useState('');
     const [topic, setTopic] = useState('');
@@ -25,12 +25,13 @@ export const AddStudySessionModal = ({ visible, onClose }: AddStudySessionModalP
     const [notes, setNotes] = useState('');
 
     const handleSave = () => {
-        if (!subject || !duration) return;
+        if (!subject || !duration || !currentUser) return;
 
         addStudySession({
+            userId: currentUser.id,
             subject,
-            topic, // Added to type in previous steps if not already there, assumed ok for now as flexible
-            durationMinutes: parseInt(duration), // Maps to duration in type
+            topic,
+            durationMinutes: parseInt(duration),
             date: new Date().toISOString(),
             notes
         });

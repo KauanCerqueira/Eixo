@@ -13,13 +13,13 @@
         "preview": {
             "distribution": "internal",
             "env": {
-                "EXPO_PUBLIC_API_URL": "https://api-staging.eixo.app"
+                "EXPO_PUBLIC_API_URL": "http://209.50.228.235:8090"
             }
         },
         "production": {
             "distribution": "store",
             "env": {
-                "EXPO_PUBLIC_API_URL": "https://api.eixo.app"
+                "EXPO_PUBLIC_API_URL": "http://209.50.228.235:8090"
             }
         }
     },

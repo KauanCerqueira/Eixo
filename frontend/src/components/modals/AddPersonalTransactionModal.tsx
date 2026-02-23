@@ -19,7 +19,7 @@ const CATEGORIES = [
 ];
 
 export const AddPersonalTransactionModal = ({ visible, onClose }: AddPersonalTransactionModalProps) => {
-    const { addPersonalTransaction } = useApp();
+    const { addPersonalTransaction, currentUser } = useApp();
 
     const [title, setTitle] = useState('');
     const [amount, setAmount] = useState('');
@@ -29,9 +29,10 @@ export const AddPersonalTransactionModal = ({ visible, onClose }: AddPersonalTra
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]); // Simple YYYY-MM-DD for now
 
     const handleSave = () => {
-        if (!title.trim() || !amount) return;
+        if (!title.trim() || !amount || !currentUser) return;
 
         addPersonalTransaction({
+            userId: currentUser.id,
             title: title.trim(),
             amount: parseFloat(amount) || 0,
             type,
@@ -123,7 +124,7 @@ export const AddPersonalTransactionModal = ({ visible, onClose }: AddPersonalTra
                             placeholderTextColor="#94a3b8"
                         />
 
-                        {/* Simple Date Mock */}
+                        {/* Date summary */}
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
                             <Calendar size={16} color="#64748b" style={{ marginRight: 6 }} />
                             <Text style={styles.labelNoMargin}>Data</Text>

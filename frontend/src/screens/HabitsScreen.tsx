@@ -6,15 +6,18 @@ import { Card } from '../components/ui/Card';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { AddButton } from '../components/ui/FAB';
 import { AddHabitModal } from '../components/modals/AddHabitModal';
-import { ProgressChart } from '../components/charts/ProgressChart';
 
 export const HabitsScreen = () => {
     const { habits, incrementHabit } = useApp();
     const [modalVisible, setModalVisible] = useState(false);
 
-    // Mock data for chart
-    const weeklyData = [60, 80, 50, 90, 70, 85, 95];
-    const weeklyLabels = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+    const completedToday = habits.filter(h => h.current >= h.target).length;
+    const averageProgress = habits.length > 0
+        ? Math.round(habits.reduce((sum, h) => {
+            const target = h.target > 0 ? h.target : 1;
+            return sum + Math.min(100, (h.current / target) * 100);
+        }, 0) / habits.length)
+        : 0;
 
     return (
         <View style={styles.container}>
@@ -37,20 +40,15 @@ export const HabitsScreen = () => {
                     </Card>
                     <Card style={styles.statCard}>
                         <CheckCircle size={24} color="#10B981" />
-                        <Text style={styles.statNum}>85%</Text>
-                        <Text style={styles.statLabel}>Hoje</Text>
+                        <Text style={styles.statNum}>{completedToday}</Text>
+                        <Text style={styles.statLabel}>Concluídos</Text>
                     </Card>
                     <Card style={styles.statCard}>
                         <TrendingUp size={24} color="#F59E0B" />
-                        <Text style={styles.statNum}>12</Text>
-                        <Text style={styles.statLabel}>Streak</Text>
+                        <Text style={styles.statNum}>{averageProgress}%</Text>
+                        <Text style={styles.statLabel}>Progresso Médio</Text>
                     </Card>
                 </View>
-
-                {/* Chart */}
-                <Card>
-                    <ProgressChart title="Consistência Semanal" data={weeklyData} labels={weeklyLabels} color="#10B981" />
-                </Card>
 
                 {/* Habits List */}
                 <Text style={styles.sectionTitle}>HOJE</Text>
@@ -68,9 +66,14 @@ export const HabitsScreen = () => {
                                 {h.current >= h.target ? <CheckCircle size={20} color="#fff" /> : <Plus size={20} color={h.color} />}
                             </TouchableOpacity>
                         </View>
-                        <ProgressBar progress={(h.current / h.target) * 100} color={h.color} />
+                        <ProgressBar progress={(h.current / (h.target > 0 ? h.target : 1)) * 100} color={h.color} />
                     </Card>
                 ))}
+                {habits.length === 0 && (
+                    <Card style={styles.emptyCard}>
+                        <Text style={styles.emptyText}>Nenhum hábito cadastrado ainda.</Text>
+                    </Card>
+                )}
 
             </ScrollView>
 
@@ -99,4 +102,6 @@ const styles = StyleSheet.create({
     habitMeta: { fontSize: 12, color: '#64748b' },
     checkBtn: { width: 32, height: 32, borderRadius: 16, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
     checkBtnDone: { backgroundColor: '#10B981', borderColor: '#10B981' },
+    emptyCard: { padding: 20, alignItems: 'center' },
+    emptyText: { color: '#94a3b8' },
 });

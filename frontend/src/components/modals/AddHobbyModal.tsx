@@ -17,16 +17,17 @@ const CATEGORIES = [
 ];
 
 export const AddHobbyModal = ({ visible, onClose }: AddHobbyModalProps) => {
-    const { addHobby } = useApp();
+    const { addHobby, currentUser } = useApp();
 
     const [title, setTitle] = useState('');
     const [category, setCategory] = useState('diy');
     const [note, setNote] = useState('');
 
     const handleSave = () => {
-        if (!title.trim()) return;
+        if (!title.trim() || !currentUser) return;
 
         addHobby({
+            userId: currentUser.id,
             title: title.trim(),
             category: category as any,
             progress: 0,

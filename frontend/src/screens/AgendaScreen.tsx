@@ -8,6 +8,7 @@ import { Badge } from '../components/ui/Badge';
 import { FAB } from '../components/ui/FAB';
 import { AddEventModal } from '../components/modals/AddEventModal';
 import { AddTaskModal } from '../components/modals/AddTaskModal';
+import { toIsoDate } from '../utils/date';
 
 // Setup Portuguese Locale
 LocaleConfig.locales['pt-br'] = {
@@ -27,21 +28,15 @@ export const AgendaScreen = () => {
     const [selectedDate, setSelectedDate] = useState(today);
     const [showAddEvent, setShowAddEvent] = useState(false);
 
+    const getEventIsoDate = (rawDate?: string) => toIsoDate(rawDate) ?? '';
+
     // Generate Marked Dates for Calendar
     const markedDates = useMemo(() => {
         const marks: any = {};
 
         events.forEach(ev => {
-            let isoDate = '';
-            if (ev.date.includes('/')) {
-                const parts = ev.date.split('/');
-                const year = parts.length === 3 ? parts[2] : new Date().getFullYear();
-                const month = parts[1];
-                const day = parts[0];
-                isoDate = `${year}-${month}-${day}`;
-            } else {
-                isoDate = ev.date;
-            }
+            const isoDate = getEventIsoDate(ev.date);
+            if (!isoDate) return;
 
             if (!marks[isoDate]) {
                 marks[isoDate] = { dots: [] };
@@ -65,17 +60,7 @@ export const AgendaScreen = () => {
     }, [events, selectedDate]);
 
     const selectedEvents = events.filter(ev => {
-        let isoDate = '';
-        if (ev.date.includes('/')) {
-            const parts = ev.date.split('/');
-            const year = parts.length === 3 ? parts[2] : new Date().getFullYear();
-            const month = parts[1];
-            const day = parts[0];
-            isoDate = `${year}-${month}-${day}`;
-        } else {
-            isoDate = ev.date;
-        }
-        return isoDate === selectedDate;
+        return getEventIsoDate(ev.date) === selectedDate;
     });
 
     return (

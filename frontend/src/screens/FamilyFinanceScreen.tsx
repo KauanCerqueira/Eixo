@@ -63,10 +63,12 @@ export const FamilyFinanceScreen = () => {
                 </View>
 
                 {featuredDebts.map(debt => {
-                    const progress = (debt.paidInstallments / debt.totalInstallments) * 100;
+                    const safeInstallments = debt.totalInstallments > 0 ? debt.totalInstallments : 1;
+                    const progress = (debt.paidInstallments / safeInstallments) * 100;
                     const remainingMonths = debt.totalInstallments - debt.paidInstallments;
                     const today = new Date();
-                    const endDate = new Date(today.setMonth(today.getMonth() + remainingMonths));
+                    const endDate = new Date(today);
+                    endDate.setMonth(today.getMonth() + remainingMonths);
                     const endDateStr = endDate.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
 
                     return (
@@ -74,7 +76,7 @@ export const FamilyFinanceScreen = () => {
                             <View style={styles.debtHeader}>
                                 <View>
                                     <Text style={styles.debtTitle}>{debt.title}</Text>
-                                    <Text style={styles.debtSubtitle}>Resp: {debt.owner.name}</Text>
+                                    <Text style={styles.debtSubtitle}>Resp: {debt.owner?.name || 'N/A'}</Text>
                                 </View>
                                 <Badge variant="urgent">R$ {debt.installmentAmount}/mês</Badge>
                             </View>

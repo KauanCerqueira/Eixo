@@ -16,7 +16,7 @@ const MEAL_TYPES = [
 ];
 
 export const AddMealModal = ({ visible, onClose }: AddMealModalProps) => {
-    const { addMealLog } = useApp();
+    const { addMealLog, currentUser } = useApp();
 
     const [name, setName] = useState('');
     const [calories, setCalories] = useState('');
@@ -26,9 +26,10 @@ export const AddMealModal = ({ visible, onClose }: AddMealModalProps) => {
     const [mealType, setMealType] = useState('lunch');
 
     const handleSave = () => {
-        if (!name || !calories) return;
+        if (!name || !calories || !currentUser) return;
 
         addMealLog({
+            userId: currentUser.id,
             items: [name],
             type: mealType as any,
             calories: parseInt(calories),

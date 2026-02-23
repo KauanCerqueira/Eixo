@@ -5,6 +5,7 @@ import { Card } from '../ui/Card';
 import { ProgressBar } from '../ui/ProgressBar';
 import { Banknote, Dumbbell, Moon, Utensils, BookOpen, CheckCircle, TrendingUp } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { formatDate, isSameCalendarDay, parseFlexibleDate } from '../../utils/date';
 
 const { width } = Dimensions.get('window');
 
@@ -24,6 +25,7 @@ export const PersonalDashboard = () => {
         habits, incrementHabit,
         personalBalance, personalFinance,
         workouts,
+        meals,
         cycleLog, userSettings,
         studySessions
     } = useApp();
@@ -37,15 +39,47 @@ export const PersonalDashboard = () => {
         .filter(t => t.type === 'expense')
         .reduce((acc, t) => acc + t.amount, 0);
 
-    // Calc Habits
-    const completedHabits = habits.filter(h => h.current >= h.target).length;
-    const progressHabits = habits.length > 0 ? (completedHabits / habits.length) * 100 : 0;
-
     // Calc Workout
-    const lastWorkout = workouts[workouts.length - 1];
+    const lastWorkout = workouts
+        .slice()
+        .sort((a, b) => {
+            const da = parseFlexibleDate(a.date)?.getTime() ?? 0;
+            const db = parseFlexibleDate(b.date)?.getTime() ?? 0;
+            return db - da;
+        })[0];
 
     // Calc Cycle
-    const cycleText = userSettings.trackCycle ? '12 dias' : 'Off'; // Mock value as in CycleScreen
+    const sortedCycleDates = cycleLog
+        .map(entry => parseFlexibleDate(entry.date))
+        .filter((date): date is Date => !!date)
+        .sort((a, b) => a.getTime() - b.getTime());
+
+    const cycleText = (() => {
+        if (!userSettings.trackCycle) return 'Off';
+        if (sortedCycleDates.length < 2) return 'Sem dados';
+
+        const intervals: number[] = [];
+        for (let i = 1; i < sortedCycleDates.length; i++) {
+            const days = Math.round((sortedCycleDates[i].getTime() - sortedCycleDates[i - 1].getTime()) / (1000 * 60 * 60 * 24));
+            if (days > 0 && days < 90) intervals.push(days);
+        }
+
+        if (intervals.length === 0) return 'Sem dados';
+
+        const avgCycleDays = Math.round(intervals.reduce((sum, days) => sum + days, 0) / intervals.length);
+        const lastPeriod = sortedCycleDates[sortedCycleDates.length - 1];
+        const nextPeriod = new Date(lastPeriod);
+        nextPeriod.setDate(nextPeriod.getDate() + avgCycleDays);
+
+        const daysLeft = Math.max(0, Math.round((nextPeriod.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+        return `${daysLeft} dias`;
+    })();
+
+    // Calc Diet
+    const todayIso = new Date().toISOString();
+    const caloriesToday = meals
+        .filter(m => isSameCalendarDay(m.date, todayIso))
+        .reduce((acc, meal) => acc + (meal.calories || 0), 0);
 
     return (
         <View style={styles.container}>
@@ -98,7 +132,7 @@ export const PersonalDashboard = () => {
                 )}
                 <StatBox
                     icon={<Utensils size={20} color="#EC4899" />}
-                    value="1.8k"
+                    value={`${Math.round(caloriesToday)}`}
                     label="Kcal Hoje"
                     color="#EC4899"
                     onPress={() => navigation.navigate('Diet')}
@@ -136,7 +170,7 @@ export const PersonalDashboard = () => {
                     </View>
                     <View>
                         <Text style={styles.activityTitle}>{lastWorkout.name}</Text>
-                        <Text style={styles.activityDate}>Ontem • {lastWorkout.durationMinutes} min</Text>
+                        <Text style={styles.activityDate}>{formatDate(lastWorkout.date)} • {lastWorkout.durationMinutes} min</Text>
                     </View>
                 </Card>
             ) : (
