@@ -29,60 +29,61 @@ O nome "Eixo" representa o centro em torno do qual a família gira - um ponto de
 
 ### 👨‍👩‍👧‍👦 Modo Família (NÓS)
 
-#### 📋 Tarefas Domésticas
-- Criação e atribuição de tarefas recorrentes
-- Rotação automática de responsáveis
-- Sistema de pontos por conclusão
-- Bônus por completar antes do prazo
+#### 📋 Tarefas Inteligentes
+- Tarefas de **rotina** e **esporádicas**
+- Frequência diária/semanal/mensal ou data específica
+- Distribuição **automática** (rotação) ou **manual** por calendário
+- Definição de ordem inicial dos responsáveis
+- Pontuação por tarefa, conclusão rápida e atualização de XP/streak
 
-#### 💰 Finanças Familiares
-- **Despesas** - Registro com divisão entre membros
-- **Receitas** - Controle de entradas
-- **Dívidas** - Parcelamentos com acompanhamento
-- **Assinaturas** - Netflix, Spotify, etc.
-- **Metas** - Poupança para objetivos em comum
+#### 💰 Finanças da Casa
+- **Despesas** com rateio entre membros
+- **Receitas** por responsável
+- **Dívidas** com parcelamento, progresso e ação de pagamento
+- **Assinaturas** recorrentes com vencimento
+- **Metas familiares** (financeiras ou gerais) com contribuições, notas e histórico
 
-#### 🛒 Lista de Compras
-- Lista compartilhada em tempo real
-- Marcar itens como comprados
-- Quem adicionou cada item
+#### 📅 Agenda Compartilhada
+- Eventos familiares e pessoais
+- Criação, edição e exclusão de eventos
+- Campos de data, hora, local, descrição e tipo
 
-#### 📅 Agenda Familiar
-- Eventos e compromissos da família
-- Sincronização entre todos
+#### 🛒 Compras e Mural
+- Lista de compras com controle em tempo real e autoria dos itens
+- Mural da família com avisos normais e **urgentes**
+- Exclusão de avisos pelo autor
+
+#### 👥 Gestão da Família
+- Cadastro de novos membros pelo app (nome + PIN)
+- Papéis familiares: **master**, **admin** e **member**
+- Edição de relação familiar (ex.: Pai, Mãe, Filho)
+- Remoção de membros com regras de permissão
 
 #### 🏆 Gamificação
-- **Pontos** - Ganhe por completar tarefas
-- **XP e Níveis** - Evolua com o tempo
-- **Leaderboard** - Ranking familiar
-- **Recompensas** - Resgate prêmios com pontos
-- **Streaks** - Mantenha a sequência
-
-#### 📢 Mural de Avisos
-- Comunicados para toda família
-- Alertas importantes
+- Pontos, XP, níveis e leaderboard
+- Recompensas resgatáveis por pontos
+- Streak e total de tarefas concluídas
 
 ---
 
 ### 👤 Modo Pessoal (EU)
 
-#### 🧘 Bem-estar
-- **Hábitos** - Rastreie hábitos diários (água, exercício, etc.)
-- **Treinos** - Registro de exercícios
-- **Refeições** - Controle alimentar
-- **Ciclo** - Acompanhamento menstrual (opcional)
-
-#### 📚 Desenvolvimento
-- **Hobbies** - Acompanhe projetos pessoais
-- **Estudos** - Registro de sessões de estudo
+#### 🧭 Dashboard Pessoal
+- Resumo de saldo, treinos, calorias, estudos e ciclo (opcional)
+- Atalhos rápidos para os módulos pessoais
 
 #### 💳 Finanças Pessoais
-- Controle de gastos individuais
-- Separado das finanças da família
+- Lançamentos de entrada/saída com categoria e descrição
+- Saldo individual consolidado
 
-#### 🎁 Lista de Desejos
-- Itens que você quer comprar
-- Acompanhe quanto já economizou
+#### 🧘 Saúde e Rotina
+- **Treinos** com duração, intensidade, calorias e meta semanal
+- **Dieta** com meta de calorias e hidratação
+- **Ciclo** opcional com previsão e histórico de sintomas/fluxo
+
+#### 📚 Desenvolvimento
+- **Estudos** com meta semanal e atalhos (`Pomodoro 25m` e `Foco 50m`)
+- **Hobbies** com progresso percentual e notas/metas
 
 ---
 
@@ -107,7 +108,6 @@ O nome "Eixo" representa o centro em torno do qual a família gira - um ponto de
 | Minha dieta: calorias, hidratação e refeições do dia | <img src="prints/8.jpeg" alt="Dieta pessoal modo EU" width="220" /> |
 | Guia de estudos: sessões, horas e metas semanais | <img src="prints/9.jpeg" alt="Guia de estudos modo EU" width="220" /> |
 | Meus hobbies: projetos pessoais com progresso e metas | <img src="prints/10.jpeg" alt="Hobbies modo EU" width="220" /> |
-| Perfil no modo EU com evolução e recompensas | <img src="prints/11.jpeg" alt="Perfil no modo EU" width="220" /> |
 
 ---
 
@@ -120,9 +120,9 @@ Eixo/
 │       ├── components/     # Componentes reutilizáveis
 │       ├── screens/        # Telas do app
 │       ├── context/        # Estado global (AppContext)
-│       └── services/       # API e SignalR
+│       └── services/       # API, SignalR e Push
 │
-└── backend/                # .NET 8 Web API
+└── backend/                # .NET 10 Web API
     ├── Eixo.Api/          # Controllers e Hubs
     ├── Eixo.Core/         # Entidades de domínio
     └── Eixo.Infrastructure/# EF Core + SQLite
@@ -137,10 +137,11 @@ Eixo/
 - **TypeScript**
 - **Lucide Icons**
 - **SignalR** (real-time)
+- **Expo Notifications** (push)
 - **AsyncStorage** (auth)
 
 ### Backend
-- **.NET 8** Web API
+- **.NET 10** Web API
 - **Entity Framework Core**
 - **SQLite**
 - **SignalR** (WebSockets)
@@ -154,20 +155,27 @@ Eixo/
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | POST | `/api/auth/login` | Login com PIN |
-| POST | `/api/auth/quick-login` | Login rápido |
+| POST | `/api/auth/register` | Cadastro de novo membro |
 | GET | `/api/auth/me` | Usuário atual |
+| GET | `/api/auth/validate` | Validar token |
 
 ### Usuários
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | GET | `/api/users` | Listar usuários |
 | GET | `/api/users/leaderboard` | Ranking |
+| GET | `/api/users/{id}/settings` | Buscar configurações |
+| PUT | `/api/users/{id}/settings` | Atualizar configurações |
+| PUT | `/api/users/{id}/family-profile` | Atualizar papel/relação |
+| DELETE | `/api/users/{id}` | Remover usuário |
 
 ### Tarefas
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | GET | `/api/tasks` | Listar tarefas |
 | POST | `/api/tasks` | Criar tarefa |
+| PUT | `/api/tasks/{id}` | Atualizar tarefa |
+| DELETE | `/api/tasks/{id}` | Excluir tarefa |
 | POST | `/api/tasks/{id}/complete` | Completar |
 
 ### Finanças
@@ -175,23 +183,45 @@ Eixo/
 |--------|------|-----------|
 | GET/POST | `/api/expenses` | Despesas |
 | GET/POST | `/api/incomes` | Receitas |
+| GET/POST | `/api/debts` | Dívidas |
+| POST | `/api/debts/{id}/pay` | Pagar parcela |
+| GET/POST | `/api/subscriptions` | Assinaturas |
 | GET/POST | `/api/goals` | Metas |
 | POST | `/api/goals/{id}/contribute` | Contribuir |
 
-### Outros
-| Módulo | Rota Base |
-|--------|-----------|
-| Compras | `/api/shopping` |
-| Eventos | `/api/events` |
-| Avisos | `/api/notices` |
-| Recompensas | `/api/rewards` |
-| Pessoal | `/api/personal/*` |
+### Agenda, Avisos e Notificações
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET/POST | `/api/shopping` | Lista de compras |
+| PUT | `/api/shopping/{id}/toggle` | Marcar item comprado |
+| GET/POST | `/api/events` | Eventos |
+| PUT | `/api/events/{id}` | Atualizar evento |
+| GET/POST | `/api/notices` | Avisos do mural |
+| GET | `/api/notifications` | Listar notificações |
+| PUT | `/api/notifications/{id}/read` | Marcar notificação lida |
+| POST | `/api/notifications/devices/register` | Registrar token push |
+| POST | `/api/notifications/devices/unregister` | Remover token push |
+
+### Recompensas e Modo EU
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET/POST | `/api/rewards` | Recompensas |
+| POST | `/api/rewards/{id}/redeem` | Resgatar recompensa |
+| GET/POST | `/api/personal/transactions` | Finanças pessoais |
+| GET/POST | `/api/personal/habits` | Hábitos |
+| PUT | `/api/personal/habits/{id}/increment` | Incrementar hábito |
+| GET/POST | `/api/personal/hobbies` | Hobbies |
+| GET/POST | `/api/personal/wishlist` | Lista de desejos |
+| GET/POST | `/api/personal/workouts` | Treinos |
+| GET/POST | `/api/personal/meals` | Refeições |
+| GET/POST | `/api/personal/study` | Sessões de estudo |
+| GET/POST | `/api/personal/cycle` | Ciclo |
 
 ---
 
-## 📱 Notificações em Tempo Real
+## 📱 Notificações em Tempo Real e Push
 
-O Eixo usa **SignalR** para atualizar todos os dispositivos instantaneamente:
+O Eixo usa **SignalR** e **Expo Push** para manter os dispositivos sincronizados:
 
 | Evento | Quando acontece |
 |--------|-----------------|
@@ -201,6 +231,10 @@ O Eixo usa **SignalR** para atualizar todos os dispositivos instantaneamente:
 | `GoalProgress` | Contribuição à meta |
 | `ShoppingItemAdded` | Item adicionado à lista |
 | `NewNotice` | Novo aviso no mural |
+| `DirectNotification` | Notificação direcionada ao usuário |
+
+- Registro de push por dispositivo via `/api/notifications/devices/register`
+- Fallback automático para polling quando o SignalR estiver indisponível
 
 ---
 
@@ -208,8 +242,18 @@ O Eixo usa **SignalR** para atualizar todos os dispositivos instantaneamente:
 
 ### Pré-requisitos
 - Node.js 18+
-- .NET 8 SDK
+- .NET 10 SDK
 - Expo CLI
+
+### Variáveis de Ambiente
+
+#### Backend
+- `EIXO_JWT_KEY` (obrigatória em produção)
+- `EIXO_PUSH_STORE_PATH` (opcional, caminho do store de tokens push)
+
+#### Frontend
+- `EXPO_PUBLIC_API_URL` (URL da API)
+- `EXPO_PUBLIC_USE_SIGNALR=true|false` (habilita/desabilita tempo real)
 
 ### Backend
 ```bash
@@ -224,27 +268,23 @@ npm install
 npx expo start
 ```
 
-### Credenciais Padrão
-- **Usuários:** Ana, João, Maria
-- **PIN:** 1234 (para todos)
+### Primeiro Acesso
+- Não há usuários padrão no banco
+- Na tela de login, toque em **Adicionar** para criar o primeiro perfil
+- O primeiro usuário criado recebe papel **master**
 
 ---
 
 ## 📊 Banco de Dados
 
-O app usa **SQLite** com as seguintes entidades:
+O app usa **SQLite** com entidades para:
 
-- Users, UserSettings
-- RecurringTasks, TaskAssignments
-- Expenses, ExpenseSplits, Incomes
-- Debts, Subscriptions
-- Goals, GoalContributions
-- ShoppingItems, Events
-- Notifications, Notices
-- Rewards, RewardRedemptions
-- PersonalHabits, Hobbies, Wishlist
-- PersonalTransactions, WorkoutSessions
-- MealLogs, StudySessions, CycleDays
+- Usuários e configurações
+- Tarefas e histórico de conclusão
+- Finanças familiares (despesas, receitas, dívidas, assinaturas e metas)
+- Compras, agenda, notificações e avisos
+- Recompensas e resgates
+- Modo pessoal (finanças, hábitos, hobbies, lista de desejos, treinos, refeições, estudos e ciclo)
 
 ---
 
@@ -285,60 +325,55 @@ The name "Eixo" represents the axis around which the family rotates - a balance 
 
 ### 👨‍👩‍👧‍👦 Family Mode (WE)
 
-#### 📋 Household Tasks
-- Create and assign recurring tasks
-- Automatic rotation of assignees
-- Points system for completion
-- Bonus for early completion
+#### 📋 Smart Tasks
+- **Recurring** and **one-off** tasks
+- Automatic assignee rotation or manual calendar scheduling
+- Configurable points and quick completion flow
+- Assignee order and task ownership controls
 
 #### 💰 Family Finances
-- **Expenses** - Track with split between members
-- **Incomes** - Control incoming money
-- **Debts** - Installment tracking
-- **Subscriptions** - Netflix, Spotify, etc.
-- **Goals** - Savings for shared objectives
+- Expenses with member split
+- Incomes by owner
+- Debts with installment payment progress
+- Recurring subscriptions
+- Family goals with contributions, notes, and contribution history
 
-#### 🛒 Shopping List
-- Shared real-time list
-- Mark items as purchased
-- Track who added each item
+#### 📅 Shared Agenda
+- Family and personal events
+- Full CRUD with date, time, location, and description
+- Upcoming and day-based views
 
-#### 📅 Family Calendar
-- Events and family appointments
-- Synced across all devices
+#### 📢 Board, Notifications, and Roles
+- Family board with normal and urgent notices
+- Real-time notifications + in-app toasts
+- Family roles (`master`, `admin`, `member`) and relation editing
+- Controlled user removal permissions
 
 #### 🏆 Gamification
-- **Points** - Earn by completing tasks
-- **XP & Levels** - Evolve over time
-- **Leaderboard** - Family ranking
-- **Rewards** - Redeem prizes with points
-- **Streaks** - Maintain your sequence
-
-#### 📢 Notice Board
-- Family-wide announcements
-- Important alerts
+- Points, XP, levels, leaderboard
+- Reward redemption
+- Streak and completed-task tracking
 
 ---
 
 ### 👤 Personal Mode (ME)
 
-#### 🧘 Wellness
-- **Habits** - Track daily habits (water, exercise, etc.)
-- **Workouts** - Exercise logging
-- **Meals** - Food tracking
-- **Cycle** - Menstrual tracking (optional)
-
-#### 📚 Development
-- **Hobbies** - Track personal projects
-- **Study** - Study session logging
+#### 🧭 Personal Dashboard
+- Unified snapshot of balance, workouts, calories, study sessions, and cycle status
+- Quick navigation to personal modules
 
 #### 💳 Personal Finance
-- Individual expense control
-- Separate from family finances
+- Income/expense entries with category and notes
+- Personal balance and history
 
-#### 🎁 Wishlist
-- Items you want to buy
-- Track savings progress
+#### 🧘 Wellness
+- Workout logs with weekly goal tracking
+- Diet tracking with calorie and hydration goals
+- Optional cycle tracking with prediction and symptoms history
+
+#### 📚 Development
+- Study planner with weekly target and quick actions (`Pomodoro 25m`, `Focus 50m`)
+- Hobby/projects progress with notes
 
 ---
 
@@ -351,9 +386,9 @@ Eixo/
 │       ├── components/     # Reusable components
 │       ├── screens/        # App screens
 │       ├── context/        # Global state (AppContext)
-│       └── services/       # API and SignalR
+│       └── services/       # API, SignalR, and Push
 │
-└── backend/                # .NET 8 Web API
+└── backend/                # .NET 10 Web API
     ├── Eixo.Api/          # Controllers and Hubs
     ├── Eixo.Core/         # Domain entities
     └── Eixo.Infrastructure/# EF Core + SQLite
@@ -368,10 +403,11 @@ Eixo/
 - **TypeScript**
 - **Lucide Icons**
 - **SignalR** (real-time)
+- **Expo Notifications** (push)
 - **AsyncStorage** (auth)
 
 ### Backend
-- **.NET 8** Web API
+- **.NET 10** Web API
 - **Entity Framework Core**
 - **SQLite**
 - **SignalR** (WebSockets)
@@ -383,8 +419,18 @@ Eixo/
 
 ### Prerequisites
 - Node.js 18+
-- .NET 8 SDK
+- .NET 10 SDK
 - Expo CLI
+
+### Environment Variables
+
+#### Backend
+- `EIXO_JWT_KEY` (required in production)
+- `EIXO_PUSH_STORE_PATH` (optional push token store path)
+
+#### Frontend
+- `EXPO_PUBLIC_API_URL` (API URL)
+- `EXPO_PUBLIC_USE_SIGNALR=true|false` (real-time toggle)
 
 ### Backend
 ```bash
@@ -399,9 +445,10 @@ npm install
 npx expo start
 ```
 
-### Default Credentials
-- **Users:** Ana, João, Maria
-- **PIN:** 1234 (for all)
+### First Run
+- No default users are seeded
+- Tap **Add** on login to create the first profile
+- The first created user becomes **master**
 
 ---
 
