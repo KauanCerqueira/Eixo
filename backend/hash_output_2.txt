@@ -1,6 +1,0 @@
-Usando as configura├º├Áes de inicializa├º├úo de Eixo.Api\Properties\launchSettings.json...
-Compilando...
-C:\Reps\Eixo\backend\Eixo.Api\Controllers\AuthController.cs(60,17): error CS0117: "UserDto" n├úo cont├®m uma defini├º├úo para "Streak" [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
-C:\Reps\Eixo\backend\Eixo.Api\Program.cs(19,1): warning CS0162: C├│digo inacess├¡vel detectado [C:\Reps\Eixo\backend\Eixo.Api\Eixo.Api.csproj]
-
-Ocorreu uma falha no build. Corrija os erros de build e execute novamente.
